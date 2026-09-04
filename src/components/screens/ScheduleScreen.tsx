@@ -129,13 +129,13 @@ export const ScheduleScreen: React.FC<ScheduleScreenProps> = ({ onShowToast }) =
 
     const icsContent = `BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//GUADIT//CAVI Route Engine//ES
+PRODID:-//CAVI//CAVI Route Engine//ES
 CALSCALE:GREGORIAN
 METHOD:PUBLISH
-X-WR-CALNAME:GUADIT Cronograma ${MONTH_NAMES[currentMonth]} ${currentYear} - La Guajira
+X-WR-CALNAME:CAVI Cronograma ${MONTH_NAMES[currentMonth]} ${currentYear} - La Guajira
 BEGIN:VEVENT
 SUMMARY:Auditorías de Terreno ${selectedDayName} ${selectedDay} ${MONTH_NAMES[currentMonth]} (${totalDayVisits} visitas)
-DESCRIPTION:Jornada oficial GUADIT Departamental La Guajira - 3 Auditores en terreno (Samuel Ramos, Kleyder Rodriguez, Jose Aponte)
+DESCRIPTION:Jornada oficial CAVI Departamental La Guajira - 3 Auditores en terreno (Samuel Ramos, Kleyder Rodriguez, Jose Aponte)
 DTSTART:${currentYear}${String(currentMonth + 1).padStart(2, '0')}${String(selectedDay).padStart(2, '0')}T130000Z
 DTEND:${currentYear}${String(currentMonth + 1).padStart(2, '0')}${String(selectedDay).padStart(2, '0')}T220000Z
 LOCATION:Departamento de La Guajira, Colombia
@@ -147,7 +147,7 @@ END:VCALENDAR`;
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', `GUADIT_Cronograma_${MONTH_NAMES[currentMonth]}_${currentYear}.ics`);
+    link.setAttribute('download', `CAVI_Cronograma_${MONTH_NAMES[currentMonth]}_${currentYear}.ics`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

@@ -41,7 +41,7 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({
     } else {
       // Create a text/csv or mock download
       const blob = new Blob([
-        `GUADIT Documento Extraído\nArchivo: ${file.name}\nRuta: ${file.path}\nResumen: ${file.summary}\nFecha: ${file.lastModified}\n`
+        `CAVI Documento Extraído\nArchivo: ${file.name}\nRuta: ${file.path}\nResumen: ${file.summary}\nFecha: ${file.lastModified}\n`
       ], { type: 'text/plain;charset=utf-8' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -131,7 +131,7 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({
                     onInjectRoutes(file);
                     onShowToast(
                       'Rutas Sincronizadas',
-                      `Se importaron las paradas de "${file.name}" al plan operativo en vivo de GUADIT.`,
+                      `Se importaron las paradas de "${file.name}" al plan operativo en vivo de CAVI.`,
                       'success'
                     );
                     onClose();
@@ -521,7 +521,7 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({
                       ACTA DE INSPECCIÓN Y AUDITORÍA TÉCNICA
                     </h3>
                     <p className="text-xs text-[#bbcabf]">
-                      Sistema Integrado de Gestión Operacional GUADIT
+                      Sistema Integrado de Gestión Operacional CAVI
                     </p>
                   </div>
                   <span className="px-2.5 py-1 rounded bg-[#3131c0] text-[#c0c1ff] text-[11px] font-mono font-bold">
@@ -597,7 +597,7 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({
                 <div className="grid grid-cols-2 gap-3 text-xs">
                   <div className="p-3 rounded-xl bg-[#131b2e] border border-[#222a3d]">
                     <span className="text-[#bbcabf] text-[10px]">ORGANISMO EMISOR</span>
-                    <p className="font-bold text-[#dae2fd] mt-0.5">{file.extractedMeta?.author || 'Dirección de Operaciones GUADIT'}</p>
+                    <p className="font-bold text-[#dae2fd] mt-0.5">{file.extractedMeta?.author || 'Dirección de Operaciones CAVI'}</p>
                   </div>
                   <div className="p-3 rounded-xl bg-[#131b2e] border border-[#222a3d]">
                     <span className="text-[#bbcabf] text-[10px]">ESTADO DE INDEXACIÓN</span>

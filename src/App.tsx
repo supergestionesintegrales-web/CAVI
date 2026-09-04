@@ -30,7 +30,7 @@ export default function App() {
   // Visual Theme state ('dark' | 'light')
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     try {
-      const saved = localStorage.getItem('guadit_theme');
+      const saved = localStorage.getItem('cavi_theme');
       return saved === 'light' ? 'light' : 'dark';
     } catch {
       return 'dark';
@@ -47,7 +47,7 @@ export default function App() {
         document.documentElement.classList.remove('theme-light');
         document.body.classList.remove('theme-light');
       }
-      localStorage.setItem('guadit_theme', theme);
+      localStorage.setItem('cavi_theme', theme);
     } catch {
       // ignore storage errors
     }

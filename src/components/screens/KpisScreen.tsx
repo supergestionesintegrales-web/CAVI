@@ -11,7 +11,7 @@ export const KpisScreen: React.FC<KpisScreenProps> = ({ auditors, onShowToast })
   const [selectedAuditors, setSelectedAuditors] = useState('Todos (3)');
   const [isExporting, setIsExporting] = useState(false);
 
-  const handleDownloadExcel = (filename = 'GUADIT_Consolidado_Sem42.xlsx') => {
+  const handleDownloadExcel = (filename = 'CAVI_Consolidado_Sem42.xlsx') => {
     setIsExporting(true);
 
     setTimeout(() => {
@@ -410,13 +410,13 @@ export const KpisScreen: React.FC<KpisScreenProps> = ({ auditors, onShowToast })
                 </span>
                 <div className="min-w-0 truncate">
                   <span className="text-xs text-[#dae2fd] truncate block font-medium">
-                    GUADIT_Consolidado_Sem41.xlsx
+                    CAVI_Consolidado_Sem41.xlsx
                   </span>
                   <span className="text-[10px] text-[#bbcabf] block">12 Oct 2024 • 4.2 MB</span>
                 </div>
               </div>
               <button
-                onClick={() => handleDownloadExcel('GUADIT_Consolidado_Sem41.xlsx')}
+                onClick={() => handleDownloadExcel('CAVI_Consolidado_Sem41.xlsx')}
                 aria-label="Descargar Sem 41"
                 className="w-8 h-8 rounded-lg bg-[#222a3d] hover:bg-[#2d3449] flex items-center justify-center text-[#4edea3] active:scale-95 transition-all"
               >
@@ -431,13 +431,13 @@ export const KpisScreen: React.FC<KpisScreenProps> = ({ auditors, onShowToast })
                 </span>
                 <div className="min-w-0 truncate">
                   <span className="text-xs text-[#dae2fd] truncate block font-medium">
-                    GUADIT_Q3_Auditoria_Completa.xlsx
+                    CAVI_Q3_Auditoria_Completa.xlsx
                   </span>
                   <span className="text-[10px] text-[#bbcabf] block">30 Sep 2024 • 11.8 MB</span>
                 </div>
               </div>
               <button
-                onClick={() => handleDownloadExcel('GUADIT_Q3_Auditoria_Completa.xlsx')}
+                onClick={() => handleDownloadExcel('CAVI_Q3_Auditoria_Completa.xlsx')}
                 aria-label="Descargar Q3"
                 className="w-8 h-8 rounded-lg bg-[#222a3d] hover:bg-[#2d3449] flex items-center justify-center text-[#4edea3] active:scale-95 transition-all"
               >

@@ -52,7 +52,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
     }, 900);
   };
 
-  const handleDownloadExcel = (filename = 'GUADIT_Consolidado_Sem42.xlsx') => {
+  const handleDownloadExcel = (filename = 'CAVI_Consolidado_Sem42.xlsx') => {
     setIsExporting(true);
 
     setTimeout(() => {

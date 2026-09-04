@@ -384,7 +384,7 @@ export const INITIAL_MACRO_FILES: MacroFile[] = [
     size: 8900000,
     sizeFormatted: '8.9 MB',
     lastModified: '30/09/2024 05:00 PM',
-    summary: 'Balance trimestral Q3 presentado ante la junta directiva. Comparativa de costos logísticos antes vs. después de la implementación de GUADIT.',
+    summary: 'Balance trimestral Q3 presentado ante la junta directiva. Comparativa de costos logísticos antes vs. después de la implementación de CAVI.',
     extractedMeta: {
       author: 'Gerencia de Transformación Digital',
       slidesCount: 28,
@@ -537,7 +537,7 @@ export async function parseUploadedDirectoryFiles(files: File[]): Promise<MacroF
       summary: `Archivo cargado por el usuario desde la estructura de carpetas (${relPath}).`,
       rawFile: file,
       extractedMeta: {
-        author: 'Usuario GUADIT',
+        author: 'Usuario CAVI',
         tags: [macroFolder, year, month, extension.toUpperCase()],
       },
     };

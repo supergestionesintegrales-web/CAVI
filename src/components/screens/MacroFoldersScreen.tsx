@@ -41,7 +41,7 @@ export const MacroFoldersScreen: React.FC<MacroFoldersScreenProps> = ({
   const [selectedAuditors, setSelectedAuditors] = useState('Todos (3)');
   const [isExporting, setIsExporting] = useState(false);
 
-  const handleDownloadExcel = (filename = 'GUADIT_Consolidado_Sem42.xlsx') => {
+  const handleDownloadExcel = (filename = 'CAVI_Consolidado_Sem42.xlsx') => {
     setIsExporting(true);
 
     setTimeout(() => {
@@ -174,10 +174,10 @@ export const MacroFoldersScreen: React.FC<MacroFoldersScreenProps> = ({
   };
 
   const handleDownloadStructureGuide = () => {
-    const guideContent = `# ESTRUCTURA DE MACRO-CARPETAS PARA GUADIT
+    const guideContent = `# ESTRUCTURA DE MACRO-CARPETAS PARA CAVI
 ==================================================
 
-GUADIT se alimenta de una carpeta madre que organiza tus archivos por MACRO-CARPETAS > AÑOS > MESES:
+CAVI se alimenta de una carpeta madre que organiza tus archivos por MACRO-CARPETAS > AÑOS > MESES:
 
 CarpetaMadre/
 │
@@ -210,7 +210,7 @@ CarpetaMadre/
     │   │   └── Comite_Operaciones_LaGuajira_W42.pptx  <-- Presentaciones PowerPoint
     │   └── 09-Septiembre/
 
-FORMATOS COMPATIBLES LEÍDOS POR GUADIT:
+FORMATOS COMPATIBLES LEÍDOS POR CAVI:
 - Excel: .xlsx, .xls, .xlsm, .csv (Lectura de hojas, tablas de paradas y sincronización a rutas en vivo)
 - PowerPoint: .pptx, .ppt (Lectura de diapositivas, notas de orador y agenda)
 - Power BI: .pbix, .pbit (Esquema de entidades, métricas DAX e indicadores)
@@ -221,7 +221,7 @@ FORMATOS COMPATIBLES LEÍDOS POR GUADIT:
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'GUADIT_Estructura_Carpetas_Guia.txt';
+    a.download = 'CAVI_Estructura_Carpetas_Guia.txt';
     a.click();
     URL.revokeObjectURL(url);
     onShowToast('Guía Descargada', 'Se descargó el manual de organización de macro-carpetas.', 'info');
@@ -631,7 +631,7 @@ FORMATOS COMPATIBLES LEÍDOS POR GUADIT:
           </p>
           <p className="text-[10px] text-[#4edea3] mt-0.5 font-medium flex items-center gap-1">
             <span className="w-1.5 h-1.5 rounded-full bg-[#4edea3]"></span>
-            Sincronizado a GUADIT
+            Sincronizado a CAVI
           </p>
         </div>
       </div>
