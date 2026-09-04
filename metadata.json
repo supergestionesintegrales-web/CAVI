@@ -1,0 +1,6 @@
+{
+  "name": "GUADIT - Route & Audit Intelligence",
+  "description": "Plataforma táctica de auditorías en terreno, optimización de rutas con inteligencia artificial CAVI, cronograma operativo y KPIs ejecutivos.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
