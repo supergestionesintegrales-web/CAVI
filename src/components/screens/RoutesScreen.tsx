@@ -5,6 +5,8 @@ import { AddRouteModal } from '../AddRouteModal';
 import { AddFloatingPointModal } from '../AddFloatingPointModal';
 import { GpsTerritoryModal } from '../GpsTerritoryModal';
 import { WeeklyRoutesMatrix } from '../WeeklyRoutesMatrix';
+import { MonthlyRoutesView } from '../MonthlyRoutesView';
+import { AlertPointsAssignmentPool } from '../AlertPointsAssignmentPool';
 import { parseRoutesFile, downloadRoutesTemplate } from '../../utils/routesExcel';
 
 interface RoutesScreenProps {
@@ -13,7 +15,7 @@ interface RoutesScreenProps {
   floatingPoints: FloatingPoint[];
   activeRouteSourceFile?: string;
   onGoToMacros?: () => void;
-  onAssignFloatingPoint: (id: string, auditorName: string) => void;
+  onAssignFloatingPoint: (id: string, auditorName: string, day?: string) => void;
   onAutoAssignAll: () => void;
   onShowToast: (title: string, message: string, type?: 'info' | 'success' | 'alert') => void;
   userRole?: UserRole;
@@ -25,6 +27,7 @@ interface RoutesScreenProps {
   onClearRouteSteps?: () => void;
   onAddFloatingPoint?: (fp: Omit<FloatingPoint, 'id'>) => void;
   onDeleteFloatingPoint?: (id: string) => void;
+  onReloadSampleAlertPoints?: () => void;
 }
 
 export const RoutesScreen: React.FC<RoutesScreenProps> = ({
@@ -43,6 +46,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
   onClearRouteSteps,
   onAddFloatingPoint,
   onDeleteFloatingPoint,
+  onReloadSampleAlertPoints,
 }) => {
   const isAuxiliar = userRole === 'auxiliar';
   const currentAuditor = auditors.find((a) => a.id === activeAuditorId) || auditors[0];
@@ -50,7 +54,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
   const [selectedDay, setSelectedDay] = useState('martes');
   const [selectedZone, setSelectedZone] = useState<'Todas' | 'Norte' | 'Centro' | 'Sur'>('Todas');
   // Lists start collapsed by default as requested
-  const [poolCollapsed, setPoolCollapsed] = useState(true);
+  const [poolCollapsed, setPoolCollapsed] = useState(false);
   const [collapsedAuditors, setCollapsedAuditors] = useState<Record<string, boolean>>(() =>
     auditors.reduce((acc, a) => ({ ...acc, [a.id]: true }), {})
   );
@@ -210,13 +214,26 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="font-headline font-bold text-base sm:text-lg text-[#dae2fd] tracking-tight">
-                {isAuxiliar ? 'Hoja de Ruta Operativa' : 'Asignación y Rutas'}
+                {isAuxiliar ? 'Mi Hoja de Ruta y Cronograma' : 'Rutas y Cronograma'}
               </h1>
+              {floatingPoints.length > 0 && !isAuxiliar && (
+                <button
+                  type="button"
+                  onClick={() => setSelectedDay('alertas')}
+                  className="px-2 py-0.5 rounded-full bg-[#dc2626]/20 text-[#fca5a5] hover:bg-[#dc2626]/30 border border-[#dc2626]/40 text-[11px] font-bold inline-flex items-center gap-1 cursor-pointer transition-colors"
+                  title="Click para ver y asignar puntos con alerta"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#ef4444] animate-ping" />
+                  <span>{floatingPoints.length} alertas por asignar</span>
+                </button>
+              )}
             </div>
             <p className="text-[11px] text-[#bbcabf] mt-0.5 leading-tight">
-              {totalStepsCount > 0
-                ? `${totalStepsCount} paradas reales cargadas · ${completedStepsCount} completadas`
-                : 'Sin paradas cargadas. Agrega paradas reales o importa tu archivo Excel.'}
+              {isAuxiliar
+                ? 'Itinerario de visitas en campo para La Guajira'
+                : totalStepsCount > 0
+                ? `${totalStepsCount} paradas cargadas · ${completedStepsCount} completadas · Asignación de puntos críticos y cronograma unificado`
+                : 'Planificación operativa unificada: asigna puntos críticos (2-3 meses sin visita) a los auditores.'}
             </p>
           </div>
         </div>
@@ -229,29 +246,61 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
             { key: 'miércoles', label: 'Mié' },
             { key: 'jueves', label: 'Jue' },
             { key: 'viernes', label: 'Vie' },
-            { key: 'semana', label: 'Semana (Vista Alterna)' },
-          ].map((day) => {
-            const isSelected = selectedDay === day.key;
+            { key: 'semana', label: 'Semana' },
+            { key: 'mes', label: 'Mes' },
+            ...(!isAuxiliar
+              ? [
+                  {
+                    key: 'alertas',
+                    label: '🚨 Asignar Alertas',
+                    badge: floatingPoints.length,
+                  },
+                ]
+              : []),
+          ].map((item) => {
+            const isSelected = selectedDay === item.key;
             return (
               <button
-                key={day.key}
+                key={item.key}
                 type="button"
                 onClick={() => {
-                  setSelectedDay(day.key);
-                  if (day.key === 'semana') {
+                  setSelectedDay(item.key);
+                  if (item.key === 'semana') {
                     onShowToast('Vista Alterna: Semana', 'Visualizando matriz operativa semanal completa.', 'info');
+                  } else if (item.key === 'mes') {
+                    onShowToast('Vista Mensual de Rutas', 'Visualizando matriz y calendario mensual para La Guajira.', 'info');
+                  } else if (item.key === 'alertas') {
+                    onShowToast('Bolsa de Alertas', 'Visualizando puntos rezagados (2-3 meses) y alertas para asignación.', 'info');
                   }
                 }}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer inline-flex items-center justify-center whitespace-nowrap shrink-0 ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 ${
                   isSelected
-                    ? 'bg-[#0088ff] text-[#ffffff] shadow-sm shadow-[#0088ff]/30'
+                    ? item.key === 'alertas'
+                      ? 'bg-[#dc2626] text-white shadow-sm shadow-[#dc2626]/40'
+                      : 'bg-[#0088ff] text-[#ffffff] shadow-sm shadow-[#0088ff]/30'
+                    : item.key === 'alertas'
+                    ? 'text-[#fca5a5] hover:bg-[#1e293b]'
                     : 'text-[#bbcabf] hover:text-[#dae2fd]'
                 }`}
               >
-                {day.key === 'semana' && (
-                  <span className="material-symbols-outlined text-[15px] mr-1">view_week</span>
+                {item.key === 'semana' && (
+                  <span className="material-symbols-outlined text-[15px]">view_week</span>
                 )}
-                <span>{day.label}</span>
+                {item.key === 'mes' && (
+                  <span className="material-symbols-outlined text-[15px]">calendar_month</span>
+                )}
+                <span>{item.label}</span>
+                {item.badge !== undefined && item.badge > 0 && (
+                  <span
+                    className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold ${
+                      isSelected
+                        ? 'bg-white text-[#991b1b]'
+                        : 'bg-[#dc2626] text-white'
+                    }`}
+                  >
+                    {item.badge}
+                  </span>
+                )}
               </button>
             );
           })}
@@ -375,8 +424,28 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
         </div>
       </div>
 
-      {/* VISTA ALTERNA SEMANAL O VISTA DIARIA */}
-      {selectedDay === 'semana' ? (
+      {/* VISTA ALERTAS, MENSUAL, SEMANAL O DIARIA */}
+      {selectedDay === 'alertas' ? (
+        <AlertPointsAssignmentPool
+          floatingPoints={floatingPoints}
+          auditors={auditors}
+          onAssignPoint={onAssignFloatingPoint}
+          onAutoAssignAll={onAutoAssignAll}
+          onDeletePoint={onDeleteFloatingPoint}
+          onOpenAddModal={() => setIsAddFpOpen(true)}
+          onReloadSampleAlertPoints={onReloadSampleAlertPoints}
+          onShowToast={onShowToast}
+        />
+      ) : selectedDay === 'mes' ? (
+        <MonthlyRoutesView
+          steps={steps}
+          auditors={auditors}
+          onSelectDay={(day) => setSelectedDay(day)}
+          onOpenAddStep={handleOpenAddStep}
+          onOpenGpsModal={() => setIsGpsModalOpen(true)}
+          onShowToast={onShowToast}
+        />
+      ) : selectedDay === 'semana' ? (
         <WeeklyRoutesMatrix
           steps={steps}
           auditors={auditors}
@@ -473,14 +542,14 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="text-sm font-bold text-white truncate">
+                          <h3 className="text-sm font-bold text-slate-900 dark:text-white truncate">
                             {aud.name}
                           </h3>
-                          <span className="px-2 py-0.5 rounded-md bg-[#131b2e] text-[#0088ff] text-[10px] font-bold">
+                          <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-[#131b2e] text-[#0088ff] text-[10px] font-bold border border-slate-200 dark:border-transparent">
                             Zona {aud.zone}
                           </span>
                         </div>
-                        <p className="text-xs text-[#cbd5e1] font-mono mt-0.5">
+                        <p className="text-xs text-slate-600 dark:text-[#cbd5e1] font-mono mt-0.5">
                           ID: {aud.code} · {aud.statusText || 'Listo para ruta'}
                         </p>
                       </div>
@@ -490,16 +559,16 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                       <span className="font-mono text-xs font-bold text-[#0088ff]">
                         {completedCount} / {targetCount}
                       </span>
-                      <p className="text-[10px] text-[#cbd5e1] font-semibold">
+                      <p className="text-[10px] text-slate-600 dark:text-[#cbd5e1] font-semibold">
                         {progressPercent}% Cuota
                       </p>
                     </div>
                   </div>
 
                   {/* Format Breakdown & Add Stop Button */}
-                  <div className="flex items-center justify-between gap-2 flex-wrap text-xs bg-[#131b2e] p-2.5 rounded-xl">
+                  <div className="flex items-center justify-between gap-2 flex-wrap text-xs bg-slate-50 dark:bg-[#131b2e] border border-slate-200 dark:border-transparent p-2.5 rounded-xl">
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="text-[11px] text-[#cbd5e1] font-semibold">Formatos:</span>
+                      <span className="text-[11px] text-slate-700 dark:text-[#cbd5e1] font-semibold">Formatos:</span>
                       <span className="px-2 py-0.5 rounded bg-[#065f46] text-white font-bold text-[10px]">
                         {cdaCount} CDA
                       </span>
@@ -528,24 +597,24 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                     <button
                       type="button"
                       onClick={() => toggleAuditorCollapsed(aud.id)}
-                      className="w-full flex items-center justify-between p-2.5 rounded-xl bg-[#131b2e] hover:bg-[#1e293b] transition-all cursor-pointer group text-left"
+                      className="w-full flex items-center justify-between p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 dark:bg-[#131b2e] dark:hover:bg-[#1e293b] border border-slate-200 dark:border-transparent transition-all cursor-pointer group text-left"
                       title={isCollapsed ? 'Click para desplegar paradas' : 'Click para plegar paradas'}
                     >
                       <div className="flex items-center gap-2 min-w-0">
-                        <span className="w-6 h-6 rounded-lg bg-[#1e293b] group-hover:bg-[#222a3d] flex items-center justify-center text-[#0088ff] shrink-0 transition-colors">
+                        <span className="w-6 h-6 rounded-lg bg-slate-200 dark:bg-[#1e293b] group-hover:bg-slate-300 dark:group-hover:bg-[#222a3d] flex items-center justify-center text-[#0088ff] shrink-0 transition-colors">
                           <span className="material-symbols-outlined text-[18px]">
                             {isCollapsed ? 'expand_more' : 'expand_less'}
                           </span>
                         </span>
-                        <span className="text-[11px] font-bold uppercase tracking-wider text-white truncate">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-900 dark:text-white truncate">
                           Secuencia Inteligente de Paradas
                         </span>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        <span className="text-[11px] text-[#38bdf8] font-mono font-bold">
+                        <span className="text-[11px] text-[#0088ff] dark:text-[#38bdf8] font-mono font-bold">
                           {auditorSteps.length} {auditorSteps.length === 1 ? 'parada' : 'paradas'}
                         </span>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#1e293b] text-[#cbd5e1]">
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-200 dark:bg-[#1e293b] text-slate-800 dark:text-[#cbd5e1]">
                           {isCollapsed ? 'Desplegar' : 'Plegar'}
                         </span>
                       </div>
@@ -592,10 +661,10 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                                 key={step.id}
                                 className={`flex items-center gap-3 p-3 rounded-xl transition-colors ${
                                   isCurrent
-                                    ? 'bg-[#1e293b] border-l-4 border-l-[#f59e0b] shadow-sm'
+                                    ? 'bg-amber-50/70 dark:bg-[#1e293b] border-l-4 border-l-[#f59e0b] border border-amber-200 dark:border-transparent shadow-sm'
                                     : isCompleted
-                                    ? 'bg-[#131b2e] border-l-4 border-l-[#10b981]'
-                                    : 'bg-[#131b2e] hover:bg-[#1e293b]'
+                                    ? 'bg-emerald-50/60 dark:bg-[#131b2e] border-l-4 border-l-[#10b981] border border-emerald-200 dark:border-transparent'
+                                    : 'bg-white hover:bg-slate-50 dark:bg-[#131b2e] dark:hover:bg-[#1e293b] border border-slate-200 dark:border-transparent shadow-xs'
                                 }`}
                               >
                                 {/* Step Number or Status Icon */}
@@ -605,10 +674,10 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                                   title="Cambiar estado de visita"
                                   className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-xs font-bold transition-all cursor-pointer ${
                                     isCompleted
-                                      ? 'bg-[#064e3b] text-[#34d399]'
+                                      ? 'bg-emerald-600 text-white shadow-sm'
                                       : isCurrent
-                                      ? 'bg-[#b45309] text-white animate-pulse'
-                                      : 'bg-[#1e293b] text-white hover:bg-[#2d3a58]'
+                                      ? 'bg-amber-500 text-white shadow-sm animate-pulse'
+                                      : 'bg-slate-200 hover:bg-slate-300 dark:bg-[#1e293b] text-slate-800 dark:text-white dark:hover:bg-[#2d3a58]'
                                   }`}
                                 >
                                   {isCompleted ? (
@@ -621,7 +690,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                                 </button>
 
                                 {/* Time */}
-                                <span className="font-mono text-xs font-bold text-[#f1f5f9] shrink-0 w-11">
+                                <span className="font-mono text-xs font-bold text-slate-800 dark:text-[#f1f5f9] shrink-0 w-11">
                                   {step.time}
                                 </span>
 
@@ -640,15 +709,33 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
 
                                 {/* Details: Crystal-clear High Contrast */}
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-xs font-bold text-white truncate leading-tight">
-                                    {step.name}
-                                  </p>
-                                  <p className="text-[11px] text-[#cbd5e1] truncate mt-0.5">
+                                  <div className="flex items-center gap-1.5 flex-wrap">
+                                    <p className="text-xs font-bold text-slate-900 dark:text-white truncate leading-tight">
+                                      {step.name}
+                                    </p>
+                                    {step.daysWithoutVisit && step.daysWithoutVisit >= 60 && (
+                                      <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold inline-flex items-center gap-0.5 ${
+                                        step.daysWithoutVisit >= 90
+                                          ? 'bg-red-100 text-red-800 dark:bg-[#dc2626]/30 dark:text-[#fca5a5] border border-red-200 dark:border-[#dc2626]/50'
+                                          : 'bg-amber-100 text-amber-900 dark:bg-[#d97706]/30 dark:text-[#fde68a] border border-amber-200 dark:border-[#d97706]/50'
+                                      }`}>
+                                        <span className="material-symbols-outlined text-[10px]">schedule</span>
+                                        <span>{step.daysWithoutVisit}d sin visita</span>
+                                      </span>
+                                    )}
+                                    {step.alertCategory && step.alertCategory !== 'ninguna' && (
+                                      <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-red-100 text-red-800 dark:bg-[#dc2626]/30 dark:text-[#fca5a5] border border-red-200 dark:border-[#dc2626]/50 inline-flex items-center gap-0.5">
+                                        <span className="material-symbols-outlined text-[10px]">warning</span>
+                                        <span>Alerta</span>
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p className="text-[11px] text-slate-600 dark:text-[#cbd5e1] truncate mt-0.5">
                                     {step.address}
                                   </p>
-                                  {step.notes && (
-                                    <p className="text-[10px] text-[#a7f3d0] font-medium truncate mt-0.5">
-                                      {step.notes}
+                                  {(step.notes || step.alertDescription) && (
+                                    <p className="text-[10px] text-amber-800 dark:text-[#fcd34d] font-semibold truncate mt-0.5">
+                                      {step.alertDescription || step.notes}
                                     </p>
                                   )}
                                 </div>
@@ -660,10 +747,10 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                                     onClick={() => onToggleStepStatus && onToggleStepStatus(step.id)}
                                     className={`px-2 py-0.5 rounded text-[10px] font-bold transition-colors cursor-pointer ${
                                       isCompleted
-                                        ? 'bg-[#064e3b] text-[#6ee7b7]'
+                                        ? 'bg-emerald-100 text-emerald-800 dark:bg-[#064e3b] dark:text-[#6ee7b7]'
                                         : isCurrent
-                                        ? 'bg-[#78350f] text-[#fcd34d]'
-                                        : 'bg-[#1e293b] text-[#93c5fd]'
+                                        ? 'bg-amber-100 text-amber-800 dark:bg-[#78350f] dark:text-[#fcd34d]'
+                                        : 'bg-slate-100 text-slate-700 dark:bg-[#1e293b] dark:text-[#93c5fd] border border-slate-200 dark:border-transparent'
                                     }`}
                                   >
                                     {isCompleted ? 'Completada' : isCurrent ? 'En Curso' : 'Pendiente'}
@@ -673,7 +760,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                                     <button
                                       type="button"
                                       onClick={() => onDeleteRouteStep(step.id)}
-                                      className="w-6 h-6 rounded-md hover:bg-[#7f1d1d]/40 text-[#cbd5e1] hover:text-[#f87171] flex items-center justify-center transition-colors cursor-pointer"
+                                      className="w-6 h-6 rounded-md hover:bg-red-50 text-slate-500 hover:text-red-600 dark:hover:bg-[#7f1d1d]/40 dark:text-[#cbd5e1] dark:hover:text-[#f87171] flex items-center justify-center transition-colors cursor-pointer"
                                       title="Eliminar parada"
                                     >
                                       <span className="material-symbols-outlined text-[15px]">delete</span>
@@ -765,26 +852,26 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
               </div>
 
               {/* Auditor Field Metrics */}
-              <div className="grid grid-cols-2 gap-2 bg-[#131b2e] p-3 rounded-xl">
+              <div className="grid grid-cols-2 gap-2 bg-slate-50 dark:bg-[#131b2e] border border-slate-200 dark:border-transparent p-3 rounded-xl">
                 <div>
-                  <span className="text-[10px] text-[#cbd5e1] uppercase block font-bold">Paradas Asignadas</span>
-                  <span className="text-base font-bold text-white font-mono">
+                  <span className="text-[10px] text-slate-700 dark:text-[#cbd5e1] uppercase block font-bold">Paradas Asignadas</span>
+                  <span className="text-base font-bold text-slate-900 dark:text-white font-mono">
                     {steps.filter((s) => s.auditorId === currentAuditor.id && s.status === 'completed').length} /{' '}
                     {steps.filter((s) => s.auditorId === currentAuditor.id).length}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-[#cbd5e1] uppercase block font-bold">Eficacia</span>
+                  <span className="text-[10px] text-slate-700 dark:text-[#cbd5e1] uppercase block font-bold">Eficacia</span>
                   <span className="text-base font-bold text-[#0088ff] font-mono">100% SLA</span>
                 </div>
               </div>
 
-              <div className="p-3 rounded-xl bg-[#131b2e] space-y-1.5">
-                <div className="flex items-center gap-1.5 text-xs text-[#38bdf8] font-bold">
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#131b2e] border border-slate-200 dark:border-transparent space-y-1.5">
+                <div className="flex items-center gap-1.5 text-xs text-[#0088ff] dark:text-[#38bdf8] font-bold">
                   <span className="material-symbols-outlined text-[16px]">info</span>
                   <span>Modo Operativo de Campo</span>
                 </div>
-                <p className="text-[11px] text-[#cbd5e1] leading-relaxed">
+                <p className="text-[11px] text-slate-700 dark:text-[#cbd5e1] leading-relaxed">
                   Confirma cada visita usando el botón de estado en la secuencia. Tu reporte se sincroniza en tiempo real con la central.
                 </p>
               </div>
@@ -824,37 +911,40 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
             </div>
           ) : (
             <>
-              {/* SMART ROUTE PLANNER ACCORDION & FLOATING POOL */}
-              <div className="flex flex-col gap-2.5 bg-[#171f33] p-4 rounded-2xl border border-[#222a3d] shadow-sm">
+              {/* SMART ROUTE PLANNER & CRITICAL ALERT POINTS PANEL */}
+              <div className="flex flex-col gap-2.5 bg-white dark:bg-[#171f33] p-4 rounded-2xl border border-slate-200 dark:border-[#222a3d] shadow-sm">
                 <div className="flex items-center justify-between">
                   <div
                     onClick={() => setPoolCollapsed(!poolCollapsed)}
                     className="cursor-pointer select-none flex-1 min-w-0"
                     title={poolCollapsed ? 'Click para desplegar lista' : 'Click para plegar lista'}
                   >
-                    <h2 className="font-headline font-bold text-sm text-white flex items-center gap-2">
-                      <span>Puntos Flotantes sin Asignar</span>
-                      <span className="w-5 h-5 rounded-full bg-[#f59e0b] text-[#451a03] text-[10px] font-bold flex items-center justify-center">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#ef4444] animate-pulse" />
+                      <h2 className="font-headline font-bold text-sm text-slate-900 dark:text-white truncate">
+                        Puntos con Alertas / Rezagados
+                      </h2>
+                      <span className="px-2 py-0.5 rounded-full bg-red-100 dark:bg-[#dc2626]/30 text-red-800 dark:text-[#fca5a5] border border-red-200 dark:border-[#dc2626]/50 text-[11px] font-mono font-bold">
                         {floatingPoints.length}
                       </span>
-                    </h2>
-                    <p className="text-[11px] text-[#cbd5e1]">
-                      Puntos pendientes de despacho en La Guajira
+                    </div>
+                    <p className="text-[11px] text-slate-600 dark:text-[#cbd5e1] mt-0.5">
+                      PDVs con 2-3 meses sin visita o alertas operativas
                     </p>
                   </div>
                   <div className="flex items-center gap-1.5 shrink-0">
                     <button
                       type="button"
                       onClick={() => setIsAddFpOpen(true)}
-                      className="p-1.5 rounded-lg bg-[#1e293b] hover:bg-[#2d3a58] text-[#fcd34d] transition-colors cursor-pointer"
-                      title="Agregar punto flotante"
+                      className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-[#1e293b] dark:hover:bg-[#2d3a58] text-amber-700 dark:text-[#fcd34d] border border-slate-200 dark:border-transparent transition-colors cursor-pointer"
+                      title="Registrar punto con alerta manualmente"
                     >
-                      <span className="material-symbols-outlined text-[18px]">add</span>
+                      <span className="material-symbols-outlined text-[18px]">add_alert</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => setPoolCollapsed(!poolCollapsed)}
-                      className="px-2 py-1 rounded-lg bg-[#1e293b] hover:bg-[#2d3a58] text-[#cbd5e1] hover:text-white transition-colors cursor-pointer flex items-center gap-1 text-xs font-bold"
+                      className="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-[#1e293b] dark:hover:bg-[#2d3a58] text-slate-800 dark:text-[#cbd5e1] border border-slate-200 dark:border-transparent transition-colors cursor-pointer flex items-center gap-1 text-xs font-bold"
                       title={poolCollapsed ? 'Desplegar lista' : 'Plegar lista'}
                     >
                       <span className="text-[10px]">{poolCollapsed ? 'Desplegar' : 'Plegar'}</span>
@@ -865,81 +955,140 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                   </div>
                 </div>
 
+                {/* Quick Link to full assignment board */}
+                <button
+                  type="button"
+                  onClick={() => setSelectedDay('alertas')}
+                  className="w-full py-1.5 px-2.5 rounded-xl bg-red-50 hover:bg-red-100 dark:bg-[#dc2626]/15 dark:hover:bg-[#dc2626]/25 border border-red-200 dark:border-[#dc2626]/30 text-red-800 dark:text-[#fca5a5] text-[11px] font-bold flex items-center justify-between transition-colors cursor-pointer"
+                >
+                  <span className="flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[15px]">crisis_alert</span>
+                    <span>Abrir Centro Completo de Asignación</span>
+                  </span>
+                  <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+                </button>
+
                 {!poolCollapsed && (
-                  <div className="flex flex-col gap-2 transition-all max-h-[360px] overflow-y-auto pr-1">
+                  <div className="flex flex-col gap-2 transition-all max-h-[380px] overflow-y-auto pr-1">
                     {floatingPoints.length === 0 ? (
-                      <div className="bg-[#131b2e] p-4 rounded-xl text-center flex flex-col items-center gap-1.5">
-                        <div className="w-9 h-9 rounded-full bg-[#0088ff]/20 text-[#38bdf8] flex items-center justify-center">
-                          <span className="material-symbols-outlined text-[20px]">task_alt</span>
+                      <div className="bg-slate-50 dark:bg-[#131b2e] border border-slate-200 dark:border-transparent p-4 rounded-xl text-center flex flex-col items-center gap-1.5">
+                        <div className="w-9 h-9 rounded-full bg-emerald-100 text-emerald-800 dark:bg-[#10b981]/20 dark:text-[#34d399] flex items-center justify-center">
+                          <span className="material-symbols-outlined text-[20px]">verified</span>
                         </div>
-                        <p className="text-xs font-bold text-white">
-                          Bandeja de puntos flotantes limpia
+                        <p className="text-xs font-bold text-slate-900 dark:text-white">
+                          Todos los puntos críticos están asignados
                         </p>
-                        <p className="text-[11px] text-[#cbd5e1]">
-                          No hay puntos flotantes pendientes. Agrega nuevos con el botón (+) si requieres despachar visitas adicionales.
+                        <p className="text-[11px] text-slate-600 dark:text-[#cbd5e1]">
+                          No quedan PDVs rezagados en la bolsa. Puedes agregar nuevos o recargar ejemplos.
                         </p>
+                        {onReloadSampleAlertPoints && (
+                          <button
+                            type="button"
+                            onClick={onReloadSampleAlertPoints}
+                            className="mt-1 text-xs text-[#0088ff] hover:underline font-bold"
+                          >
+                            Recargar puntos críticos de ejemplo
+                          </button>
+                        )}
                       </div>
                     ) : (
-                      floatingPoints.map((fp) => (
-                        <div
-                          key={fp.id}
-                          className="bg-[#131b2e] hover:bg-[#1e293b] p-3 rounded-xl shadow-sm flex flex-col gap-2 border-l-4 border-l-[#f59e0b] transition-colors"
-                        >
-                          <div className="flex items-center justify-between gap-2">
-                            <div className="flex items-center gap-1.5 min-w-0">
-                              <span
-                                className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                                  fp.format === 'CM'
-                                    ? 'bg-[#0284c7] text-white'
-                                    : fp.format === 'PF'
-                                    ? 'bg-[#7c3aed] text-white'
-                                    : 'bg-[#0088ff] text-white'
-                                }`}
-                              >
-                                {fp.code}
-                              </span>
-                              <span className="text-xs font-bold text-white truncate">
-                                {fp.name}
+                      floatingPoints.map((fp) => {
+                        const isHighMora = (fp.daysWithoutVisit || 0) >= 60;
+                        const isSevereMora = (fp.daysWithoutVisit || 0) >= 90;
+
+                        return (
+                          <div
+                            key={fp.id}
+                            className="bg-white hover:bg-slate-50 dark:bg-[#131b2e] dark:hover:bg-[#1e293b] p-3 rounded-xl shadow-xs flex flex-col gap-2 border border-slate-200 border-l-4 border-l-[#ef4444] dark:border-transparent dark:border-l-4 dark:border-l-[#ef4444] transition-colors"
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="flex items-center gap-1.5 min-w-0">
+                                <span
+                                  className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                                    fp.format === 'CM'
+                                      ? 'bg-[#0284c7] text-white'
+                                      : fp.format === 'PF'
+                                      ? 'bg-[#7c3aed] text-white'
+                                      : 'bg-[#0088ff] text-white'
+                                  }`}
+                                >
+                                  {fp.code}
+                                </span>
+                                <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                                  {fp.name}
+                                </span>
+                              </div>
+                              <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-600 text-white font-bold shadow-xs">
+                                {fp.priority}
                               </span>
                             </div>
-                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#78350f] text-[#fde68a] font-bold">
-                              {fp.priority}
-                            </span>
-                          </div>
 
-                          <p className="text-[11px] text-[#cbd5e1] leading-tight">
-                            {fp.address} · {fp.sla}
-                          </p>
-
-                          {/* Quick Assign Buttons to Real 3 Auditors */}
-                          <div className="flex items-center justify-between pt-1 border-t border-[#222a3d]">
-                            <span className="text-[10px] text-[#cbd5e1] font-semibold">Asignar a:</span>
-                            <div className="flex items-center gap-1">
-                              {auditors.map((aud) => (
-                                <button
-                                  key={aud.id}
-                                  type="button"
-                                  onClick={() => onAssignFloatingPoint(fp.id, aud.name)}
-                                  className="px-2 py-0.5 rounded bg-[#1e293b] hover:bg-[#3b82f6] hover:text-white text-[#93c5fd] text-[10px] font-bold transition-all cursor-pointer"
-                                  title={`Asignar a ${aud.name} (${aud.zone})`}
+                            {/* Mora de visitas / Alerta */}
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              {isHighMora && (
+                                <span
+                                  className={`px-2 py-0.5 rounded-md text-[10px] font-bold inline-flex items-center gap-1 ${
+                                    isSevereMora
+                                      ? 'bg-red-100 text-red-800 dark:bg-[#dc2626]/30 dark:text-[#fca5a5] border border-red-200 dark:border-[#dc2626]/50'
+                                      : 'bg-amber-100 text-amber-900 dark:bg-[#d97706]/30 dark:text-[#fde68a] border border-amber-200 dark:border-[#d97706]/50'
+                                  }`}
                                 >
-                                  {aud.name.split(' ')[0]} ({aud.zone[0]})
-                                </button>
-                              ))}
-                              {onDeleteFloatingPoint && (
-                                <button
-                                  type="button"
-                                  onClick={() => onDeleteFloatingPoint(fp.id)}
-                                  className="p-1 rounded hover:bg-[#7f1d1d]/40 text-[#cbd5e1] hover:text-[#f87171] transition-colors cursor-pointer"
-                                  title="Descartar punto"
-                                >
-                                  <span className="material-symbols-outlined text-[13px]">delete</span>
-                                </button>
+                                  <span className="material-symbols-outlined text-[11px]">schedule</span>
+                                  <span>
+                                    {fp.daysWithoutVisit}d sin visita ({isSevereMora ? '>3 meses' : '2-3 meses'})
+                                  </span>
+                                </span>
+                              )}
+                              {fp.zone && (
+                                <span className="px-1.5 py-0.5 rounded text-[10px] bg-slate-100 dark:bg-[#1e293b] text-slate-800 dark:text-[#93c5fd] font-bold border border-slate-200 dark:border-transparent">
+                                  Zona {fp.zone}
+                                </span>
                               )}
                             </div>
+
+                            <p className="text-[11px] text-slate-600 dark:text-[#cbd5e1] leading-tight">
+                              {fp.address} {fp.municipality ? `· ${fp.municipality}` : ''}
+                            </p>
+
+                            {fp.alertDescription && (
+                              <div className="text-[11px] text-red-900 dark:text-[#fcd34d] font-semibold leading-snug bg-red-50 dark:bg-transparent p-1.5 rounded-lg border border-red-200 dark:border-transparent flex items-start gap-1">
+                                <span>⚠️</span>
+                                <span>{fp.alertDescription}</span>
+                              </div>
+                            )}
+
+                            {/* Quick Assign to Auditors for current day */}
+                            <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-[#222a3d]">
+                              <span className="text-[10px] text-slate-800 dark:text-[#cbd5e1] font-bold uppercase">
+                                Asignar a:
+                              </span>
+                              <div className="flex items-center gap-1">
+                                {auditors.map((aud) => (
+                                  <button
+                                    key={aud.id}
+                                    type="button"
+                                    onClick={() => onAssignFloatingPoint(fp.id, aud.name, selectedDay)}
+                                    className="px-2 py-1 rounded-lg bg-slate-100 hover:bg-[#0088ff] hover:text-white dark:bg-[#1e293b] text-slate-800 dark:text-[#93c5fd] text-[10px] font-bold transition-all border border-slate-200 dark:border-transparent cursor-pointer"
+                                    title={`Asignar a ${aud.name} (${aud.zone}) para el día ${selectedDay}`}
+                                  >
+                                    {aud.name.split(' ')[0]} ({aud.zone[0]})
+                                  </button>
+                                ))}
+                                {onDeleteFloatingPoint && (
+                                  <button
+                                    type="button"
+                                    onClick={() => onDeleteFloatingPoint(fp.id)}
+                                    className="p-1 rounded-lg hover:bg-red-50 text-slate-500 hover:text-red-600 dark:hover:bg-[#7f1d1d]/40 dark:text-[#cbd5e1] dark:hover:text-[#f87171] transition-colors cursor-pointer"
+                                    title="Descartar punto"
+                                  >
+                                    <span className="material-symbols-outlined text-[15px]">delete</span>
+                                  </button>
+                                )}
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      ))
+                        );
+                      })
                     )}
                   </div>
                 )}

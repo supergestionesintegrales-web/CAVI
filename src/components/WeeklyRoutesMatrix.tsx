@@ -242,17 +242,17 @@ export const WeeklyRoutesMatrix: React.FC<WeeklyRoutesMatrixProps> = ({
               className="bg-[#171f33] border border-[#222a3d] rounded-2xl overflow-hidden flex flex-col shadow-sm"
             >
               {/* Day Header */}
-              <div className="p-3 bg-[#0f172a] border-b border-[#222a3d] flex items-center justify-between">
+              <div className="p-3 bg-[#0f172a] border-b border-[#222a3d] flex items-center justify-between day-matrix-header" data-dark-header="true">
                 <div>
                   <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-bold text-white uppercase tracking-wider">
+                    <span className="text-xs font-bold !text-white text-white uppercase tracking-wider day-matrix-title">
                       {day.fullLabel}
                     </span>
-                    <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-[#0088ff]/20 text-[#0088ff]">
+                    <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-[#0088ff]/25 !text-[#38bdf8] text-[#38bdf8] border border-[#0088ff]/40 day-matrix-badge">
                       {daySteps.length}
                     </span>
                   </div>
-                  <span className="text-[10px] text-[#94a3b8]">
+                  <span className="text-[10px] !text-[#cbd5e1] text-[#cbd5e1] day-matrix-subtitle">
                     {dayGpsCount} con GPS · {dayCompletedCount} completadas
                   </span>
                 </div>
@@ -263,10 +263,11 @@ export const WeeklyRoutesMatrix: React.FC<WeeklyRoutesMatrixProps> = ({
                     onSelectDay(day.key);
                     onShowToast(`Día ${day.fullLabel}`, `Cambiando a la vista diaria detallada de ${day.fullLabel}.`, 'info');
                   }}
-                  className="px-2 py-1 rounded-lg bg-[#1e293b] hover:bg-[#2d3a58] text-[#38bdf8] text-[10px] font-bold transition-all cursor-pointer border border-[#334155]"
+                  className="px-2.5 py-1 rounded-lg bg-[#1e293b] hover:bg-[#2d3a58] !text-white text-white text-[10px] font-bold transition-all cursor-pointer border border-[#334155] day-matrix-btn flex items-center gap-1 shadow-sm"
                   title={`Abrir vista diaria de ${day.fullLabel}`}
                 >
-                  Ver Día
+                  <span>Ver Día</span>
+                  <span className="material-symbols-outlined text-[12px] !text-[#38bdf8]">arrow_forward</span>
                 </button>
               </div>
 
@@ -331,6 +332,28 @@ export const WeeklyRoutesMatrix: React.FC<WeeklyRoutesMatrixProps> = ({
                         <h4 className="text-xs font-bold text-white leading-tight line-clamp-2">
                           {step.name}
                         </h4>
+
+                        {/* Alert / Days Without Visit Badge */}
+                        {(step.daysWithoutVisit && step.daysWithoutVisit >= 60) || (step.alertCategory && step.alertCategory !== 'ninguna') ? (
+                          <div className="flex items-center gap-1 flex-wrap mt-1">
+                            {step.daysWithoutVisit && step.daysWithoutVisit >= 60 && (
+                              <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold inline-flex items-center gap-1 ${
+                                step.daysWithoutVisit >= 90
+                                  ? 'bg-[#dc2626]/30 text-[#fca5a5] border border-[#dc2626]/50'
+                                  : 'bg-[#d97706]/30 text-[#fde68a] border border-[#d97706]/50'
+                              }`}>
+                                <span className="material-symbols-outlined text-[11px]">schedule</span>
+                                <span>{step.daysWithoutVisit}d sin visita</span>
+                              </span>
+                            )}
+                            {step.alertCategory && step.alertCategory !== 'ninguna' && (
+                              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#dc2626]/30 text-[#fca5a5] border border-[#dc2626]/50 inline-flex items-center gap-1">
+                                <span className="material-symbols-outlined text-[11px]">warning</span>
+                                <span>Alerta</span>
+                              </span>
+                            )}
+                          </div>
+                        ) : null}
 
                         {/* Physical Address */}
                         <p className="text-[11px] text-[#cbd5e1] mt-1 flex items-start gap-1 leading-snug">

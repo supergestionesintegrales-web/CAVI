@@ -100,6 +100,11 @@ export interface RouteStep {
   auditorId?: string;
   auditorName?: string;
   day?: 'lunes' | 'martes' | 'miércoles' | 'jueves' | 'viernes';
+  daysWithoutVisit?: number;
+  lastVisitDate?: string;
+  alertCategory?: 'sin_visita_2_3_meses' | 'critico_mas_3_meses' | 'inventario_discrepancia' | 'precio_no_conforme' | 'sla_vencido' | 'ninguna';
+  alertDescription?: string;
+  zone?: 'Norte' | 'Centro' | 'Sur';
 }
 
 export interface FloatingPoint {
@@ -116,6 +121,11 @@ export interface FloatingPoint {
   priority: 'Urgente' | 'Alta' | 'Media' | 'Baja';
   sla: string;
   details?: string;
+  daysWithoutVisit?: number;
+  lastVisitDate?: string;
+  alertCategory?: 'sin_visita_2_3_meses' | 'critico_mas_3_meses' | 'inventario_discrepancia' | 'precio_no_conforme' | 'sla_vencido' | 'ninguna';
+  alertDescription?: string;
+  zone?: 'Norte' | 'Centro' | 'Sur';
 }
 
 export interface CriticalPoint {

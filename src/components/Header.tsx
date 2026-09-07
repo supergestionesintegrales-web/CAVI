@@ -13,6 +13,8 @@ interface HeaderProps {
   activeAuditorId?: string;
   onSelectAuditor?: (id: string) => void;
   auditors?: Auditor[];
+  theme?: 'dark' | 'light';
+  onToggleTheme?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -26,6 +28,8 @@ export const Header: React.FC<HeaderProps> = ({
   activeAuditorId = 'aud-1',
   onSelectAuditor,
   auditors = [],
+  theme = 'dark',
+  onToggleTheme,
 }) => {
   const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -45,8 +49,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   const allNavItems: { id: TabType; label: string; icon: string; adminOnly?: boolean }[] = [
     { id: 'dashboard-cavi', label: 'Dashboard & KPIs (Admin)', icon: 'auto_awesome_mosaic', adminOnly: true },
-    { id: 'asignacion-rutas', label: isAuxiliar ? 'Mis Rutas de Campo' : 'Asignación de Rutas', icon: 'alt_route' },
-    { id: 'cronograma', label: 'Agenda & Cronograma', icon: 'calendar_today' },
+    { id: 'asignacion-rutas', label: isAuxiliar ? 'Mis Rutas y Agenda' : 'Rutas y Cronograma', icon: 'alt_route' },
     { id: 'archivos-macros', label: 'Configuración', icon: 'settings' },
   ];
 
@@ -269,6 +272,21 @@ export const Header: React.FC<HeaderProps> = ({
               settings
             </span>
           </button>
+
+          {/* Quick Theme Toggle Button (Sol/Luna) */}
+          {onToggleTheme && (
+            <button
+              onClick={onToggleTheme}
+              type="button"
+              aria-label={theme === 'light' ? 'Cambiar a Modo Oscuro' : 'Cambiar a Modo Claro'}
+              title={theme === 'light' ? 'Cambiar a Modo Oscuro (Nocturno Táctico)' : 'Cambiar a Modo Claro (Diurno / Blanco)'}
+              className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl bg-[#131b2e] text-[#dae2fd] hover:bg-[#171f33] active:scale-95 transition-all border border-[#222a3d] cursor-pointer"
+            >
+              <span className={`material-symbols-outlined text-[19px] transition-transform ${theme === 'light' ? 'text-[#f59e0b]' : 'text-[#38bdf8]'}`}>
+                {theme === 'light' ? 'dark_mode' : 'light_mode'}
+              </span>
+            </button>
+          )}
 
           {/* Notification Icon Button */}
           <button

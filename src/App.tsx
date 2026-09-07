@@ -4,6 +4,7 @@ import {
   AUDITORS_DATA,
   INITIAL_SAMUEL_STEPS,
   INITIAL_FLOATING_POINTS,
+  INITIAL_ALERT_POINTS,
 } from './data/mockData';
 import { INITIAL_MACRO_FILES } from './data/macroFoldersData';
 import { Header } from './components/Header';
@@ -38,9 +39,13 @@ export default function App() {
   const [floatingPoints, setFloatingPoints] = useState<FloatingPoint[]>(() => {
     try {
       const saved = localStorage.getItem('cavi_real_floating_points');
-      return saved ? JSON.parse(saved) : INITIAL_FLOATING_POINTS;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+      return INITIAL_ALERT_POINTS;
     } catch {
-      return INITIAL_FLOATING_POINTS;
+      return INITIAL_ALERT_POINTS;
     }
   });
 
@@ -188,11 +193,15 @@ export default function App() {
     try {
       document.documentElement.setAttribute('data-theme', theme);
       if (theme === 'light') {
-        document.documentElement.classList.add('theme-light');
-        document.body.classList.add('theme-light');
+        document.documentElement.classList.add('theme-light', 'light');
+        document.documentElement.classList.remove('dark');
+        document.body.classList.add('theme-light', 'light');
+        document.body.classList.remove('dark');
       } else {
-        document.documentElement.classList.remove('theme-light');
-        document.body.classList.remove('theme-light');
+        document.documentElement.classList.remove('theme-light', 'light');
+        document.documentElement.classList.add('dark');
+        document.body.classList.remove('theme-light', 'light');
+        document.body.classList.add('dark');
       }
       localStorage.setItem('cavi_theme', theme);
     } catch {
@@ -204,9 +213,9 @@ export default function App() {
     const nextTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(nextTheme);
     showToast(
-      nextTheme === 'light' ? 'Tema Blanco Activado' : 'Tema Oscuro Activado',
+      nextTheme === 'light' ? '☀️ Modo Claro Activado' : '🌙 Modo Oscuro Activado',
       nextTheme === 'light'
-        ? 'Interfaz visual adaptada a fondo blanco y alto contraste para ambientes iluminados.'
+        ? 'Interfaz diurna optimizada: fondos blancos/claros y tipografía de alto contraste.'
         : 'Modo nocturno táctico reactivado para trabajo en campo.',
       'info'
     );
@@ -235,17 +244,53 @@ export default function App() {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  // Assign single floating point
-  const handleAssignFloatingPoint = (id: string, auditorName: string) => {
+  // Assign single floating/alert point to an auditor (with optional target day)
+  const handleAssignFloatingPoint = (id: string, auditorName: string, day?: string) => {
     const targetPoint = floatingPoints.find((p) => p.id === id);
     if (!targetPoint) return;
 
     setFloatingPoints((prev) => prev.filter((p) => p.id !== id));
 
+    const matchedAuditor =
+      auditors.find(
+        (a) =>
+          a.name.toLowerCase() === auditorName.toLowerCase() ||
+          a.name.toLowerCase().includes(auditorName.split(' ')[0].toLowerCase())
+      ) || auditors[0];
+
+    const validDays: RouteStep['day'][] = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes'];
+    const lowerDay = day ? day.toLowerCase() : '';
+    const targetDay: RouteStep['day'] = validDays.find((d) => d === lowerDay) || 'martes';
+
+    // Create real route step in the schedule with alert metadata
+    const newStep: RouteStep = {
+      id: `step-assigned-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+      time: '10:30 AM',
+      code: targetPoint.code,
+      format: targetPoint.format,
+      name: targetPoint.name,
+      address: targetPoint.address,
+      municipality: targetPoint.municipality || (targetPoint.address.includes('Maicao') ? 'Maicao' : 'Riohacha'),
+      zone: targetPoint.zone || matchedAuditor.zone,
+      day: targetDay,
+      auditorId: matchedAuditor.id,
+      auditorName: matchedAuditor.name,
+      status: 'pending',
+      notes: targetPoint.alertDescription || (targetPoint.daysWithoutVisit ? `${targetPoint.daysWithoutVisit}d sin visita asignado` : 'Asignado de alertas'),
+      daysWithoutVisit: targetPoint.daysWithoutVisit,
+      alertCategory: targetPoint.alertCategory,
+      alertDescription: targetPoint.alertDescription,
+      hasGps: targetPoint.hasGps ?? true,
+      lat: targetPoint.lat || (matchedAuditor.zone === 'Norte' ? 11.544 : matchedAuditor.zone === 'Centro' ? 11.380 : 10.771),
+      lng: targetPoint.lng || (matchedAuditor.zone === 'Norte' ? -72.907 : matchedAuditor.zone === 'Centro' ? -72.240 : -72.999),
+    };
+
+    setRouteSteps((prev) => [newStep, ...prev]);
+
     // Update auditor target count
     setAuditors((prev) =>
       prev.map((aud) => {
-        if (aud.name === auditorName || (auditorName.includes('Kleyder') && aud.zone === 'Centro')) {
+        if (aud.id === matchedAuditor.id) {
           return {
             ...aud,
             visitsTarget: aud.visitsTarget + 1,
@@ -257,32 +302,82 @@ export default function App() {
     );
 
     showToast(
-      'Punto Asignado',
-      `${targetPoint.code} (${targetPoint.name}) transferido con éxito a la hoja de ruta de ${auditorName}.`
+      'Punto Crítico Asignado',
+      `${targetPoint.code} (${targetPoint.name}) asignado a ${matchedAuditor.name} para ${targetDay.toUpperCase()}.`,
+      'success'
     );
   };
 
-  // Auto assign all with CAVI AI
+  // Auto assign all with CAVI AI prioritizing zone and days
   const handleAutoAssignAll = () => {
     if (floatingPoints.length === 0) {
-      showToast('Sin puntos pendientes', 'No hay puntos flotantes para distribuir.');
+      showToast('Sin puntos pendientes', 'No hay puntos con alertas para distribuir.');
       return;
     }
 
-    const count = floatingPoints.length;
+    const pointsToDistribute = [...floatingPoints];
+    const daysCycle: RouteStep['day'][] = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes'];
+
+    const newCreatedSteps: RouteStep[] = pointsToDistribute.map((fp, idx) => {
+      let targetAuditor = auditors.find((a) => a.zone === fp.zone);
+      if (!targetAuditor) {
+        targetAuditor = auditors[idx % auditors.length];
+      }
+      const dayAssigned: RouteStep['day'] = daysCycle[idx % daysCycle.length];
+
+      return {
+        id: `step-auto-${Date.now()}-${idx}`,
+        time: `${9 + (idx % 6)}:30 AM`,
+        code: fp.code,
+        format: fp.format,
+        name: fp.name,
+        address: fp.address,
+        municipality: fp.municipality || 'La Guajira',
+        zone: fp.zone || targetAuditor.zone,
+        day: dayAssigned,
+        auditorId: targetAuditor.id,
+        auditorName: targetAuditor.name,
+        status: 'pending',
+        notes: fp.alertDescription || `${fp.daysWithoutVisit || 75}d sin visita - Despacho CAVI`,
+        daysWithoutVisit: fp.daysWithoutVisit,
+        alertCategory: fp.alertCategory,
+        alertDescription: fp.alertDescription,
+        hasGps: true,
+        lat: targetAuditor.zone === 'Norte' ? 11.544 : targetAuditor.zone === 'Centro' ? 11.380 : 10.771,
+        lng: targetAuditor.zone === 'Norte' ? -72.907 : targetAuditor.zone === 'Centro' ? -72.240 : -72.999,
+      };
+    });
+
+    setRouteSteps((prev) => [...newCreatedSteps, ...prev]);
     setFloatingPoints([]);
 
     // Increase targets on auditors
     setAuditors((prev) =>
-      prev.map((aud, index) => ({
-        ...aud,
-        visitsTarget: aud.visitsTarget + (index === 0 ? 1 : index === 1 ? 2 : 0),
-      }))
+      prev.map((aud) => {
+        const assignedToThis = newCreatedSteps.filter((s) => s.auditorId === aud.id).length;
+        return {
+          ...aud,
+          visitsTarget: aud.visitsTarget + assignedToThis,
+          auditedTotal: aud.auditedTotal + assignedToThis,
+        };
+      })
     );
 
     showToast(
       'Distribución CAVI Exitosa',
-      `Se distribuyeron ${count} puntos automáticamente según cercanía geográfica y SLA a Samuel Ramos y Kleyder Rodriguez.`
+      `Se asignaron automáticamente ${pointsToDistribute.length} puntos críticos según zona operativa (Norte/Centro/Sur) y cronograma.`,
+      'success'
+    );
+  };
+
+  // Reload sample alert points for testing
+  const handleReloadSampleAlertPoints = () => {
+    setFloatingPoints(INITIAL_ALERT_POINTS);
+    localStorage.setItem('cavi_real_floating_points', JSON.stringify(INITIAL_ALERT_POINTS));
+    showToast(
+      'Puntos Críticos Recargados',
+      'Se han restablecido los 6 puntos críticos de prueba con mora de 2 a 3 meses y alertas operativas.',
+      'info'
     );
   };
 
@@ -376,6 +471,8 @@ export default function App() {
         activeAuditorId={activeAuditorId}
         onSelectAuditor={setActiveAuditorId}
         auditors={liveAuditors}
+        theme={theme}
+        onToggleTheme={handleToggleTheme}
       />
 
       {/* Main Screen Content with Padding for Header and Mobile Bottom Nav */}
@@ -393,7 +490,7 @@ export default function App() {
             />
           )}
 
-        {activeTab === 'asignacion-rutas' && (
+        {(activeTab === 'asignacion-rutas' || activeTab === 'cronograma') && (
           <RoutesScreen
             auditors={liveAuditors}
             steps={routeSteps}
@@ -402,6 +499,7 @@ export default function App() {
             onGoToMacros={() => setActiveTab('archivos-macros')}
             onAssignFloatingPoint={handleAssignFloatingPoint}
             onAutoAssignAll={handleAutoAssignAll}
+            onReloadSampleAlertPoints={handleReloadSampleAlertPoints}
             onShowToast={showToast}
             userRole={userRole}
             activeAuditorId={activeAuditorId}
@@ -430,10 +528,6 @@ export default function App() {
             routeSteps={routeSteps}
             auditors={liveAuditors}
           />
-        )}
-
-        {activeTab === 'cronograma' && (
-          <ScheduleScreen onShowToast={showToast} />
         )}
       </main>
 
