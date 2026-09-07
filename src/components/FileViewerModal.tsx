@@ -56,7 +56,7 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({
   const getFileBadgeColor = () => {
     switch (file.type) {
       case 'excel':
-        return 'bg-[#003824] text-[#4edea3] border-[#4edea3]/40';
+        return 'bg-[#0088ff]/15 text-[#38bdf8] border-[#0088ff]/40';
       case 'powerpoint':
         return 'bg-[#523200] text-[#ffb95f] border-[#ffb95f]/40';
       case 'powerbi':
@@ -114,7 +114,7 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({
                   </span>
                 </div>
                 <p className="text-xs text-[#bbcabf] truncate flex items-center gap-1.5 mt-0.5">
-                  <span className="material-symbols-outlined text-[13px] text-[#4edea3]">folder</span>
+                  <span className="material-symbols-outlined text-[13px] text-[#0088ff]">folder</span>
                   <span>{file.path}</span>
                   <span>•</span>
                   <span>{file.sizeFormatted}</span>
@@ -136,7 +136,7 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({
                     );
                     onClose();
                   }}
-                  className="px-3 py-1.5 rounded-xl bg-[#4edea3] hover:bg-[#6ffbbe] text-[#003824] text-xs font-bold flex items-center gap-1.5 shadow-sm active:scale-95 transition-all"
+                  className="px-3 py-1.5 rounded-xl bg-[#0088ff] hover:bg-[#0070d8] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm shadow-[#0088ff]/20 active:scale-95 transition-all cursor-pointer"
                   title="Inyectar datos de este archivo en la pantalla de Asignación y Rutas"
                 >
                   <span className="material-symbols-outlined text-[16px]">sync_alt</span>
@@ -202,9 +202,9 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({
                       <button
                         key={s.name}
                         onClick={() => setActiveSheetIndex(idx)}
-                        className={`px-3 py-1 rounded-lg text-xs font-semibold shrink-0 transition-all flex items-center gap-1.5 ${
+                        className={`px-3 py-1 rounded-lg text-xs font-semibold shrink-0 transition-all flex items-center gap-1.5 cursor-pointer ${
                           activeSheetIndex === idx
-                            ? 'bg-[#4edea3] text-[#003824] shadow-sm font-bold'
+                            ? 'bg-[#0088ff] text-white shadow-sm font-bold'
                             : 'bg-[#171f33] text-[#bbcabf] hover:text-[#dae2fd] hover:bg-[#222a3d]'
                         }`}
                       >
@@ -224,7 +224,7 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({
                       value={sheetSearch}
                       onChange={(e) => setSheetSearch(e.target.value)}
                       placeholder="Buscar en celdas..."
-                      className="w-full pl-8 pr-3 py-1.5 rounded-xl bg-[#171f33] border border-[#222a3d] text-xs text-[#dae2fd] placeholder-[#bbcabf]/60 focus:outline-none focus:border-[#4edea3]"
+                      className="w-full pl-8 pr-3 py-1.5 rounded-xl bg-[#171f33] border border-[#222a3d] text-xs text-[#dae2fd] placeholder-[#bbcabf]/60 focus:outline-none focus:border-[#0088ff]"
                     />
                   </div>
                 </div>
@@ -340,14 +340,14 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({
                       )}
                       {activeSlideIndex === 1 && (
                         <div className="space-y-3">
-                          <h4 className="font-bold text-sm text-[#4edea3] flex items-center gap-1.5">
+                          <h4 className="font-bold text-sm text-[#0088ff] flex items-center gap-1.5">
                             <span className="material-symbols-outlined text-[18px]">verified</span>
                             Cumplimiento de Metas Mensuales
                           </h4>
                           <div className="grid grid-cols-3 gap-2">
                             <div className="p-3 rounded-xl bg-[#131b2e] border border-[#222a3d] text-center">
                               <p className="text-[11px] text-[#bbcabf]">Efectividad</p>
-                              <p className="text-lg font-black text-[#4edea3]">95.4%</p>
+                              <p className="text-lg font-black text-[#0088ff]">95.4%</p>
                             </div>
                             <div className="p-3 rounded-xl bg-[#131b2e] border border-[#222a3d] text-center">
                               <p className="text-[11px] text-[#bbcabf]">Auditores</p>
@@ -544,7 +544,7 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({
                   </div>
                   <div>
                     <span className="text-[#bbcabf]">Dictamen de Visita:</span>
-                    <p className="font-bold text-[#4edea3]">CONFORME CON OBSERVACIONES</p>
+                    <p className="font-bold text-[#0088ff]">CONFORME CON OBSERVACIONES</p>
                   </div>
                 </div>
 
@@ -560,7 +560,7 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({
 
                 <div className="pt-4 border-t border-[#222a3d] flex items-center justify-between text-xs text-[#bbcabf]">
                   <span>Firma digital: Validada vía Blockchain SHA-256</span>
-                  <span className="text-[#4edea3] font-bold">Vigente</span>
+                  <span className="text-[#0088ff] font-bold">Vigente</span>
                 </div>
               </div>
             )}
@@ -601,7 +601,7 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({
                   </div>
                   <div className="p-3 rounded-xl bg-[#131b2e] border border-[#222a3d]">
                     <span className="text-[#bbcabf] text-[10px]">ESTADO DE INDEXACIÓN</span>
-                    <p className="font-bold text-[#4edea3] mt-0.5">Leído y Verificado</p>
+                    <p className="font-bold text-[#0088ff] mt-0.5">Leído y Verificado</p>
                   </div>
                 </div>
               </div>
@@ -611,7 +611,7 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({
           {/* Footer Info */}
           <div className="p-3 sm:px-5 bg-[#171f33]/90 border-t border-[#222a3d] flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-[#bbcabf]">
             <div className="flex items-center gap-2 truncate">
-              <span className="material-symbols-outlined text-[16px] text-[#4edea3]">verified_user</span>
+              <span className="material-symbols-outlined text-[16px] text-[#0088ff]">verified_user</span>
               <span className="truncate">Archivo protegido e indexado en la macro-carpeta: <strong className="text-[#dae2fd]">{file.macroFolder}</strong></span>
             </div>
             <button

@@ -69,7 +69,7 @@ export const CriticalPointsModal: React.FC<CriticalPointsModalProps> = ({
                 placeholder="Buscar por nombre, código o dirección..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 rounded-xl bg-[#060e20] text-xs text-[#dae2fd] placeholder-[#bbcabf]/60 border border-[#222a3d] focus:outline-none focus:border-[#4edea3]"
+                className="w-full pl-9 pr-3 py-2 rounded-xl bg-[#060e20] text-xs text-[#dae2fd] placeholder-[#bbcabf]/60 border border-[#222a3d] focus:outline-none focus:border-[#0088ff]"
               />
             </div>
 
@@ -78,9 +78,9 @@ export const CriticalPointsModal: React.FC<CriticalPointsModalProps> = ({
                 <button
                   key={fmt}
                   onClick={() => setFilterFormat(fmt)}
-                  className={`px-3 py-1 rounded-full font-semibold transition-all ${
+                  className={`px-3 py-1 rounded-full font-semibold transition-all cursor-pointer ${
                     filterFormat === fmt
-                      ? 'bg-[#10b981] text-[#003824]'
+                      ? 'bg-[#0088ff] text-white shadow shadow-[#0088ff]/25'
                       : 'bg-[#171f33] text-[#bbcabf] hover:text-white'
                   }`}
                 >
@@ -100,7 +100,7 @@ export const CriticalPointsModal: React.FC<CriticalPointsModalProps> = ({
               filteredPoints.map((point: CriticalPoint) => (
                 <div
                   key={point.id}
-                  className="bg-[#171f33] p-3 rounded-xl border border-[#222a3d] hover:border-[#4edea3]/40 transition-colors flex flex-col gap-1.5"
+                  className="bg-[#171f33] p-3 rounded-xl border border-[#222a3d] hover:border-[#0088ff]/40 transition-colors flex flex-col gap-1.5"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 min-w-0">
@@ -147,7 +147,7 @@ export const CriticalPointsModal: React.FC<CriticalPointsModalProps> = ({
                         onAssignPoint(point.code, 'Samuel Ramos Quintero');
                         onClose();
                       }}
-                      className="px-2.5 py-1 rounded-lg bg-[#222a3d] hover:bg-[#10b981] hover:text-[#003824] text-[#4edea3] font-semibold text-[11px] transition-all flex items-center gap-1 active:scale-95"
+                      className="px-2.5 py-1 rounded-lg bg-[#222a3d] hover:bg-[#0088ff] hover:text-white text-[#38bdf8] font-semibold text-[11px] transition-all flex items-center gap-1 active:scale-95 cursor-pointer"
                     >
                       <span className="material-symbols-outlined text-[13px]">add_task</span>
                       Asignar a Ruta

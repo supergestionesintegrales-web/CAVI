@@ -115,7 +115,7 @@ export const ConfigTopSlider: React.FC<ConfigTopSliderProps> = ({
           shortTitle: 'Reporte XLSX & Sensor QR / Red',
           icon: 'fact_check',
           badgeText: '15 Mpios • QR • XLSX',
-          badgeColor: 'bg-[#003824] text-[#4edea3] border-[#4edea3]/40',
+          badgeColor: 'bg-[#0088ff]/15 text-[#38bdf8] border-[#0088ff]/30',
           description: 'Consolidado oficial, telemetría sensor QR y red departamental',
           isActiveMatch: isOperacionesActive,
         },

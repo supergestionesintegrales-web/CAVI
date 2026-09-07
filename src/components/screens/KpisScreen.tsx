@@ -48,7 +48,7 @@ export const KpisScreen: React.FC<KpisScreenProps> = ({ auditors, onShowToast })
       {/* Header section */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 bg-[#131b2e] p-3.5 sm:px-4 rounded-xl border border-[#222a3d]">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-[#171f33] flex items-center justify-center text-[#4edea3] shadow-sm">
+          <div className="w-9 h-9 rounded-xl bg-[#171f33] flex items-center justify-center text-[#0088ff] shadow-sm">
             <span className="material-symbols-outlined text-[22px]">query_stats</span>
           </div>
           <div>
@@ -173,7 +173,7 @@ export const KpisScreen: React.FC<KpisScreenProps> = ({ auditors, onShowToast })
       <div className="bg-[#131b2e] rounded-xl p-4 shadow-md border border-[#222a3d]">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-[#4edea3] text-[20px]">badge</span>
+            <span className="material-symbols-outlined text-[#0088ff] text-[20px]">badge</span>
             <h2 className="font-headline font-bold text-sm text-[#dae2fd]">
               Desempeño de Auditores
             </h2>
@@ -313,7 +313,7 @@ export const KpisScreen: React.FC<KpisScreenProps> = ({ auditors, onShowToast })
       {/* Exportación de Reportes Ejecutivos */}
       <div className="bg-[#131b2e] rounded-xl p-4 shadow-xl relative overflow-hidden border border-[#222a3d]">
         <div className="flex items-center gap-2.5 mb-3">
-          <div className="w-8 h-8 rounded-lg bg-[#4edea3]/20 flex items-center justify-center text-[#4edea3]">
+          <div className="w-8 h-8 rounded-lg bg-[#0088ff]/20 flex items-center justify-center text-[#0088ff]">
             <span className="material-symbols-outlined text-[20px]">table_view</span>
           </div>
           <div className="flex flex-col min-w-0">
@@ -365,11 +365,11 @@ export const KpisScreen: React.FC<KpisScreenProps> = ({ auditors, onShowToast })
           </div>
           <ul className="text-[11px] text-[#bbcabf] space-y-1">
             <li className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#4edea3]" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#0088ff]" />
               606 puntos con timestamp de última visita y geolocalización.
             </li>
             <li className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#4edea3]" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#0088ff]" />
               18 hallazgos críticos desglosados (CM, PF, CDA).
             </li>
             <li className="flex items-center gap-1.5">
@@ -382,7 +382,7 @@ export const KpisScreen: React.FC<KpisScreenProps> = ({ auditors, onShowToast })
         <button
           onClick={() => handleDownloadExcel()}
           disabled={isExporting}
-          className="w-full h-12 bg-[#4edea3] hover:bg-[#6ffbbe] text-[#003824] rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-lg active:scale-[0.98] transition-all"
+          className="w-full h-12 bg-[#0088ff] hover:bg-[#0070d8] text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-[#0088ff]/25 active:scale-[0.98] transition-all cursor-pointer"
         >
           {isExporting ? (
             <>
@@ -405,7 +405,7 @@ export const KpisScreen: React.FC<KpisScreenProps> = ({ auditors, onShowToast })
           <div className="space-y-1.5">
             <div className="bg-[#171f33] rounded-lg px-3 py-2 flex items-center justify-between border border-[#222a3d]">
               <div className="flex items-center gap-2 min-w-0">
-                <span className="material-symbols-outlined text-[#4edea3] text-[18px]">
+                <span className="material-symbols-outlined text-[#0088ff] text-[18px]">
                   description
                 </span>
                 <div className="min-w-0 truncate">
@@ -418,7 +418,7 @@ export const KpisScreen: React.FC<KpisScreenProps> = ({ auditors, onShowToast })
               <button
                 onClick={() => handleDownloadExcel('CAVI_Consolidado_Sem41.xlsx')}
                 aria-label="Descargar Sem 41"
-                className="w-8 h-8 rounded-lg bg-[#222a3d] hover:bg-[#2d3449] flex items-center justify-center text-[#4edea3] active:scale-95 transition-all"
+                className="w-8 h-8 rounded-lg bg-[#222a3d] hover:bg-[#2d3449] flex items-center justify-center text-[#0088ff] active:scale-95 transition-all cursor-pointer"
               >
                 <span className="material-symbols-outlined text-[16px]">file_download</span>
               </button>
@@ -426,7 +426,7 @@ export const KpisScreen: React.FC<KpisScreenProps> = ({ auditors, onShowToast })
 
             <div className="bg-[#171f33] rounded-lg px-3 py-2 flex items-center justify-between border border-[#222a3d]">
               <div className="flex items-center gap-2 min-w-0">
-                <span className="material-symbols-outlined text-[#4edea3] text-[18px]">
+                <span className="material-symbols-outlined text-[#0088ff] text-[18px]">
                   description
                 </span>
                 <div className="min-w-0 truncate">
@@ -439,7 +439,7 @@ export const KpisScreen: React.FC<KpisScreenProps> = ({ auditors, onShowToast })
               <button
                 onClick={() => handleDownloadExcel('CAVI_Q3_Auditoria_Completa.xlsx')}
                 aria-label="Descargar Q3"
-                className="w-8 h-8 rounded-lg bg-[#222a3d] hover:bg-[#2d3449] flex items-center justify-center text-[#4edea3] active:scale-95 transition-all"
+                className="w-8 h-8 rounded-lg bg-[#222a3d] hover:bg-[#2d3449] flex items-center justify-center text-[#0088ff] active:scale-95 transition-all cursor-pointer"
               >
                 <span className="material-symbols-outlined text-[16px]">file_download</span>
               </button>

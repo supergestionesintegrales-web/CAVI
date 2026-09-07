@@ -1354,7 +1354,7 @@ FORMATOS COMPATIBLES:
                 <button
                   type="button"
                   onClick={onOpenScanner}
-                  className="px-4 py-2.5 rounded-xl bg-[#4edea3] hover:bg-[#6ffbbe] text-[#003824] text-xs font-bold flex items-center gap-2 shadow-md active:scale-95 transition-all self-start lg:self-auto cursor-pointer"
+                  className="px-4 py-2.5 rounded-xl bg-[#0088ff] hover:bg-[#0070d8] text-white text-xs font-bold flex items-center gap-2 shadow-md shadow-[#0088ff]/25 active:scale-95 transition-all self-start lg:self-auto cursor-pointer"
                 >
                   <span className="material-symbols-outlined text-[18px]">photo_camera</span>
                   <span>Abrir Escáner de Cámara QR</span>
@@ -1382,7 +1382,7 @@ FORMATOS COMPATIBLES:
                       key={p.code}
                       type="button"
                       onClick={() => handleQuickCheckIn(p.code, p.label)}
-                      className="px-2.5 py-1 rounded-lg bg-[#171f33] hover:bg-[#222a3d] text-xs text-[#dae2fd] font-medium border border-[#222a3d] hover:border-[#4edea3]/40 transition-all cursor-pointer"
+                      className="px-2.5 py-1 rounded-lg bg-[#171f33] hover:bg-[#222a3d] text-xs text-[#dae2fd] font-medium border border-[#222a3d] hover:border-[#0088ff]/40 transition-all cursor-pointer"
                     >
                       + {p.label}
                     </button>
@@ -1404,7 +1404,7 @@ FORMATOS COMPATIBLES:
                       setManualQrCode('');
                     }
                   }}
-                  className="px-3 py-1.5 rounded-lg bg-[#171f33] border border-[#222a3d] text-xs text-[#dae2fd] focus:outline-none focus:border-[#4edea3] w-36 sm:w-44"
+                  className="px-3 py-1.5 rounded-lg bg-[#171f33] border border-[#222a3d] text-xs text-[#dae2fd] focus:outline-none focus:border-[#0088ff] w-36 sm:w-44"
                 />
                 <button
                   type="button"
@@ -1417,7 +1417,7 @@ FORMATOS COMPATIBLES:
                     handleQuickCheckIn(code, `Punto Verificado ${code}`);
                     setManualQrCode('');
                   }}
-                  className="px-3.5 py-1.5 rounded-lg bg-[#10b981] text-[#ffffff] text-xs font-bold hover:bg-[#059669] transition-all cursor-pointer"
+                  className="px-3.5 py-1.5 rounded-lg bg-[#0088ff] text-white text-xs font-bold hover:bg-[#0070d8] transition-all cursor-pointer shadow-sm"
                 >
                   Validar
                 </button>
@@ -1428,10 +1428,10 @@ FORMATOS COMPATIBLES:
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold text-[#bbcabf] uppercase tracking-wider flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[14px] text-[#4edea3]">history</span>
+                  <span className="material-symbols-outlined text-[14px] text-[#0088ff]">history</span>
                   Bitácora de Telemetría Sensor &amp; Check-ins QR ({checkInsList.length} registrados):
                 </span>
-                <span className="text-[10px] text-[#4edea3]">Sincronizado a XLSX</span>
+                <span className="text-[10px] text-[#38bdf8]">Sincronizado a XLSX</span>
               </div>
 
               <div className="max-h-48 overflow-y-auto space-y-1.5 pr-1 scrollbar-thin">
@@ -1443,7 +1443,7 @@ FORMATOS COMPATIBLES:
                       className="p-2.5 rounded-xl bg-[#131b2e] border border-[#222a3d] flex items-center justify-between gap-2 text-xs"
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <span className="px-2 py-0.5 rounded bg-[#003824] text-[#4edea3] font-bold text-[10px] font-mono shrink-0 border border-[#4edea3]/30">
+                        <span className="px-2 py-0.5 rounded bg-[#0088ff]/20 text-[#38bdf8] font-bold text-[10px] font-mono shrink-0 border border-[#0088ff]/30">
                           {chk.code}
                         </span>
                         <div className="min-w-0">
@@ -1456,7 +1456,7 @@ FORMATOS COMPATIBLES:
 
                       <div className="flex items-center gap-2 shrink-0">
                         <span className="text-[10px] text-[#bbcabf] font-mono">{chk.timestamp}</span>
-                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#10b981]/20 text-[#4edea3] border border-[#4edea3]/30">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#0088ff]/20 text-[#38bdf8] border border-[#0088ff]/30">
                           ✓ {chk.status}
                         </span>
                       </div>
@@ -1469,7 +1469,7 @@ FORMATOS COMPATIBLES:
           {/* 4. SUBMÓDULO C: GENERADOR DE REPORTE XLSX OFICIAL UNIFICADO */}
           <div className="p-4 sm:p-5 rounded-2xl bg-[#171f33] border border-[#222a3d] space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#10b981]/20 flex items-center justify-center text-[#4edea3] border border-[#4edea3]/30 shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-[#0088ff]/20 flex items-center justify-center text-[#0088ff] border border-[#0088ff]/30 shrink-0">
                 <span className="material-symbols-outlined text-[22px]">table_view</span>
               </div>
               <div>
@@ -1524,7 +1524,7 @@ FORMATOS COMPATIBLES:
                     type="checkbox"
                     checked={includeQrCheckIns}
                     onChange={(e) => setIncludeQrCheckIns(e.target.checked)}
-                    className="accent-[#10b981] w-4 h-4 rounded"
+                    className="accent-[#0088ff] w-4 h-4 rounded"
                   />
                   <span>Sensor QR ({checkInsList.length} check-ins)</span>
                 </label>
@@ -1534,7 +1534,7 @@ FORMATOS COMPATIBLES:
                     type="checkbox"
                     checked={includeRedGuajira}
                     onChange={(e) => setIncludeRedGuajira(e.target.checked)}
-                    className="accent-[#10b981] w-4 h-4 rounded"
+                    className="accent-[#0088ff] w-4 h-4 rounded"
                   />
                   <span>Red 15 Municipios (La Guajira)</span>
                 </label>
@@ -1544,7 +1544,7 @@ FORMATOS COMPATIBLES:
                     type="checkbox"
                     checked={includeSlaMetrics}
                     onChange={(e) => setIncludeSlaMetrics(e.target.checked)}
-                    className="accent-[#10b981] w-4 h-4 rounded"
+                    className="accent-[#0088ff] w-4 h-4 rounded"
                   />
                   <span>Hojas de Ruta &amp; SLA Auditores</span>
                 </label>
@@ -1556,7 +1556,7 @@ FORMATOS COMPATIBLES:
               type="button"
               onClick={() => handleDownloadExcel()}
               disabled={isExporting}
-              className="w-full h-12 rounded-xl bg-[#10b981] hover:bg-[#059669] text-[#ffffff] font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-md active:scale-98 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
+              className="w-full h-12 rounded-xl bg-[#0088ff] hover:bg-[#0070d8] text-[#ffffff] font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-md shadow-[#0088ff]/25 active:scale-98 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {isExporting ? (
                 <>

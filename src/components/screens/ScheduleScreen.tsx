@@ -352,7 +352,7 @@ END:VCALENDAR`;
 
           <button
             onClick={handleExportSchedule}
-            className="px-3 py-1.5 rounded-xl bg-[#10b981] hover:bg-[#059669] text-[#ffffff] text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm active:scale-95 cursor-pointer"
+            className="px-3 py-1.5 rounded-xl bg-[#0088ff] hover:bg-[#0070d8] text-[#ffffff] text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm active:scale-95 cursor-pointer"
           >
             <span className="material-symbols-outlined text-[16px]">download</span>
             <span className="hidden sm:inline">Exportar .ICS</span>
@@ -977,7 +977,7 @@ END:VCALENDAR`;
                 placeholder="Buscar punto por nombre, código (ej. CM-108), municipio (Riohacha, Maicao...)"
                 value={pointSearch}
                 onChange={(e) => setPointSearch(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 rounded-xl bg-[#171f33] border border-[#222a3d] text-xs text-[#dae2fd] placeholder:text-[#86948a] focus:outline-none focus:border-[#4edea3]"
+                className="w-full pl-9 pr-4 py-2 rounded-xl bg-[#171f33] border border-[#222a3d] text-xs text-[#dae2fd] placeholder:text-[#86948a] focus:outline-none focus:border-[#0088ff]"
               />
               {pointSearch && (
                 <button

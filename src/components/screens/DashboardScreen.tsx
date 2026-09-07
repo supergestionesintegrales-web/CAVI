@@ -193,7 +193,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
               <span className="text-2xl font-headline font-bold text-white">
                 {totalVisitsTarget > 0 ? '98.2%' : '100%'}
               </span>
-              <span className="text-[10px] text-[#4edea3] flex items-center font-bold">CAVI</span>
+              <span className="text-[10px] text-[#0088ff] flex items-center font-bold">CAVI</span>
             </div>
             <p className="text-[10px] text-[#cbd5e1] mt-0.5 leading-tight">
               Tiempos de traslado optimizados vía CAVI
@@ -303,7 +303,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                     Cobertura Global &amp; Meta Semanal
                   </span>
                 </div>
-                <span className="font-code-metric text-xs text-[#4edea3] bg-[#171f33] px-2.5 py-0.5 rounded-full border border-[#4edea3]/20">
+                <span className="font-code-metric text-xs text-[#0088ff] bg-[#171f33] px-2.5 py-0.5 rounded-full border border-[#0088ff]/20">
                   Semana 42
                 </span>
               </div>
@@ -681,7 +681,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                 className="w-full p-3.5 rounded-xl bg-[#222a3d] hover:bg-[#2d3449] flex items-center justify-between text-[#dae2fd] transition-all border border-[#3c4a42]/50 active:scale-[0.99] shadow-sm cursor-pointer"
               >
                 <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-lg bg-[#171f33] flex items-center justify-center text-[#4edea3]">
+                  <div className="w-9 h-9 rounded-lg bg-[#171f33] flex items-center justify-center text-[#0088ff]">
                     <span className="material-symbols-outlined text-[20px]">qr_code_scanner</span>
                   </div>
                   <div className="flex flex-col text-left">

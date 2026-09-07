@@ -56,7 +56,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
           {/* Header */}
           <div className="flex items-center justify-between pb-3 border-b border-[#222a3d]">
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-[#4edea3] text-[20px]">
+              <span className="material-symbols-outlined text-[#0088ff] text-[20px]">
                 badge
               </span>
               <h3 className="font-bold text-base text-[#dae2fd]">Perfil &amp; Control de Roles</h3>
@@ -76,7 +76,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                 src={profileAvatar}
                 alt={profileName}
                 className={`w-16 h-16 sm:w-18 sm:h-18 rounded-full object-cover shadow-lg ring-4 ${
-                  isAuxiliar ? 'ring-[#3131c0]/50' : 'ring-[#4edea3]/40'
+                  isAuxiliar ? 'ring-[#3131c0]/50' : 'ring-[#0088ff]/40'
                 }`}
                 referrerPolicy="no-referrer"
               />
@@ -89,14 +89,14 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
             <h4 className="font-bold text-base sm:text-lg text-[#dae2fd] mt-2">{profileName}</h4>
             <p className="text-xs text-[#bbcabf]">{profileRoleTitle}</p>
             <div className="flex items-center gap-1.5 mt-2">
-              <span className="px-2 py-0.5 rounded bg-[#222a3d] text-[11px] font-semibold text-[#4edea3]">
+              <span className="px-2 py-0.5 rounded bg-[#222a3d] text-[11px] font-semibold text-[#0088ff]">
                 ID: {profileId}
               </span>
               <span
                 className={`px-2 py-0.5 rounded text-[11px] font-semibold ${
                   isAuxiliar
                     ? 'bg-[#3131c0]/30 text-[#c0c1ff] border border-[#3131c0]/40'
-                    : 'bg-[#003824] text-[#4edea3] border border-[#4edea3]/40'
+                    : 'bg-[#0088ff]/20 text-[#38bdf8] border border-[#0088ff]/40'
                 }`}
               >
                 {profileBadge}
@@ -107,7 +107,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
           {/* RBAC ROLE SELECTOR CARDS */}
           <div className="space-y-2 bg-[#060e20] p-3 rounded-xl border border-[#222a3d]">
             <p className="text-[11px] font-bold text-[#dae2fd] uppercase tracking-wider flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[15px] text-[#4edea3]">admin_panel_settings</span>
+              <span className="material-symbols-outlined text-[15px] text-[#0088ff]">admin_panel_settings</span>
               <span>Cambiar Rol del Sistema</span>
             </p>
 
@@ -121,21 +121,21 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                 }}
                 className={`p-2.5 rounded-xl text-left border transition-all cursor-pointer flex flex-col justify-between ${
                   !isAuxiliar
-                    ? 'bg-[#003824] border-[#4edea3] text-[#dae2fd] shadow-md'
+                    ? 'bg-[#0088ff]/15 border-[#0088ff] text-[#dae2fd] shadow-md'
                     : 'bg-[#131b2e] border-[#222a3d] text-[#bbcabf] hover:border-[#3d455d]'
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
-                    <span className={`material-symbols-outlined text-[18px] ${!isAuxiliar ? 'text-[#4edea3]' : 'text-[#bbcabf]'}`}>
+                    <span className={`material-symbols-outlined text-[18px] ${!isAuxiliar ? 'text-[#0088ff]' : 'text-[#bbcabf]'}`}>
                       verified_user
                     </span>
-                    <span className={`text-xs font-bold ${!isAuxiliar ? 'text-[#4edea3]' : 'text-[#dae2fd]'}`}>
+                    <span className={`text-xs font-bold ${!isAuxiliar ? 'text-[#0088ff]' : 'text-[#dae2fd]'}`}>
                       Administrador
                     </span>
                   </div>
                   {!isAuxiliar && (
-                    <span className="w-2 h-2 rounded-full bg-[#4edea3] shadow-[0_0_6px_#4edea3]" />
+                    <span className="w-2 h-2 rounded-full bg-[#0088ff] shadow-[0_0_6px_#0088ff]" />
                   )}
                 </div>
                 <p className="text-[10px] mt-1 text-[#bbcabf] leading-tight">
@@ -247,7 +247,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
               <button
                 onClick={() => setOfflineSync(!offlineSync)}
                 className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer ${
-                  offlineSync ? 'bg-[#10b981]' : 'bg-[#222a3d]'
+                  offlineSync ? 'bg-[#0088ff]' : 'bg-[#222a3d]'
                 }`}
               >
                 <div
@@ -262,7 +262,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
               <button
                 onClick={() => setPushAlerts(!pushAlerts)}
                 className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer ${
-                  pushAlerts ? 'bg-[#10b981]' : 'bg-[#222a3d]'
+                  pushAlerts ? 'bg-[#0088ff]' : 'bg-[#222a3d]'
                 }`}
               >
                 <div

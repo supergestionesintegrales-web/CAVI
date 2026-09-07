@@ -881,7 +881,7 @@ export const GpsTerritoryModal: React.FC<GpsTerritoryModalProps> = ({
                               </span>
                             )}
                             {pt.hasGps && (
-                              <span className="text-[9px] font-bold px-1 py-0.2 rounded bg-[#064e3b] text-[#4edea3] flex items-center gap-0.5">
+                              <span className="text-[9px] font-bold px-1 py-0.2 rounded bg-[#0088ff]/20 text-[#38bdf8] border border-[#0088ff]/30 flex items-center gap-0.5">
                                 <span className="material-symbols-outlined text-[10px]">gps_fixed</span>
                                 <span>GPS</span>
                               </span>

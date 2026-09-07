@@ -33,7 +33,7 @@ export const ProcessingProgressBar: React.FC<ProcessingProgressBarProps> = ({
         exit={{ opacity: 0, y: -10, scale: 0.98 }}
         className={`w-full rounded-2xl p-4 sm:p-5 border transition-all shadow-xl overflow-hidden ${
           isDone
-            ? 'bg-[#062e1e]/90 border-[#4edea3]/60 shadow-[0_0_25px_rgba(78,222,163,0.2)]'
+            ? 'bg-[#0088ff]/15 border-[#0088ff]/60 shadow-[0_0_25px_rgba(0,136,255,0.2)]'
             : 'bg-[#131b2e] border-[#31394d] shadow-[0_4px_20px_rgba(0,0,0,0.35)]'
         }`}
       >
@@ -43,7 +43,7 @@ export const ProcessingProgressBar: React.FC<ProcessingProgressBarProps> = ({
             <div
               className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border transition-all ${
                 isDone
-                  ? 'bg-[#10b981] text-white border-[#34d399]'
+                  ? 'bg-[#0088ff] text-white border-[#38bdf8]'
                   : 'bg-[#0088ff]/20 text-[#0088ff] border-[#0088ff]/30'
               }`}
             >
@@ -61,13 +61,13 @@ export const ProcessingProgressBar: React.FC<ProcessingProgressBarProps> = ({
                 <span
                   className={`px-2 py-0.5 rounded-full text-[10px] font-bold border flex items-center gap-1 ${
                     isDone
-                      ? 'bg-[#4edea3]/20 text-[#4edea3] border-[#4edea3]/40'
+                      ? 'bg-[#0088ff]/20 text-[#38bdf8] border-[#0088ff]/40'
                       : 'bg-[#3131c0]/30 text-[#c0c1ff] border-[#3131c0]/50'
                   }`}
                 >
                   <span
                     className={`w-1.5 h-1.5 rounded-full ${
-                      isDone ? 'bg-[#4edea3]' : 'bg-[#c0c1ff] animate-ping'
+                      isDone ? 'bg-[#38bdf8]' : 'bg-[#c0c1ff] animate-ping'
                     }`}
                   />
                   {isDone ? '100% Finalizado' : `Archivo ${progress.current} de ${progress.total}`}
@@ -120,7 +120,7 @@ export const ProcessingProgressBar: React.FC<ProcessingProgressBarProps> = ({
         {/* Stepper Pipeline Indicators */}
         <div className="mt-3 pt-3 border-t border-[#222a3d]/70 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
           <div className="flex items-center gap-1.5 text-[#bbcabf] truncate">
-            <span className="material-symbols-outlined text-[15px] text-[#4edea3]">
+            <span className="material-symbols-outlined text-[15px] text-[#0088ff]">
               {isDone ? 'task_alt' : 'hourglass_top'}
             </span>
             <span className="text-[11px] font-medium truncate">
@@ -131,7 +131,7 @@ export const ProcessingProgressBar: React.FC<ProcessingProgressBarProps> = ({
           <div className="flex items-center gap-2 text-[10px] text-[#bbcabf] shrink-0">
             <span
               className={`px-2 py-0.5 rounded ${
-                progress.percent >= 25 ? 'bg-[#003824] text-[#4edea3] font-bold' : 'bg-[#171f33]'
+                progress.percent >= 25 ? 'bg-[#0088ff]/20 text-[#38bdf8] font-bold border border-[#0088ff]/30' : 'bg-[#171f33]'
               }`}
             >
               1. Lectura binaria
@@ -139,7 +139,7 @@ export const ProcessingProgressBar: React.FC<ProcessingProgressBarProps> = ({
             <span>→</span>
             <span
               className={`px-2 py-0.5 rounded ${
-                progress.percent >= 60 ? 'bg-[#003824] text-[#4edea3] font-bold' : 'bg-[#171f33]'
+                progress.percent >= 60 ? 'bg-[#0088ff]/20 text-[#38bdf8] font-bold border border-[#0088ff]/30' : 'bg-[#171f33]'
               }`}
             >
               2. Tablas &amp; Metadatos
@@ -147,7 +147,7 @@ export const ProcessingProgressBar: React.FC<ProcessingProgressBarProps> = ({
             <span>→</span>
             <span
               className={`px-2 py-0.5 rounded ${
-                progress.percent >= 90 ? 'bg-[#003824] text-[#4edea3] font-bold' : 'bg-[#171f33]'
+                progress.percent >= 90 ? 'bg-[#0088ff]/20 text-[#38bdf8] font-bold border border-[#0088ff]/30' : 'bg-[#171f33]'
               }`}
             >
               3. Paradas &amp; SLAs
@@ -155,7 +155,7 @@ export const ProcessingProgressBar: React.FC<ProcessingProgressBarProps> = ({
             <span>→</span>
             <span
               className={`px-2 py-0.5 rounded ${
-                isDone ? 'bg-[#003824] text-[#4edea3] font-bold' : 'bg-[#171f33]'
+                isDone ? 'bg-[#0088ff]/20 text-[#38bdf8] font-bold border border-[#0088ff]/30' : 'bg-[#171f33]'
               }`}
             >
               4. CAVI Sync

@@ -136,9 +136,9 @@ export const WeeklyRoutesMatrix: React.FC<WeeklyRoutesMatrixProps> = ({
             <button
               type="button"
               onClick={onOpenGpsModal}
-              className="px-3.5 py-2 rounded-xl bg-[#064e3b] hover:bg-[#065f46] text-[#6ee7b7] text-xs font-bold border border-[#10b981]/40 flex items-center gap-1.5 shadow-md shadow-[#10b981]/10 active:scale-95 transition-all cursor-pointer"
+              className="px-3.5 py-2 rounded-xl bg-[#0088ff] hover:bg-[#0070d8] text-white text-xs font-bold border border-[#0088ff]/40 flex items-center gap-1.5 shadow-md shadow-[#0088ff]/20 active:scale-95 transition-all cursor-pointer"
             >
-              <span className="material-symbols-outlined text-[17px] text-[#4edea3]">public</span>
+              <span className="material-symbols-outlined text-[17px] text-white">public</span>
               <span>Ver en Mapa Satelital GPS</span>
             </button>
           </div>
@@ -316,7 +316,7 @@ export const WeeklyRoutesMatrix: React.FC<WeeklyRoutesMatrixProps> = ({
                           </div>
 
                           {step.hasGps ? (
-                            <span className="px-1 py-0.5 rounded bg-[#064e3b] text-[#4edea3] text-[9px] font-bold flex items-center gap-0.5">
+                            <span className="px-1 py-0.5 rounded bg-[#0088ff]/20 text-[#38bdf8] text-[9px] font-bold flex items-center gap-0.5 border border-[#0088ff]/30">
                               <span className="material-symbols-outlined text-[10px]">gps_fixed</span>
                               <span>GPS</span>
                             </span>

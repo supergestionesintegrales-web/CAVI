@@ -451,7 +451,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                 <div
                   className={`h-1.5 w-full ${
                     aud.zone === 'Norte'
-                      ? 'bg-[#10b981]'
+                      ? 'bg-[#0088ff]'
                       : aud.zone === 'Centro'
                       ? 'bg-[#3b82f6]'
                       : 'bg-[#8b5cf6]'
@@ -632,7 +632,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                                       ? 'bg-[#0284c7] text-white'
                                       : step.format === 'PF'
                                       ? 'bg-[#7c3aed] text-white'
-                                      : 'bg-[#059669] text-white'
+                                      : 'bg-[#0088ff] text-white'
                                   }`}
                                 >
                                   {step.code}
@@ -869,7 +869,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                   <div className="flex flex-col gap-2 transition-all max-h-[360px] overflow-y-auto pr-1">
                     {floatingPoints.length === 0 ? (
                       <div className="bg-[#131b2e] p-4 rounded-xl text-center flex flex-col items-center gap-1.5">
-                        <div className="w-9 h-9 rounded-full bg-[#10b981]/20 text-[#34d399] flex items-center justify-center">
+                        <div className="w-9 h-9 rounded-full bg-[#0088ff]/20 text-[#38bdf8] flex items-center justify-center">
                           <span className="material-symbols-outlined text-[20px]">task_alt</span>
                         </div>
                         <p className="text-xs font-bold text-white">
@@ -893,7 +893,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                                     ? 'bg-[#0284c7] text-white'
                                     : fp.format === 'PF'
                                     ? 'bg-[#7c3aed] text-white'
-                                    : 'bg-[#059669] text-white'
+                                    : 'bg-[#0088ff] text-white'
                                 }`}
                               >
                                 {fp.code}
@@ -979,6 +979,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
           )}
         </div>
       </div>
+      )}
     </div>
   );
 };

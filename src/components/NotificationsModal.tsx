@@ -62,7 +62,7 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
         >
           <div className="flex items-center justify-between pb-3 border-b border-[#222a3d]">
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-[#4edea3]">notifications_active</span>
+              <span className="material-symbols-outlined text-[#0088ff]">notifications_active</span>
               <h3 className="font-bold text-base text-[#dae2fd]">Alertas de Campo</h3>
             </div>
             <button
@@ -105,7 +105,7 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
           <div className="pt-3 border-t border-[#222a3d] flex items-center justify-between">
             <button
               onClick={onMarkAllRead}
-              className="text-xs text-[#4edea3] hover:underline font-semibold"
+              className="text-xs text-[#0088ff] hover:underline font-semibold cursor-pointer"
             >
               Marcar todo como leído
             </button>

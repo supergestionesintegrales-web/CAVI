@@ -148,7 +148,7 @@ export const AddRouteModal: React.FC<AddRouteModalProps> = ({
                           ? 'bg-[#0284c7] text-white'
                           : fmt === 'PF'
                           ? 'bg-[#7c3aed] text-white'
-                          : 'bg-[#059669] text-white'
+                          : 'bg-[#0088ff] text-white'
                         : 'bg-[#131b2e] text-[#cbd5e1] border border-[#2d3a58] hover:border-[#475569]'
                     }`}
                   >

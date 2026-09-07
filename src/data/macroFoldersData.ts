@@ -8,7 +8,7 @@ export const MACRO_FOLDERS_DEFINITIONS: MacroFolderDefinition[] = [
     label: 'Rutas Operativas',
     description: 'Archivos anuales y desglose mensual de itinerarios, paradas, matrices de geocodificación y hojas de ruta de auditores.',
     icon: 'alt_route',
-    color: '#4edea3',
+    color: '#0088ff',
     allowedExtensions: ['xlsx', 'xls', 'xlsm', 'csv', 'pbix', 'pdf'],
   },
   {
