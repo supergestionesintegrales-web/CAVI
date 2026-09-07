@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { TabType, RouteStep, FloatingPoint, Auditor, MacroFile } from './types';
+import { useState, useEffect, useMemo } from 'react';
+import { TabType, RouteStep, FloatingPoint, Auditor, MacroFile, UserRole } from './types';
 import {
   AUDITORS_DATA,
   INITIAL_SAMUEL_STEPS,
@@ -21,11 +21,158 @@ import { MacroFoldersScreen } from './components/screens/MacroFoldersScreen';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabType>('dashboard-cavi');
+  const [userRole, setUserRole] = useState<UserRole>('administrador');
+  const [activeAuditorId, setActiveAuditorId] = useState<string>('aud-1');
   const [auditors, setAuditors] = useState<Auditor[]>(AUDITORS_DATA);
-  const [routeSteps, setRouteSteps] = useState<RouteStep[]>(INITIAL_SAMUEL_STEPS);
-  const [floatingPoints, setFloatingPoints] = useState<FloatingPoint[]>(INITIAL_FLOATING_POINTS);
-  const [macroFiles, setMacroFiles] = useState<MacroFile[]>(INITIAL_MACRO_FILES);
-  const [activeRouteSourceFile, setActiveRouteSourceFile] = useState<string>('Rutas_Semana42_Bogota_Auditoria.xlsx');
+
+  // Local storage persistence for real data
+  const [routeSteps, setRouteSteps] = useState<RouteStep[]>(() => {
+    try {
+      const saved = localStorage.getItem('cavi_real_route_steps');
+      return saved ? JSON.parse(saved) : INITIAL_SAMUEL_STEPS;
+    } catch {
+      return INITIAL_SAMUEL_STEPS;
+    }
+  });
+
+  const [floatingPoints, setFloatingPoints] = useState<FloatingPoint[]>(() => {
+    try {
+      const saved = localStorage.getItem('cavi_real_floating_points');
+      return saved ? JSON.parse(saved) : INITIAL_FLOATING_POINTS;
+    } catch {
+      return INITIAL_FLOATING_POINTS;
+    }
+  });
+
+  const [macroFiles, setMacroFiles] = useState<MacroFile[]>(() => {
+    try {
+      const saved = localStorage.getItem('cavi_real_macro_files');
+      return saved ? JSON.parse(saved) : INITIAL_MACRO_FILES;
+    } catch {
+      return INITIAL_MACRO_FILES;
+    }
+  });
+
+  const [activeRouteSourceFile, setActiveRouteSourceFile] = useState<string>('Rutas_LaGuajira_Departamental.xlsx');
+
+  // Persist changes to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('cavi_real_route_steps', JSON.stringify(routeSteps));
+    } catch {
+      // ignore
+    }
+  }, [routeSteps]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('cavi_real_floating_points', JSON.stringify(floatingPoints));
+    } catch {
+      // ignore
+    }
+  }, [floatingPoints]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('cavi_real_macro_files', JSON.stringify(macroFiles));
+    } catch {
+      // ignore
+    }
+  }, [macroFiles]);
+
+  // Dynamically compute real stats for each auditor
+  const liveAuditors = useMemo(() => {
+    return auditors.map((aud) => {
+      const audSteps = routeSteps.filter(
+        (s) => s.auditorId === aud.id || (!s.auditorId && aud.id === 'aud-1')
+      );
+      const visitsDone = audSteps.filter((s) => s.status === 'completed').length;
+      const visitsTarget = audSteps.length;
+      const cmCount = audSteps.filter((s) => s.format === 'CM').length;
+      const pfCount = audSteps.filter((s) => s.format === 'PF').length;
+      const cdaCount = audSteps.filter((s) => s.format === 'CDA').length;
+      const effectiveness = visitsTarget > 0 ? Math.round((visitsDone / visitsTarget) * 100) : 100;
+      return {
+        ...aud,
+        visitsDone,
+        visitsTarget,
+        pointsPerDay: visitsTarget,
+        auditedTotal: visitsDone,
+        targetBreakdown: { cm: cmCount, pf: pfCount, cda: cdaCount },
+        effectiveness,
+        status: visitsTarget > 0 && visitsDone === visitsTarget ? ('completed' as const) : ('progress' as const),
+      };
+    });
+  }, [auditors, routeSteps]);
+
+  const handleAddRouteStep = (stepData: Omit<RouteStep, 'id'>) => {
+    const newStep: RouteStep = {
+      ...stepData,
+      id: `step-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+    };
+    setRouteSteps((prev) => [...prev, newStep]);
+    showToast('Parada Agregada', `${newStep.code} (${newStep.name}) asignada con éxito.`, 'success');
+  };
+
+  const handleDeleteRouteStep = (id: string) => {
+    setRouteSteps((prev) => prev.filter((s) => s.id !== id));
+    showToast('Parada Eliminada', 'Se removió la parada de la hoja de ruta.', 'info');
+  };
+
+  const handleToggleStepStatus = (id: string) => {
+    setRouteSteps((prev) =>
+      prev.map((s) => {
+        if (s.id === id) {
+          const nextStatus =
+            s.status === 'pending'
+              ? ('in_progress' as const)
+              : s.status === 'in_progress'
+              ? ('completed' as const)
+              : ('pending' as const);
+          return { ...s, status: nextStatus };
+        }
+        return s;
+      })
+    );
+  };
+
+  const handleImportRouteSteps = (imported: RouteStep[]) => {
+    setRouteSteps((prev) => [...prev, ...imported]);
+    showToast('Rutas Importadas', `${imported.length} paradas reales cargadas a la red.`, 'success');
+  };
+
+  const handleClearRouteSteps = () => {
+    setRouteSteps([]);
+    setFloatingPoints([]);
+    showToast('Rutas Limpiadas', 'Se eliminaron las paradas para ingresar información nueva.', 'info');
+  };
+
+  const handleAddFloatingPoint = (fpData: Omit<FloatingPoint, 'id'>) => {
+    const newFp: FloatingPoint = {
+      ...fpData,
+      id: `fp-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+    };
+    setFloatingPoints((prev) => [...prev, newFp]);
+    showToast('Punto Creado', `${newFp.code} (${newFp.name}) listo en la bandeja de flotantes.`, 'success');
+  };
+
+  const handleDeleteFloatingPoint = (id: string) => {
+    setFloatingPoints((prev) => prev.filter((fp) => fp.id !== id));
+  };
+
+  const handleSelectRole = (role: UserRole) => {
+    setUserRole(role);
+    if (role === 'auxiliar' && (activeTab === 'dashboard-cavi' || (activeTab as string) === 'resultados-kpis')) {
+      setActiveTab('asignacion-rutas');
+    }
+    showToast(
+      role === 'administrador' ? 'Rol Administrador Activado' : 'Rol Auxiliar (Auditor) Activado',
+      role === 'administrador'
+        ? 'Control total del sistema: CAVI, despacho, macros y reportes.'
+        : 'Acceso operativo a Rutas, Agenda y Configuración (Color, Red Comercial y Sensor).',
+      'info'
+    );
+  };
 
   // Visual Theme state ('dark' | 'light')
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
@@ -210,9 +357,9 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0b1326] text-[#dae2fd] flex flex-col selection:bg-[#4edea3]/30 selection:text-[#dae2fd]">
+    <div className="min-h-screen bg-[#0b1326] text-[#dae2fd] flex flex-col selection:bg-[#0088ff]/30 selection:text-[#dae2fd]">
       {/* Global Floating Toast */}
-      <Toast toasts={toasts} onDismiss={handleDismissToast} />
+      <Toast toasts={toasts} onDismiss={handleDismissToast} theme={theme} />
 
       {/* Global Fixed Header (Responsive Mobile + Desktop Navigation) */}
       <Header
@@ -224,25 +371,31 @@ export default function App() {
           setUnreadCount(0);
         }}
         onOpenProfile={() => setIsProfileOpen(true)}
+        userRole={userRole}
+        onSelectRole={handleSelectRole}
+        activeAuditorId={activeAuditorId}
+        onSelectAuditor={setActiveAuditorId}
+        auditors={liveAuditors}
       />
 
       {/* Main Screen Content with Padding for Header and Mobile Bottom Nav */}
       <main className="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-18 md:pt-22 pb-24 md:pb-12 transition-all">
-        {(activeTab === 'dashboard-cavi' || (activeTab as string) === 'resultados-kpis') && (
-          <DashboardScreen
-            auditors={auditors}
-            macroFilesCount={macroFiles.length}
-            onGoToMacros={() => setActiveTab('archivos-macros')}
-            onOpenScanner={() => setIsScannerOpen(true)}
-            onOpenCriticalPoints={() => setIsCriticalPointsOpen(true)}
-            onShowToast={showToast}
-            initialViewMode={activeTab === 'resultados-kpis' ? 'kpis' : 'consolidado'}
-          />
-        )}
+        {userRole === 'administrador' &&
+          (activeTab === 'dashboard-cavi' || (activeTab as string) === 'resultados-kpis') && (
+            <DashboardScreen
+              auditors={liveAuditors}
+              macroFilesCount={macroFiles.length}
+              onGoToMacros={() => setActiveTab('archivos-macros')}
+              onOpenScanner={() => setIsScannerOpen(true)}
+              onOpenCriticalPoints={() => setIsCriticalPointsOpen(true)}
+              onShowToast={showToast}
+              initialViewMode={activeTab === 'resultados-kpis' ? 'kpis' : 'consolidado'}
+            />
+          )}
 
         {activeTab === 'asignacion-rutas' && (
           <RoutesScreen
-            auditors={auditors}
+            auditors={liveAuditors}
             steps={routeSteps}
             floatingPoints={floatingPoints}
             activeRouteSourceFile={activeRouteSourceFile}
@@ -250,6 +403,15 @@ export default function App() {
             onAssignFloatingPoint={handleAssignFloatingPoint}
             onAutoAssignAll={handleAutoAssignAll}
             onShowToast={showToast}
+            userRole={userRole}
+            activeAuditorId={activeAuditorId}
+            onAddRouteStep={handleAddRouteStep}
+            onDeleteRouteStep={handleDeleteRouteStep}
+            onToggleStepStatus={handleToggleStepStatus}
+            onImportRouteSteps={handleImportRouteSteps}
+            onClearRouteSteps={handleClearRouteSteps}
+            onAddFloatingPoint={handleAddFloatingPoint}
+            onDeleteFloatingPoint={handleDeleteFloatingPoint}
           />
         )}
 
@@ -264,6 +426,9 @@ export default function App() {
             onOpenScanner={() => setIsScannerOpen(true)}
             onManualCheckIn={handleCheckInSuccess}
             onShowToast={showToast}
+            userRole={userRole}
+            routeSteps={routeSteps}
+            auditors={liveAuditors}
           />
         )}
 
@@ -273,7 +438,11 @@ export default function App() {
       </main>
 
       {/* Global Fixed Bottom Navigation Bar (Hidden on md+ desktop screens) */}
-      <BottomNav activeTab={activeTab} onSelectTab={setActiveTab} />
+      <BottomNav
+        activeTab={activeTab}
+        onSelectTab={setActiveTab}
+        userRole={userRole}
+      />
 
       {/* Interactive Modals */}
       <ScannerModal
@@ -305,6 +474,11 @@ export default function App() {
         theme={theme}
         onToggleTheme={handleToggleTheme}
         onShowToast={showToast}
+        userRole={userRole}
+        onSelectRole={handleSelectRole}
+        activeAuditorId={activeAuditorId}
+        onSelectAuditor={setActiveAuditorId}
+        auditors={liveAuditors}
       />
     </div>
   );

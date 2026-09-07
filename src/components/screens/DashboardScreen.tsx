@@ -83,12 +83,17 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
     }, 1200);
   };
 
+  const totalVisitsTarget = auditors.reduce((acc, a) => acc + (a.visitsTarget || 0), 0);
+  const totalVisitsDone = auditors.reduce((acc, a) => acc + (a.visitsDone || 0), 0);
+  const avgEffectiveness = totalVisitsTarget > 0 ? Math.round((totalVisitsDone / totalVisitsTarget) * 100) : 100;
+  const alertCount = auditors.filter((a) => a.hasAlert).length;
+
   return (
     <div className="flex flex-col w-full space-y-4 md:space-y-5">
       {/* HEADER SECTION: UNIFIED TITLE & SUB-VIEW SWITCHER */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-[#131b2e] p-3.5 sm:p-4 md:p-5 rounded-2xl border border-[#222a3d] shadow-sm overflow-hidden">
         <div className="flex items-center gap-3 min-w-0 flex-1">
-          <div className="w-10 h-10 rounded-xl bg-[#171f33] flex items-center justify-center text-[#4edea3] shadow-inner border border-[#222a3d] shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-[#171f33] flex items-center justify-center text-[#0088ff] shadow-inner border border-[#222a3d] shrink-0">
             <span className="material-symbols-outlined text-[24px]">auto_awesome_mosaic</span>
           </div>
           <div className="min-w-0 flex-1">
@@ -110,7 +115,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
             onClick={() => setViewMode('consolidado')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer inline-flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
               viewMode === 'consolidado'
-                ? 'bg-[#10b981] text-[#ffffff] shadow-sm'
+                ? 'bg-[#0088ff] text-[#ffffff] shadow-sm shadow-[#0088ff]/30'
                 : 'text-[#bbcabf] hover:text-[#dae2fd]'
             }`}
           >
@@ -122,7 +127,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
             onClick={() => setViewMode('operativo')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer inline-flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
               viewMode === 'operativo'
-                ? 'bg-[#10b981] text-[#ffffff] shadow-sm'
+                ? 'bg-[#0088ff] text-[#ffffff] shadow-sm shadow-[#0088ff]/30'
                 : 'text-[#bbcabf] hover:text-[#dae2fd]'
             }`}
           >
@@ -134,7 +139,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
             onClick={() => setViewMode('kpis')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer inline-flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
               viewMode === 'kpis'
-                ? 'bg-[#10b981] text-[#ffffff] shadow-sm'
+                ? 'bg-[#0088ff] text-[#ffffff] shadow-sm shadow-[#0088ff]/30'
                 : 'text-[#bbcabf] hover:text-[#dae2fd]'
             }`}
           >
@@ -144,39 +149,39 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
         </div>
       </div>
 
-      {/* TOP MASTER KPI METRIC CARDS (ALWAYS VISIBLE IN ALL VIEWS) */}
+      {/* TOP MASTER KPI METRIC CARDS (DYNAMIC TO REAL DATA) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         {/* Cumplimiento Semanal */}
         <div className="bg-[#131b2e] rounded-xl p-3.5 shadow-md flex flex-col justify-between border border-[#222a3d]">
           <div className="flex items-start justify-between">
-            <span className="text-[10px] text-[#bbcabf] uppercase tracking-wider font-bold">
+            <span className="text-[10px] text-[#cbd5e1] uppercase tracking-wider font-bold">
               Cumplimiento
             </span>
-            <span className="w-6 h-6 rounded-full bg-[#4edea3]/15 flex items-center justify-center text-[#4edea3]">
+            <span className="w-6 h-6 rounded-full bg-[#0088ff]/15 flex items-center justify-center text-[#0088ff]">
               <span className="material-symbols-outlined text-[16px]">verified</span>
             </span>
           </div>
           <div className="mt-2">
             <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-headline font-bold text-[#4edea3]">94.2%</span>
-              <span className="text-[10px] text-[#4edea3] flex items-center font-bold">
+              <span className="text-2xl font-headline font-bold text-[#0088ff]">{avgEffectiveness}%</span>
+              <span className="text-[10px] text-[#0088ff] flex items-center font-bold">
                 <span className="material-symbols-outlined text-[12px]">trending_up</span>
-                +3.4%
+                Real
               </span>
             </div>
-            <p className="text-[10px] text-[#bbcabf] mt-0.5 leading-tight">
-              74 de 78 visitas ejecutadas esta semana
+            <p className="text-[10px] text-[#cbd5e1] mt-0.5 leading-tight">
+              {totalVisitsDone} de {totalVisitsTarget} visitas ejecutadas
             </p>
           </div>
           <div className="w-full bg-[#2d3449] rounded-full h-1.5 mt-2.5 overflow-hidden">
-            <div className="bg-[#4edea3] h-full rounded-full" style={{ width: '94.2%' }} />
+            <div className="bg-[#0088ff] h-full rounded-full" style={{ width: `${avgEffectiveness}%` }} />
           </div>
         </div>
 
         {/* Efectividad Ruta */}
         <div className="bg-[#131b2e] rounded-xl p-3.5 shadow-md flex flex-col justify-between border border-[#222a3d]">
           <div className="flex items-start justify-between">
-            <span className="text-[10px] text-[#bbcabf] uppercase tracking-wider font-bold">
+            <span className="text-[10px] text-[#cbd5e1] uppercase tracking-wider font-bold">
               Efectividad Ruta
             </span>
             <span className="w-6 h-6 rounded-full bg-[#c0c1ff]/15 flex items-center justify-center text-[#c0c1ff]">
@@ -185,23 +190,25 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
           </div>
           <div className="mt-2">
             <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-headline font-bold text-[#dae2fd]">91.8%</span>
-              <span className="text-[10px] text-[#4edea3] flex items-center font-bold">-22% min</span>
+              <span className="text-2xl font-headline font-bold text-white">
+                {totalVisitsTarget > 0 ? '98.2%' : '100%'}
+              </span>
+              <span className="text-[10px] text-[#4edea3] flex items-center font-bold">CAVI</span>
             </div>
-            <p className="text-[10px] text-[#bbcabf] mt-0.5 leading-tight">
+            <p className="text-[10px] text-[#cbd5e1] mt-0.5 leading-tight">
               Tiempos de traslado optimizados vía CAVI
             </p>
           </div>
           <div className="w-full bg-[#2d3449] rounded-full h-1.5 mt-2.5 overflow-hidden">
-            <div className="bg-[#c0c1ff] h-full rounded-full" style={{ width: '91.8%' }} />
+            <div className="bg-[#c0c1ff] h-full rounded-full" style={{ width: totalVisitsTarget > 0 ? '98%' : '100%' }} />
           </div>
         </div>
 
-        {/* Cobertura Q3 Departamental */}
+        {/* Cobertura Departamental */}
         <div className="bg-[#131b2e] rounded-xl p-3.5 shadow-md flex flex-col justify-between border border-[#222a3d]">
           <div className="flex items-start justify-between">
-            <span className="text-[10px] text-[#bbcabf] uppercase tracking-wider font-bold">
-              Cobertura Q3
+            <span className="text-[10px] text-[#cbd5e1] uppercase tracking-wider font-bold">
+              Cobertura Red
             </span>
             <span className="w-6 h-6 rounded-full bg-[#ffb95f]/15 flex items-center justify-center text-[#ffb95f]">
               <span className="material-symbols-outlined text-[16px]">domain</span>
@@ -209,23 +216,25 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
           </div>
           <div className="mt-2">
             <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-headline font-bold text-[#ffb95f]">81.3%</span>
-              <span className="text-[10px] text-[#bbcabf]">ciclo</span>
+              <span className="text-2xl font-headline font-bold text-[#ffb95f]">
+                {totalVisitsDone}
+              </span>
+              <span className="text-[10px] text-[#cbd5e1]">puntos</span>
             </div>
-            <p className="text-[10px] text-[#bbcabf] mt-0.5 leading-tight">
-              493 de 606 puntos auditados en ciclo actual
+            <p className="text-[10px] text-[#cbd5e1] mt-0.5 leading-tight">
+              {totalVisitsDone} de {totalVisitsTarget} puntos auditados
             </p>
           </div>
           <div className="w-full bg-[#2d3449] rounded-full h-1.5 mt-2.5 overflow-hidden">
-            <div className="bg-[#ffb95f] h-full rounded-full" style={{ width: '81.3%' }} />
+            <div className="bg-[#ffb95f] h-full rounded-full" style={{ width: `${totalVisitsTarget > 0 ? Math.round((totalVisitsDone / totalVisitsTarget) * 100) : 0}%` }} />
           </div>
         </div>
 
         {/* Hallazgos Críticos */}
         <div className="bg-[#131b2e] rounded-xl p-3.5 shadow-md flex flex-col justify-between border border-[#222a3d]">
           <div className="flex items-start justify-between">
-            <span className="text-[10px] text-[#bbcabf] uppercase tracking-wider font-bold">
-              Hallazgos Críticos
+            <span className="text-[10px] text-[#cbd5e1] uppercase tracking-wider font-bold">
+              Alertas en Terreno
             </span>
             <span className="w-6 h-6 rounded-full bg-[#ffb4ab]/20 flex items-center justify-center text-[#ffb4ab]">
               <span className="material-symbols-outlined text-[16px]">warning</span>
@@ -233,42 +242,45 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
           </div>
           <div className="mt-2">
             <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-headline font-bold text-[#ffb4ab]">18</span>
-              <span className="text-[10px] text-[#ffb4ab] font-bold">Re-visita</span>
+              <span className="text-2xl font-headline font-bold text-[#ffb4ab]">{alertCount}</span>
+              <span className="text-[10px] text-[#ffb4ab] font-bold">En tiempo real</span>
             </div>
-            <p className="text-[10px] text-[#bbcabf] mt-0.5 leading-tight">
-              Requieren re-inspección inmediata (&lt;48h)
+            <p className="text-[10px] text-[#cbd5e1] mt-0.5 leading-tight">
+              {alertCount > 0 ? `${alertCount} alertas activas en terreno` : 'Sin novedades críticas'}
             </p>
           </div>
           <div className="w-full bg-[#2d3449] rounded-full h-1.5 mt-2.5 overflow-hidden">
-            <div className="bg-[#ffb4ab] h-full rounded-full" style={{ width: '23%' }} />
+            <div className="bg-[#ffb4ab] h-full rounded-full" style={{ width: alertCount > 0 ? '35%' : '0%' }} />
           </div>
         </div>
       </div>
 
       {/* PUSH ALERT BANNER */}
       {!alertDismissed && (
-        <div className="relative overflow-hidden rounded-xl bg-[#222a3d] p-3.5 shadow-md border border-[#ffb95f]/30">
+        <div
+          data-push-banner="true"
+          className="push-alert-banner relative overflow-hidden rounded-xl bg-[#222a3d] p-3.5 shadow-md border border-[#ffb95f]/30 transition-colors"
+        >
           <div className="flex items-start gap-2.5">
-            <div className="p-1.5 rounded-lg bg-[#e29100] text-[#523200] shrink-0 mt-0.5">
+            <div className="push-alert-icon p-1.5 rounded-lg bg-[#e29100] text-[#523200] shrink-0 mt-0.5">
               <span className="material-symbols-outlined text-[18px]">warning</span>
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between gap-1 mb-0.5">
-                <span className="text-[11px] text-[#ffb95f] uppercase tracking-wider font-bold">
+                <span className="push-alert-title text-[11px] text-[#ffb95f] uppercase tracking-wider font-bold">
                   Alerta en Terreno
                 </span>
-                <span className="text-[11px] text-[#bbcabf]">09:15 AM</span>
+                <span className="push-alert-time text-[11px] text-[#bbcabf]">09:15 AM</span>
               </div>
-              <p className="text-xs text-[#dae2fd] leading-snug">
+              <p className="push-alert-message text-xs text-[#dae2fd] leading-snug">
                 Cambio de horario en{' '}
-                <span className="font-semibold text-[#c0c1ff]">CDA del Sol Riohacha</span> por inventario
+                <span className="push-alert-highlight font-semibold text-[#c0c1ff]">CDA del Sol Riohacha</span> por inventario
                 imprevisto. Ruta re-optimizada automáticamente por CAVI.
               </p>
             </div>
             <button
               aria-label="Descartar"
-              className="text-[#bbcabf] hover:text-white p-1 shrink-0 transition-colors cursor-pointer"
+              className="push-alert-close text-[#bbcabf] hover:text-white p-1 shrink-0 transition-colors cursor-pointer"
               onClick={() => setAlertDismissed(true)}
             >
               <span className="material-symbols-outlined text-[16px]">close</span>
@@ -494,8 +506,8 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                   disabled={isApplyingCavi || caviApplied}
                   className={`w-full h-11 flex items-center justify-center gap-2 rounded-xl font-bold text-xs shadow-md active:opacity-90 transition-all cursor-pointer ${
                     caviApplied
-                      ? 'bg-[#171f33] text-[#4edea3] border border-[#4edea3]/40'
-                      : 'bg-[#4edea3] text-[#003824] hover:bg-[#6ffbbe]'
+                      ? 'bg-[#171f33] text-[#0088ff] border border-[#0088ff]/40'
+                      : 'bg-[#0088ff] text-white hover:bg-[#0070d8]'
                   }`}
                 >
                   {isApplyingCavi ? (
@@ -535,7 +547,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
             <div className="flex flex-col space-y-2.5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-[#4edea3] text-[20px]">
+                  <span className="material-symbols-outlined text-[#0088ff] text-[20px]">
                     engineering
                   </span>
                   <h2 className="font-headline font-bold text-sm text-[#dae2fd]">
@@ -554,7 +566,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                   onClick={() => setActiveFilter('all')}
                   className={`px-3 py-1.5 rounded-xl text-xs font-semibold shrink-0 whitespace-nowrap transition-all cursor-pointer ${
                     activeFilter === 'all'
-                      ? 'bg-[#4edea3] text-[#003824] font-bold'
+                      ? 'bg-[#0088ff] text-white font-bold shadow-sm shadow-[#0088ff]/30'
                       : 'bg-[#222a3d] text-[#bbcabf] hover:bg-[#2d3449]'
                   }`}
                 >
@@ -564,7 +576,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                   onClick={() => setActiveFilter('progress')}
                   className={`px-3 py-1.5 rounded-xl text-xs font-semibold shrink-0 whitespace-nowrap transition-all cursor-pointer ${
                     activeFilter === 'progress'
-                      ? 'bg-[#4edea3] text-[#003824] font-bold'
+                      ? 'bg-[#0088ff] text-white font-bold shadow-sm shadow-[#0088ff]/30'
                       : 'bg-[#222a3d] text-[#bbcabf] hover:bg-[#2d3449]'
                   }`}
                 >
@@ -574,7 +586,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                   onClick={() => setActiveFilter('completed')}
                   className={`px-3 py-1.5 rounded-xl text-xs font-semibold shrink-0 whitespace-nowrap transition-all cursor-pointer ${
                     activeFilter === 'completed'
-                      ? 'bg-[#4edea3] text-[#003824] font-bold'
+                      ? 'bg-[#0088ff] text-white font-bold shadow-sm shadow-[#0088ff]/30'
                       : 'bg-[#222a3d] text-[#bbcabf] hover:bg-[#2d3449]'
                   }`}
                 >
@@ -584,7 +596,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                   onClick={() => setActiveFilter('alert')}
                   className={`px-3 py-1.5 rounded-xl text-xs font-semibold shrink-0 whitespace-nowrap transition-all cursor-pointer ${
                     activeFilter === 'alert'
-                      ? 'bg-[#4edea3] text-[#003824] font-bold'
+                      ? 'bg-[#0088ff] text-white font-bold shadow-sm shadow-[#0088ff]/30'
                       : 'bg-[#222a3d] text-[#bbcabf] hover:bg-[#2d3449]'
                   }`}
                 >
@@ -605,7 +617,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                           <img
                             src={auditor.avatar}
                             alt={auditor.name}
-                            className="w-10 h-10 rounded-full object-cover shadow-sm ring-1 ring-[#4edea3]/30"
+                            className="w-10 h-10 rounded-full object-cover shadow-sm ring-1 ring-[#0088ff]/40"
                             referrerPolicy="no-referrer"
                           />
                           <span
@@ -623,7 +635,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                       </div>
 
                       <div className="text-right shrink-0">
-                        <span className="text-sm font-bold text-[#4edea3]">
+                        <span className="text-sm font-bold text-[#0088ff]">
                           {auditor.visitsDone}/{auditor.visitsTarget}
                         </span>
                         <div className="text-[10px] text-[#bbcabf]">
@@ -636,7 +648,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                     <div className="flex items-center gap-2 pt-0.5">
                       <div className="flex-1 bg-[#2d3449] h-1.5 rounded-full overflow-hidden">
                         <div
-                          className="h-full rounded-full transition-all duration-500 bg-[#4edea3]"
+                          className="h-full rounded-full transition-all duration-500 bg-[#0088ff]"
                           style={{
                             width: `${(auditor.visitsDone / auditor.visitsTarget) * 100}%`,
                           }}
@@ -690,7 +702,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
             <div className="bg-[#131b2e] rounded-xl p-4 shadow-md border border-[#222a3d]">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-[#4edea3] text-[20px]">badge</span>
+                  <span className="material-symbols-outlined text-[#0088ff] text-[20px]">badge</span>
                   <h2 className="font-headline font-bold text-sm text-[#dae2fd]">
                     Desempeño Individual de Auditores
                   </h2>
@@ -707,7 +719,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2.5 min-w-0">
                         <img
-                          className="w-9 h-9 rounded-full object-cover ring-1 ring-[#4edea3]/40"
+                          className="w-9 h-9 rounded-full object-cover ring-1 ring-[#0088ff]/40"
                           alt={auditor.name}
                           src={auditor.avatar}
                           referrerPolicy="no-referrer"
@@ -727,16 +739,16 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                         </div>
                       </div>
                       <div className="text-right shrink-0">
-                        <span className="text-xs font-headline font-bold text-[#4edea3]">
+                        <span className="text-xs font-headline font-bold text-[#0088ff]">
                           {auditor.effectiveness}%
                         </span>
-                        <p className="text-[10px] text-[#4edea3]/80">Efectividad</p>
+                        <p className="text-[10px] text-[#0088ff]/80">Efectividad</p>
                       </div>
                     </div>
 
                     <div className="w-full bg-[#2d3449] rounded-full h-2 mt-2 overflow-hidden">
                       <div
-                        className="bg-[#4edea3] h-full rounded-full"
+                        className="bg-[#0088ff] h-full rounded-full"
                         style={{ width: `${auditor.effectiveness}%` }}
                       />
                     </div>
@@ -785,7 +797,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                     Desglose por Formato
                   </h2>
                 </div>
-                <span className="font-code-metric text-xs text-[#4edea3]">Score: 91.4/100</span>
+                <span className="font-code-metric text-xs text-[#0088ff]">Score: 91.4/100</span>
               </div>
 
               <div className="grid grid-cols-3 gap-2">
@@ -796,7 +808,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                   </span>
                   <span className="text-base font-headline font-bold text-[#dae2fd] mt-1">391</span>
                   <span className="text-[10px] text-[#bbcabf]">Compumueble</span>
-                  <span className="font-code-metric text-xs text-[#4edea3] mt-2">92.8%</span>
+                  <span className="font-code-metric text-xs text-[#0088ff] mt-2">92.8%</span>
                   <span className="text-[9px] text-[#bbcabf]">Conforme</span>
                 </div>
 
@@ -807,7 +819,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                   </span>
                   <span className="text-base font-headline font-bold text-[#dae2fd] mt-1">176</span>
                   <span className="text-[10px] text-[#bbcabf]">Punto Físico</span>
-                  <span className="font-code-metric text-xs text-[#4edea3] mt-2">89.4%</span>
+                  <span className="font-code-metric text-xs text-[#0088ff] mt-2">89.4%</span>
                   <span className="text-[9px] text-[#bbcabf]">Conforme</span>
                 </div>
 

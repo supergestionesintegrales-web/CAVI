@@ -1,5 +1,13 @@
 export type TabType = 'dashboard-cavi' | 'asignacion-rutas' | 'cronograma' | 'resultados-kpis' | 'archivos-macros';
 
+export type UserRole = 'administrador' | 'auxiliar';
+
+export interface UserSession {
+  role: UserRole;
+  auditorId?: string; // For auxiliar role: 'aud-1', 'aud-2', 'aud-3'
+  auditorName?: string;
+}
+
 export type FormatType = 'CM' | 'PF' | 'CDA';
 
 export type SupportedFileType = 'excel' | 'powerpoint' | 'powerbi' | 'word' | 'pdf' | 'other';
@@ -78,12 +86,20 @@ export interface RouteStep {
   time: string;
   code: string;
   format: FormatType;
+  channel?: string;
   name: string;
   address: string;
+  municipality?: string;
+  lat?: number;
+  lng?: number;
+  hasGps?: boolean;
   status: 'completed' | 'in_progress' | 'pending';
   notes?: string;
   sla?: string;
   distance?: string;
+  auditorId?: string;
+  auditorName?: string;
+  day?: 'lunes' | 'martes' | 'miércoles' | 'jueves' | 'viernes';
 }
 
 export interface FloatingPoint {
@@ -91,7 +107,12 @@ export interface FloatingPoint {
   code: string;
   name: string;
   format: FormatType;
+  channel?: string;
   address: string;
+  municipality?: string;
+  lat?: number;
+  lng?: number;
+  hasGps?: boolean;
   priority: 'Urgente' | 'Alta' | 'Media' | 'Baja';
   sla: string;
   details?: string;

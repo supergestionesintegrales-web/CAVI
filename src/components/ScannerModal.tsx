@@ -129,23 +129,23 @@ export const ScannerModal: React.FC<ScannerModalProps> = ({
           {/* Quick Simulation Options */}
           {!detectedPoint ? (
             <div className="mt-3 space-y-1.5">
-              <span className="text-[11px] font-semibold text-[#bbcabf] uppercase tracking-wider block">
-                Simular lectura de campo:
+              <span className="text-[11px] font-semibold text-[#dae2fd] uppercase tracking-wider block">
+                Simular lectura de campo (La Guajira):
               </span>
               <div className="grid grid-cols-2 gap-1.5">
                 <button
-                  onClick={() => handleSimulateScan('CM-108', 'Suba Imperial')}
+                  onClick={() => handleSimulateScan('CM-108', 'Riohacha Centro')}
                   className="p-2 rounded-lg bg-[#171f33] hover:bg-[#222a3d] text-left text-xs border border-[#2d3449]/60 transition-colors"
                 >
-                  <span className="font-bold text-[#22D3EE] block">CM-108</span>
-                  <span className="text-[10px] text-[#bbcabf] truncate block">Suba Imperial</span>
+                  <span className="font-bold text-[#4edea3] block">CM-108</span>
+                  <span className="text-[10px] text-[#dae2fd] truncate block">Riohacha Centro</span>
                 </button>
                 <button
-                  onClick={() => handleSimulateScan('PF-042', 'Chapinero Central')}
+                  onClick={() => handleSimulateScan('PF-042', 'Maicao Frontera')}
                   className="p-2 rounded-lg bg-[#171f33] hover:bg-[#222a3d] text-left text-xs border border-[#2d3449]/60 transition-colors"
                 >
-                  <span className="font-bold text-[#38BDF8] block">PF-042</span>
-                  <span className="text-[10px] text-[#bbcabf] truncate block">Chapinero Central</span>
+                  <span className="font-bold text-[#c0c1ff] block">PF-042</span>
+                  <span className="text-[10px] text-[#dae2fd] truncate block">Maicao Frontera</span>
                 </button>
               </div>
             </div>

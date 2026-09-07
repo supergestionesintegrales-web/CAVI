@@ -11,12 +11,12 @@
   --color-surface-container-highest: #2d3449;
   --color-surface-variant: #2d3449;
 
-  --color-primary: #4edea3;
-  --color-primary-container: #10b981;
-  --color-primary-fixed: #6ffbbe;
-  --color-primary-fixed-dim: #4edea3;
-  --color-on-primary: #003824;
-  --color-on-primary-container: #00422b;
+  --color-primary: #0088ff;
+  --color-primary-container: #0070d8;
+  --color-primary-fixed: #38bdf8;
+  --color-primary-fixed-dim: #0088ff;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #ffffff;
 
   --color-secondary: #c0c1ff;
   --color-secondary-container: #3131c0;
@@ -118,10 +118,10 @@ html[data-theme="light"],
 body[data-theme="light"],
 .theme-light {
   background-color: #f4f6fb !important;
-  color: #0f172a !important;
+  color: #000000 !important;
 }
 
-/* Base Surfaces & Cards */
+/* Base Surfaces & Cards in Light Mode */
 [data-theme="light"] .bg-\[\#0b1326\],
 .theme-light .bg-\[\#0b1326\] {
   background-color: #f4f6fb !important;
@@ -168,63 +168,177 @@ body[data-theme="light"],
   background-color: rgba(255, 255, 255, 0.95) !important;
 }
 
-/* High-contrast Text Colors */
+/* ==========================================================================
+   ALL OPAQUE, GREY, SILVERY AND PALE TEXTS -> SOLID BLACK (#000000) IN LIGHT MODE
+   ========================================================================== */
+[data-theme="light"] .text-\[\#cbd5e1\],
+.theme-light .text-\[\#cbd5e1\],
+[data-theme="light"] .text-\[\#f8fafc\],
+.theme-light .text-\[\#f8fafc\],
+[data-theme="light"] .text-\[\#f1f5f9\],
+.theme-light .text-\[\#f1f5f9\],
+[data-theme="light"] .text-\[\#e2e8f0\],
+.theme-light .text-\[\#e2e8f0\],
 [data-theme="light"] .text-\[\#dae2fd\],
-.theme-light .text-\[\#dae2fd\] {
-  color: #0f172a !important;
-}
-
+.theme-light .text-\[\#dae2fd\],
 [data-theme="light"] .text-\[\#bbcabf\],
-.theme-light .text-\[\#bbcabf\] {
-  color: #334155 !important;
-}
-
+.theme-light .text-\[\#bbcabf\],
 [data-theme="light"] .text-\[\#86948a\],
-.theme-light .text-\[\#86948a\] {
-  color: #475569 !important;
-}
-
+.theme-light .text-\[\#86948a\],
+[data-theme="light"] .text-\[\#94a3b8\],
+.theme-light .text-\[\#94a3b8\],
+[data-theme="light"] .text-\[\#64748b\],
+.theme-light .text-\[\#64748b\],
+[data-theme="light"] .text-\[\#475569\],
+.theme-light .text-\[\#475569\],
 [data-theme="light"] .text-\[\#3c4a42\],
-.theme-light .text-\[\#3c4a42\] {
-  color: #475569 !important;
+.theme-light .text-\[\#3c4a42\],
+[data-theme="light"] .text-slate-100,
+[data-theme="light"] .text-slate-200,
+[data-theme="light"] .text-slate-300,
+[data-theme="light"] .text-slate-400,
+[data-theme="light"] .text-slate-500,
+[data-theme="light"] .text-gray-100,
+[data-theme="light"] .text-gray-200,
+[data-theme="light"] .text-gray-300,
+[data-theme="light"] .text-gray-400,
+[data-theme="light"] .text-gray-500,
+[data-theme="light"] .text-zinc-100,
+[data-theme="light"] .text-zinc-200,
+[data-theme="light"] .text-zinc-300,
+[data-theme="light"] .text-zinc-400 {
+  color: #000000 !important;
 }
 
-/* General text-white & light slate text converted to dark text on light backgrounds */
+/* Headings and labels on light cards: Crisp Black */
 [data-theme="light"] h1.text-white,
 [data-theme="light"] h2.text-white,
 [data-theme="light"] h3.text-white,
 [data-theme="light"] h4.text-white,
 [data-theme="light"] p.text-white,
-[data-theme="light"] span.text-white,
 [data-theme="light"] div.text-white,
 [data-theme="light"] .font-semibold.text-white,
-[data-theme="light"] .font-bold.text-white,
-[data-theme="light"] .text-slate-100,
-[data-theme="light"] .text-slate-200,
-[data-theme="light"] .text-slate-300,
-[data-theme="light"] .text-gray-100,
-[data-theme="light"] .text-gray-200 {
-  color: #0f172a !important;
+[data-theme="light"] .font-bold.text-white {
+  color: #000000 !important;
 }
 
-[data-theme="light"] .text-slate-400,
-[data-theme="light"] .text-gray-400 {
-  color: #475569 !important;
+/* ==========================================================================
+   MAP OVERLAY (15 MUNICIPIOS): TEXT MUST ALWAYS BE PURE WHITE (#FFFFFF)
+   ========================================================================== */
+.gps-white-text,
+.gps-white-text *,
+.gps-title,
+.gps-title *,
+[data-gps-title],
+[data-gps-title] *,
+[data-theme="light"] .map-overlay-banner,
+[data-theme="light"] .map-overlay-banner *,
+[data-theme="light"] [data-map-overlay="true"],
+[data-theme="light"] [data-map-overlay="true"] *,
+[data-theme="light"] .map-overlay-text,
+[data-theme="light"] .gps-white-text,
+[data-theme="light"] .gps-white-text *,
+[data-theme="light"] .gps-title,
+[data-theme="light"] .gps-title *,
+[data-theme="light"] [data-gps-title],
+[data-theme="light"] [data-gps-title] *,
+.theme-light .map-overlay-banner,
+.theme-light .map-overlay-banner *,
+.theme-light [data-map-overlay="true"],
+.theme-light [data-map-overlay="true"] *,
+.theme-light .gps-white-text,
+.theme-light .gps-white-text * {
+  color: #ffffff !important;
 }
 
-/* EXCEPTIONS: Active colored buttons & prominent tags KEEP white text */
+[data-theme="light"] .map-overlay-banner,
+.theme-light .map-overlay-banner {
+  background-color: rgba(6, 14, 32, 0.95) !important;
+  border-color: #222a3d !important;
+}
+
+/* ==========================================================================
+   EXCEPTIONS: BUTTONS & BADGES WITH SOLID BACKGROUNDS KEEP WHITE/INTENDED COLOR
+   ========================================================================== */
+/* Green Action Buttons */
 [data-theme="light"] button.bg-\[\#4edea3\],
 [data-theme="light"] button.bg-\[\#10b981\],
-[data-theme="light"] button.bg-\[\#4edea3\] *,
-[data-theme="light"] button.bg-\[\#10b981\] *,
+[data-theme="light"] button.bg-\[\#059669\],
 [data-theme="light"] .bg-\[\#10b981\] span.text-white,
 [data-theme="light"] .bg-\[\#4edea3\] span.text-white,
-[data-theme="light"] .bg-\[\#3131c0\] span.text-white,
-[data-theme="light"] .bg-emerald-600 *,
+[data-theme="light"] .bg-\[\#059669\] span.text-white,
+[data-theme="light"] .bg-emerald-600 * {
+  color: #ffffff !important;
+}
+
+/* Blue Action Buttons (CAVI Blue #0088ff, Auto-asignar, Transmitir, etc.) */
+[data-theme="light"] button.bg-\[\#0088ff\],
+[data-theme="light"] button.bg-\[\#0077e6\],
+[data-theme="light"] button.bg-\[\#3b82f6\],
+[data-theme="light"] button.bg-\[\#2563eb\],
+[data-theme="light"] button.bg-\[\#0088ff\] *,
+[data-theme="light"] button.bg-\[\#0077e6\] *,
+[data-theme="light"] button.bg-\[\#3b82f6\] *,
+[data-theme="light"] button.bg-\[\#2563eb\] *,
+[data-theme="light"] .bg-\[\#0088ff\] *,
 [data-theme="light"] .bg-blue-600 *,
-[data-theme="light"] .bg-indigo-600 *,
+[data-theme="light"] .bg-indigo-600 * {
+  color: #ffffff !important;
+}
+
+/* Red Action/Alert Buttons */
+[data-theme="light"] button.bg-red-600 *,
 [data-theme="light"] .bg-red-600 * {
   color: #ffffff !important;
+}
+
+/* Solid Format Badges (CDA, PF, CM) Keep Pure White Text */
+[data-theme="light"] .bg-\[\#065f46\] *,
+[data-theme="light"] .bg-\[\#065f46\],
+[data-theme="light"] .bg-\[\#4338ca\] *,
+[data-theme="light"] .bg-\[\#4338ca\],
+[data-theme="light"] .bg-\[\#0284c7\] *,
+[data-theme="light"] .bg-\[\#0284c7\],
+[data-theme="light"] .bg-\[\#7c3aed\] *,
+[data-theme="light"] .bg-\[\#7c3aed\],
+[data-theme="light"] .bg-\[\#059669\] *,
+[data-theme="light"] .bg-\[\#059669\],
+[data-theme="light"] .bg-\[\#b45309\] *,
+[data-theme="light"] .bg-\[\#b45309\] {
+  color: #ffffff !important;
+}
+
+/* Dark Accent Buttons (Cargar Excel, + Flotante) */
+[data-theme="light"] button.bg-\[\#1e293b\] {
+  background-color: #1e293b !important;
+  border-color: #3b4760 !important;
+  color: #ffffff !important;
+}
+[data-theme="light"] button.bg-\[\#1e293b\] span {
+  color: #ffffff !important;
+}
+[data-theme="light"] button.bg-\[\#1e293b\] .text-\[\#38bdf8\] {
+  color: #38bdf8 !important;
+}
+[data-theme="light"] button.bg-\[\#1e293b\] .text-\[\#fcd34d\] {
+  color: #fcd34d !important;
+}
+[data-theme="light"] button.bg-\[\#1e293b\] .text-\[\#0088ff\] {
+  color: #0088ff !important;
+}
+[data-theme="light"] button.bg-\[\#1e293b\] .text-\[\#4edea3\] {
+  color: #4edea3 !important;
+}
+
+/* Priority & Status Pills */
+[data-theme="light"] .bg-\[\#78350f\],
+[data-theme="light"] .bg-\[\#78350f\] * {
+  color: #fde68a !important;
+}
+
+[data-theme="light"] .bg-\[\#064e3b\],
+[data-theme="light"] .bg-\[\#064e3b\] * {
+  color: #6ee7b7 !important;
 }
 
 /* Clean Structural Borders */
@@ -251,6 +365,11 @@ body[data-theme="light"],
 }
 
 /* Accent texts with strong WCAG AA contrast against light surfaces */
+[data-theme="light"] .text-\[\#0088ff\],
+.theme-light .text-\[\#0088ff\] {
+  color: #0070d8 !important;
+}
+
 [data-theme="light"] .text-\[\#4edea3\],
 .theme-light .text-\[\#4edea3\] {
   color: #047857 !important;
@@ -272,6 +391,23 @@ body[data-theme="light"],
 }
 
 /* Primary Action Buttons */
+[data-theme="light"] .bg-\[\#0088ff\] {
+  background-color: #0088ff !important;
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .bg-\[\#0088ff\]\/10,
+[data-theme="light"] .bg-\[\#0088ff\]\/15,
+[data-theme="light"] .bg-\[\#0088ff\]\/20 {
+  background-color: rgba(0, 136, 255, 0.12) !important;
+}
+
+[data-theme="light"] .border-\[\#0088ff\]\/20,
+[data-theme="light"] .border-\[\#0088ff\]\/30,
+[data-theme="light"] .border-\[\#0088ff\]\/40 {
+  border-color: rgba(0, 136, 255, 0.4) !important;
+}
+
 [data-theme="light"] .bg-\[\#4edea3\] {
   background-color: #059669 !important;
   color: #ffffff !important;
@@ -504,6 +640,181 @@ body[data-theme="light"],
 [data-theme="light"] .ring-\[\#131b2e\],
 [data-theme="light"] .ring-\[\#171f33\] {
   --tw-ring-color: #ffffff !important;
+}
+
+/* ==========================================================================
+   PUSH MESSAGES & TOAST ALERTS IN LIGHT MODE: PURE WHITE (#FFFFFF), NOT DARK
+   ========================================================================== */
+[data-theme="light"] .push-toast-card,
+[data-theme="light"] [data-push-toast="true"],
+.theme-light .push-toast-card,
+.theme-light [data-push-toast="true"] {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.04) !important;
+}
+
+[data-theme="light"] .push-toast-card p,
+[data-theme="light"] [data-push-toast="true"] p,
+.theme-light .push-toast-card p,
+.theme-light [data-push-toast="true"] p {
+  color: #334155 !important;
+}
+
+[data-theme="light"] .push-alert-banner,
+[data-theme="light"] [data-push-banner="true"],
+.theme-light .push-alert-banner,
+.theme-light [data-push-banner="true"] {
+  background-color: #ffffff !important;
+  border-color: #fed7aa !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.03) !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .push-alert-banner .push-alert-title,
+[data-theme="light"] [data-push-banner="true"] .push-alert-title,
+.theme-light .push-alert-banner .push-alert-title,
+.theme-light [data-push-banner="true"] .push-alert-title {
+  color: #b45309 !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="light"] .push-alert-banner .push-alert-time,
+[data-theme="light"] [data-push-banner="true"] .push-alert-time,
+.theme-light .push-alert-banner .push-alert-time,
+.theme-light [data-push-banner="true"] .push-alert-time {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .push-alert-banner .push-alert-message,
+[data-theme="light"] [data-push-banner="true"] .push-alert-message,
+.theme-light .push-alert-banner .push-alert-message,
+.theme-light [data-push-banner="true"] .push-alert-message {
+  color: #1e293b !important;
+  font-weight: 500 !important;
+}
+
+[data-theme="light"] .push-alert-banner .push-alert-highlight,
+[data-theme="light"] [data-push-banner="true"] .push-alert-highlight,
+.theme-light .push-alert-banner .push-alert-highlight,
+.theme-light [data-push-banner="true"] .push-alert-highlight {
+  color: #312e81 !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="light"] .push-alert-banner .push-alert-icon,
+[data-theme="light"] [data-push-banner="true"] .push-alert-icon,
+.theme-light .push-alert-banner .push-alert-icon,
+.theme-light [data-push-banner="true"] .push-alert-icon {
+  background-color: #fef3c7 !important;
+  color: #b45309 !important;
+  border-color: #fcd34d !important;
+}
+
+[data-theme="light"] .push-alert-banner .push-alert-close,
+[data-theme="light"] [data-push-banner="true"] .push-alert-close,
+.theme-light .push-alert-banner .push-alert-close,
+.theme-light [data-push-banner="true"] .push-alert-close {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .push-alert-banner .push-alert-close:hover,
+[data-theme="light"] [data-push-banner="true"] .push-alert-close:hover,
+.theme-light .push-alert-banner .push-alert-close:hover,
+.theme-light [data-push-banner="true"] .push-alert-close:hover {
+  color: #0f172a !important;
+}
+
+/* Modal and Items */
+[data-theme="light"] [data-notification-modal="true"],
+.theme-light [data-notification-modal="true"] {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+}
+
+[data-theme="light"] .push-notification-item,
+[data-theme="light"] [data-notification-card="true"],
+.theme-light .push-notification-item,
+.theme-light [data-notification-card="true"] {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05) !important;
+}
+
+[data-theme="light"] .push-notification-item .notification-text,
+[data-theme="light"] [data-notification-card="true"] .notification-text,
+.theme-light .push-notification-item .notification-text,
+.theme-light [data-notification-card="true"] .notification-text {
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .push-notification-item .notification-time,
+[data-theme="light"] [data-notification-card="true"] .notification-time,
+.theme-light .push-notification-item .notification-time,
+.theme-light [data-notification-card="true"] .notification-time {
+  color: #64748b !important;
+}
+
+/* ==========================================================================
+   MAP OVERLAY BANNER (GPS): ALWAYS DARK BACKGROUND WITH PURE WHITE TEXT
+   Guarantees that titles, subtitles and badges never invert to black in light theme
+   ========================================================================== */
+.map-overlay-banner,
+.map-overlay-banner *,
+[data-map-overlay="true"],
+[data-map-overlay="true"] *,
+[data-gps-title="true"],
+[data-gps-title="true"] *,
+.gps-white-text,
+.gps-white-text *,
+.gps-title,
+.gps-title *,
+[data-theme="light"] .map-overlay-banner,
+[data-theme="light"] .map-overlay-banner *,
+[data-theme="light"] .map-overlay-banner span,
+[data-theme="light"] .map-overlay-banner p,
+[data-theme="light"] .map-overlay-banner h1,
+[data-theme="light"] .map-overlay-banner h2,
+[data-theme="light"] .map-overlay-banner h3,
+[data-theme="light"] .map-overlay-banner .font-bold,
+[data-theme="light"] .map-overlay-banner .font-semibold,
+[data-theme="light"] .map-overlay-banner .gps-title,
+[data-theme="light"] .map-overlay-banner .text-white,
+[data-theme="light"] .map-overlay-banner [class*="text-"],
+[data-theme="light"] [data-map-overlay="true"],
+[data-theme="light"] [data-map-overlay="true"] *,
+[data-theme="light"] [data-gps-title="true"],
+[data-theme="light"] [data-gps-title="true"] *,
+[data-theme="light"] .gps-white-text,
+[data-theme="light"] .gps-white-text *,
+.theme-light .map-overlay-banner,
+.theme-light .map-overlay-banner *,
+.theme-light [data-map-overlay="true"],
+.theme-light [data-map-overlay="true"] * {
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .map-overlay-banner,
+[data-theme="light"] [data-map-overlay="true"],
+.theme-light .map-overlay-banner,
+.theme-light [data-map-overlay="true"] {
+  background-color: rgba(6, 14, 32, 0.95) !important;
+  border-color: #222a3d !important;
+}
+
+[data-theme="light"] .map-overlay-banner .map-overlay-badge,
+[data-theme="light"] [data-map-overlay="true"] .map-overlay-badge,
+.theme-light .map-overlay-banner .map-overlay-badge,
+.theme-light [data-map-overlay="true"] .map-overlay-badge,
+[data-theme="light"] .map-overlay-banner span.bg-\[\#1e293b\],
+.theme-light .map-overlay-banner span.bg-\[\#1e293b\] {
+  background-color: #1e293b !important;
+  color: #ffffff !important;
+  border-color: #3b4760 !important;
 }
 
 

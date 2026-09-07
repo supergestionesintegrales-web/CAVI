@@ -20,18 +20,18 @@ export const AUDITORS_DATA: Auditor[] = [
     zone: 'Norte',
     avatar: SAMUEL_AVATAR,
     status: 'progress',
-    hasAlert: true,
-    visitsDone: 7,
-    visitsTarget: 9,
-    pointsPerDay: 9.1,
-    auditedTotal: 74,
-    effectiveness: 96,
-    currentLocation: 'Actual: CM-108 Riohacha Centro',
-    statusText: 'Ruta reordenada por CAVI',
+    hasAlert: false,
+    visitsDone: 0,
+    visitsTarget: 0,
+    pointsPerDay: 0,
+    auditedTotal: 0,
+    effectiveness: 100,
+    currentLocation: 'Sin visitas registradas hoy',
+    statusText: 'Listo para asignar ruta',
     targetBreakdown: {
-      cm: 32,
-      pf: 24,
-      cda: 18,
+      cm: 0,
+      pf: 0,
+      cda: 0,
     },
     moraPending: 0,
   },
@@ -43,19 +43,19 @@ export const AUDITORS_DATA: Auditor[] = [
     avatar: KLEYDER_AVATAR,
     status: 'progress',
     hasAlert: false,
-    visitsDone: 6,
-    visitsTarget: 10,
-    pointsPerDay: 9.8,
-    auditedTotal: 90,
-    effectiveness: 93,
-    currentLocation: 'En trayecto a PF-042 Maicao Comercio',
-    statusText: 'A tiempo',
+    visitsDone: 0,
+    visitsTarget: 0,
+    pointsPerDay: 0,
+    auditedTotal: 0,
+    effectiveness: 100,
+    currentLocation: 'Sin visitas registradas hoy',
+    statusText: 'Listo para asignar ruta',
     targetBreakdown: {
-      cm: 41,
-      pf: 28,
-      cda: 21,
+      cm: 0,
+      pf: 0,
+      cda: 0,
     },
-    moraPending: 2,
+    moraPending: 0,
   },
   {
     id: 'aud-3',
@@ -63,25 +63,33 @@ export const AUDITORS_DATA: Auditor[] = [
     code: 'AUD-088',
     zone: 'Sur',
     avatar: JOSE_AVATAR,
-    status: 'completed',
+    status: 'progress',
     hasAlert: false,
-    visitsDone: 8,
-    visitsTarget: 8,
-    pointsPerDay: 8.4,
-    auditedTotal: 71,
-    effectiveness: 95,
-    currentLocation: 'Jornada finalizada sin desvíos (San Juan)',
-    statusText: 'Sincronizado 15:40',
+    visitsDone: 0,
+    visitsTarget: 0,
+    pointsPerDay: 0,
+    auditedTotal: 0,
+    effectiveness: 100,
+    currentLocation: 'Sin visitas registradas hoy',
+    statusText: 'Listo para asignar ruta',
     targetBreakdown: {
-      cm: 30,
-      pf: 22,
-      cda: 19,
+      cm: 0,
+      pf: 0,
+      cda: 0,
     },
     moraPending: 0,
   }
 ];
 
-export const INITIAL_SAMUEL_STEPS: RouteStep[] = [
+// Inicia vacío para permitir el ingreso de la información real del usuario
+export const INITIAL_SAMUEL_STEPS: RouteStep[] = [];
+
+export const INITIAL_FLOATING_POINTS: FloatingPoint[] = [];
+
+export const CRITICAL_POINTS_LIST: CriticalPoint[] = [];
+
+// Opcional: datos de demostración si el usuario desea explorar con un clic
+export const DEMO_SAMPLE_STEPS: RouteStep[] = [
   {
     id: 'step-1',
     time: '08:30',
@@ -90,7 +98,9 @@ export const INITIAL_SAMUEL_STEPS: RouteStep[] = [
     name: 'Centro Acopio Riohacha',
     address: 'Calle 15 #12-30, Mercado Nuevo',
     status: 'completed',
-    notes: 'Auditado en 42 min · Sin discrepancias'
+    notes: 'Auditado en 42 min · Sin discrepancias',
+    auditorId: 'aud-1',
+    auditorName: 'Samuel Ramos Quintero'
   },
   {
     id: 'step-2',
@@ -100,7 +110,9 @@ export const INITIAL_SAMUEL_STEPS: RouteStep[] = [
     name: 'Supertienda Olímpica Riohacha',
     address: 'Calle 7 #8-45, Centro',
     status: 'completed',
-    notes: 'Inventario conforme · Conexión directa'
+    notes: 'Inventario conforme · Conexión directa',
+    auditorId: 'aud-1',
+    auditorName: 'Samuel Ramos Quintero'
   },
   {
     id: 'step-3',
@@ -110,7 +122,9 @@ export const INITIAL_SAMUEL_STEPS: RouteStep[] = [
     name: 'Éxito Viva Riohacha',
     address: 'Cra 7 #34-80, Salida a Maicao',
     status: 'in_progress',
-    notes: 'En curso · GPS a 180 m'
+    notes: 'En curso · GPS a 180 m',
+    auditorId: 'aud-1',
+    auditorName: 'Samuel Ramos Quintero'
   },
   {
     id: 'step-4',
@@ -121,31 +135,37 @@ export const INITIAL_SAMUEL_STEPS: RouteStep[] = [
     address: 'Av. Las Salinas #4-12, Manaure',
     status: 'pending',
     sla: 'SLA: 48h restantes · Troncal del Caribe',
-    distance: '24.5 km'
+    distance: '24.5 km',
+    auditorId: 'aud-1',
+    auditorName: 'Samuel Ramos Quintero'
   },
   {
     id: 'step-5',
-    time: '14:45',
-    code: 'CDA-09',
-    format: 'CDA',
-    name: 'CDA del Sol Riohacha',
-    address: 'Km 3 Vía Santa Marta',
+    time: '09:00',
+    code: 'CM-51',
+    format: 'CM',
+    name: 'Super Inter Maicao Central',
+    address: 'Calle 16 # 10-25, Maicao',
     status: 'pending',
-    distance: '8.2 km'
+    sla: 'SLA: 24h restantes',
+    auditorId: 'aud-2',
+    auditorName: 'Kleyder Rodriguez'
   },
   {
     id: 'step-6',
-    time: '16:00',
-    code: 'PF-45',
-    format: 'PF',
-    name: 'Drogas La Rebaja Uribia',
-    address: 'Plaza Colombia #5-20, Uribia',
+    time: '08:45',
+    code: 'CDA-18',
+    format: 'CDA',
+    name: 'CDA Guajira Sur Villanueva',
+    address: 'Salida a Valledupar Km 1',
     status: 'pending',
-    distance: '38.0 km'
+    sla: 'SLA: 48h restantes',
+    auditorId: 'aud-3',
+    auditorName: 'Jose Aponte'
   }
 ];
 
-export const INITIAL_FLOATING_POINTS: FloatingPoint[] = [
+export const DEMO_SAMPLE_FLOATING: FloatingPoint[] = [
   {
     id: 'fp-1',
     code: 'CM-102',
@@ -165,20 +185,10 @@ export const INITIAL_FLOATING_POINTS: FloatingPoint[] = [
     priority: 'Media',
     sla: 'Prioridad Media (48h)',
     details: 'Inspección de inventario farmacológico y arqueo'
-  },
-  {
-    id: 'fp-3',
-    code: 'CDA-33',
-    name: 'CDA Frontera Paraguachón - Maicao',
-    format: 'CDA',
-    address: 'Troncal del Caribe Km 12',
-    priority: 'Alta',
-    sla: 'Capacidad +500 items',
-    details: 'Control de recepción masiva de transportes pesados'
   }
 ];
 
-export const CRITICAL_POINTS_LIST: CriticalPoint[] = [
+export const DEMO_CRITICAL_POINTS_LIST: CriticalPoint[] = [
   {
     id: 'cp-1',
     code: 'CM-108',
@@ -202,72 +212,6 @@ export const CRITICAL_POINTS_LIST: CriticalPoint[] = [
     priority: 'Re-visita Inventario',
     lastAuditedDate: '05 Agosto 2024',
     assignedTo: 'Kleyder Rodriguez'
-  },
-  {
-    id: 'cp-3',
-    code: 'CM-099',
-    name: 'Super Inter Fonseca',
-    format: 'CM',
-    address: 'Calle 12 #15-40',
-    zone: 'Zona Sur',
-    daysPending: 89,
-    priority: 'Alta',
-    lastAuditedDate: '19 Julio 2024'
-  },
-  {
-    id: 'cp-4',
-    code: 'CDA-11',
-    name: 'CDA Carbones Cerrejón Albania',
-    format: 'CDA',
-    address: 'Vía Principal Cerrejón #4-12',
-    zone: 'Zona Centro',
-    daysPending: 79,
-    priority: 'Alta',
-    lastAuditedDate: '29 Julio 2024'
-  },
-  {
-    id: 'cp-5',
-    code: 'PF-088',
-    name: 'Farmacia Santa Cruz Villanueva',
-    format: 'PF',
-    address: 'Calle 10 #8-22, Plaza Central',
-    zone: 'Zona Sur',
-    daysPending: 76,
-    priority: 'Media',
-    lastAuditedDate: '01 Agosto 2024'
-  },
-  {
-    id: 'cp-6',
-    code: 'CM-124',
-    name: 'Megatienda San Juan del Cesar',
-    format: 'CM',
-    address: 'Cra 6 #8-10',
-    zone: 'Zona Sur',
-    daysPending: 83,
-    priority: 'Alta',
-    lastAuditedDate: '25 Julio 2024'
-  },
-  {
-    id: 'cp-7',
-    code: 'PF-019',
-    name: 'Farmatodo Riohacha Malecón',
-    format: 'PF',
-    address: 'Calle 1 #5-12, Primera',
-    zone: 'Zona Norte',
-    daysPending: 80,
-    priority: 'Media',
-    lastAuditedDate: '28 Julio 2024'
-  },
-  {
-    id: 'cp-8',
-    code: 'CDA-08',
-    name: 'CDA Guajira Hatonuevo',
-    format: 'CDA',
-    address: 'Salida Mina Km 1.5',
-    zone: 'Zona Sur',
-    daysPending: 91,
-    priority: 'Alta',
-    lastAuditedDate: '17 Julio 2024'
   }
 ];
 

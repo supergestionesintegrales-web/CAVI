@@ -54,6 +54,7 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
     <AnimatePresence>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
         <motion.div
+          data-notification-modal="true"
           initial={{ opacity: 0, scale: 0.94, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.94, y: 15 }}
@@ -66,7 +67,7 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
             </div>
             <button
               onClick={onClose}
-              className="text-[#bbcabf] hover:text-white p-1 rounded-lg transition-colors"
+              className="text-[#bbcabf] hover:text-white p-1 rounded-lg transition-colors cursor-pointer"
             >
               <span className="material-symbols-outlined text-[18px]">close</span>
             </button>
@@ -76,7 +77,8 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
             {notifications.map((n) => (
               <div
                 key={n.id}
-                className="p-3 rounded-xl bg-[#171f33] border border-[#222a3d] flex flex-col gap-1 relative"
+                data-notification-card="true"
+                className="push-notification-item p-3 rounded-xl bg-[#171f33] border border-[#222a3d] flex flex-col gap-1 relative shadow-sm"
               >
                 <div className="flex items-center justify-between text-xs">
                   <span
@@ -93,9 +95,9 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
                     </span>
                     {n.title}
                   </span>
-                  <span className="text-[10px] text-[#bbcabf]">{n.time}</span>
+                  <span className="text-[10px] text-[#bbcabf] notification-time">{n.time}</span>
                 </div>
-                <p className="text-xs text-[#dae2fd] leading-relaxed">{n.message}</p>
+                <p className="text-xs text-[#dae2fd] leading-relaxed notification-text">{n.message}</p>
               </div>
             ))}
           </div>

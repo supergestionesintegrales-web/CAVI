@@ -69,8 +69,11 @@ const SAMPLE_CRITICAL_POINTS_SHEET = [
   ['CM-139', 'Éxito Riohacha Centro', 'Norte', 'CM', '8 días', '24/09/2024', 'Cierre de No Conformidades', 'Medio'],
 ];
 
-// Initial repository files with hierarchical macro structure
-export const INITIAL_MACRO_FILES: MacroFile[] = [
+// Initial repository files with hierarchical macro structure (vacío para información real del usuario)
+export const INITIAL_MACRO_FILES: MacroFile[] = [];
+
+// Archivos de demostración opcionales si el usuario desea explorar ejemplos
+export const DEMO_MACRO_FILES: MacroFile[] = [
   // ===================== RUTAS 2024 =====================
   {
     id: 'file-rut-2024-10-1',
@@ -486,19 +489,52 @@ export function formatBytes(bytes: number): string {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
 }
 
-/**
- * Process uploaded files from a directory picker or drag-and-drop
- * using relative paths: MacroFolder / Year / Month / filename
- */
-export async function parseUploadedDirectoryFiles(files: File[]): Promise<MacroFile[]> {
-  const result: MacroFile[] = [];
+export interface UploadProgressInfo {
+  current: number;
+  total: number;
+  fileName: string;
+  percent: number;
+  stage: string;
+}
 
-  for (const file of files) {
+/**
+ * Process uploaded files from a directory picker, standalone file picker, or drag-and-drop
+ * using relative paths or intelligent name/type inference for single files.
+ */
+export async function parseUploadedDirectoryFiles(
+  files: File[],
+  onProgress?: (info: UploadProgressInfo) => void,
+  defaultMacroFolder?: string
+): Promise<MacroFile[]> {
+  const result: MacroFile[] = [];
+  const total = files.length;
+
+  for (let idx = 0; idx < total; idx++) {
+    const file = files[idx];
+    const fileIndex = idx + 1;
+    const basePercent = Math.round((idx / total) * 100);
+
+    const extMatch = file.name.match(/\.([0-9a-z]+)$/i);
+    const extension = extMatch ? extMatch[1].toLowerCase() : 'other';
+    const type = detectFileType(extension);
+
+    // Initial stage callback
+    if (onProgress) {
+      onProgress({
+        current: fileIndex,
+        total,
+        fileName: file.name,
+        percent: Math.min(99, basePercent + Math.round((1 / total) * 20)),
+        stage: `Leyendo binario y cabeceras de "${file.name}"...`,
+      });
+      await new Promise((r) => setTimeout(r, 60));
+    }
+
     // Relative path typically: "Rutas/2024/10-Octubre/archivo.xlsx" or "CarpetaMadre/Rutas/2024/10-Octubre/..."
     const relPath = file.webkitRelativePath || file.name;
     const parts = relPath.split('/').filter(Boolean);
 
-    let macroFolder = 'Rutas';
+    let macroFolder = defaultMacroFolder && defaultMacroFolder !== 'all' ? defaultMacroFolder : 'Rutas';
     let year = '2024';
     let month = '10-Octubre';
 
@@ -516,11 +552,51 @@ export async function parseUploadedDirectoryFiles(files: File[]): Promise<MacroF
       macroFolder = parts[0];
       year = '2024';
       month = '10-Octubre';
+    } else {
+      // Standalone file upload (single or multiple files without folder tree)
+      // Smartly classify based on file extension and filename keywords
+      const lowerName = file.name.toLowerCase();
+
+      // Check year in filename
+      const yearMatch = file.name.match(/(202[0-9])/);
+      if (yearMatch) year = yearMatch[1];
+
+      // Check month in filename
+      const monthsList = [
+        { key: 'enero', val: '01-Enero' },
+        { key: 'febrero', val: '02-Febrero' },
+        { key: 'marzo', val: '03-Marzo' },
+        { key: 'abril', val: '04-Abril' },
+        { key: 'mayo', val: '05-Mayo' },
+        { key: 'junio', val: '06-Junio' },
+        { key: 'julio', val: '07-Julio' },
+        { key: 'agosto', val: '08-Agosto' },
+        { key: 'septiembre', val: '09-Septiembre' },
+        { key: 'octubre', val: '10-Octubre' },
+        { key: 'noviembre', val: '11-Noviembre' },
+        { key: 'diciembre', val: '12-Diciembre' },
+      ];
+      const matchedMonth = monthsList.find((m) => lowerName.includes(m.key));
+      if (matchedMonth) month = matchedMonth.val;
+
+      // Classify macro folder
+      if (defaultMacroFolder && defaultMacroFolder !== 'all') {
+        macroFolder = defaultMacroFolder;
+      } else if (lowerName.includes('audit') || lowerName.includes('acta') || lowerName.includes('inspecc') || lowerName.includes('hallazgo')) {
+        macroFolder = 'Auditorias';
+      } else if (lowerName.includes('indicador') || lowerName.includes('kpi') || lowerName.includes('powerbi') || type === 'powerbi') {
+        macroFolder = 'Indicadores_PowerBI';
+      } else if (lowerName.includes('present') || lowerName.includes('comite') || lowerName.includes('gerenc') || type === 'powerpoint') {
+        macroFolder = 'Presentaciones_Gerencia';
+      } else if (type === 'excel' || lowerName.includes('ruta') || lowerName.includes('parada') || lowerName.includes('itinerar')) {
+        macroFolder = 'Rutas';
+      } else if (type === 'word' || type === 'pdf') {
+        macroFolder = 'Auditorias';
+      }
     }
 
-    const extMatch = file.name.match(/\.([0-9a-z]+)$/i);
-    const extension = extMatch ? extMatch[1].toLowerCase() : 'other';
-    const type = detectFileType(extension);
+    // Format synthesized virtual path if it was a standalone file
+    const effectivePath = parts.length === 1 ? `${macroFolder}/${year}/${month}/${file.name}` : relPath;
 
     const macroFile: MacroFile = {
       id: `uploaded-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
@@ -528,19 +604,35 @@ export async function parseUploadedDirectoryFiles(files: File[]): Promise<MacroF
       macroFolder,
       year,
       month,
-      path: relPath,
+      path: effectivePath,
       type,
       extension,
       size: file.size,
       sizeFormatted: formatBytes(file.size),
       lastModified: new Date(file.lastModified).toLocaleString(),
-      summary: `Archivo cargado por el usuario desde la estructura de carpetas (${relPath}).`,
+      summary: parts.length === 1
+        ? `Archivo individual indexado en ${macroFolder}/${year}/${month} según formato y metadatos.`
+        : `Archivo cargado por el usuario desde la estructura de carpetas (${relPath}).`,
       rawFile: file,
       extractedMeta: {
         author: 'Usuario CAVI',
         tags: [macroFolder, year, month, extension.toUpperCase()],
       },
     };
+
+    // Stage 2 callback
+    if (onProgress) {
+      onProgress({
+        current: fileIndex,
+        total,
+        fileName: file.name,
+        percent: Math.min(99, basePercent + Math.round((1 / total) * 55)),
+        stage: type === 'excel'
+          ? `Parseando celdas y hojas de cálculo con SheetJS...`
+          : `Extrayendo metadatos y estructura documental...`,
+      });
+      await new Promise((r) => setTimeout(r, 70));
+    }
 
     // If Excel, use SheetJS to parse real sheets and route data
     if (type === 'excel') {
@@ -629,6 +721,22 @@ export async function parseUploadedDirectoryFiles(files: File[]): Promise<MacroF
     }
 
     result.push(macroFile);
+
+    // Progress update per completed file
+    if (onProgress) {
+      const isLast = idx === total - 1;
+      const targetPercent = isLast ? 100 : Math.round(((idx + 1) / total) * 100);
+      onProgress({
+        current: fileIndex,
+        total,
+        fileName: file.name,
+        percent: targetPercent,
+        stage: isLast
+          ? `✓ Finalizado: ${total} archivo(s) procesados y sincronizados con éxito.`
+          : `Indexado "${file.name}" en ${macroFile.macroFolder}. Preparando siguiente...`,
+      });
+      await new Promise((r) => setTimeout(r, 80));
+    }
   }
 
   return result;
