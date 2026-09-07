@@ -1,5 +1,6 @@
 import * as XLSX from 'xlsx';
-import { RouteStep, FormatType, Auditor } from '../types';
+import { RouteStep, FormatType, Auditor, AlertCategory } from '../types';
+import { distributePointsWithAlertPriority, PointCandidate } from './pointAssignment';
 
 /**
  * Downloads a clean, formatted Excel template for uploading real route stops.
@@ -17,20 +18,22 @@ export function downloadRoutesTemplate() {
     'Latitud_GPS',
     'Longitud_GPS',
     'Horario_Programado',
+    'Dias_Sin_Visita',
+    'Alerta_Campo',
     'SLA_Observaciones'
   ];
 
   const sampleRows = [
-    ['PDV-01', 'Supertienda Olímpica Centro', 'Supermercados', 'CM', 'Lunes', 'Samuel Ramos Quintero', 'Calle 15 #8-20', 'Riohacha', 11.5442, -72.9069, '08:30', 'SLA: 24h · Prioridad Alta'],
-    ['PDV-02', 'Tienda y Abarrotes La Gran Parada', 'Tradicional', 'PF', 'Martes', 'Kleyder Rodriguez', 'Carrera 11 #14-30', 'Maicao', 11.3778, -72.2389, '10:15', 'SLA: 48h · Canal Tradicional'],
-    ['PDV-03', 'Droguería La Economía San Juan', 'Droguerías', 'PF', 'Miércoles', 'Jose Aponte', 'Calle 5 #6-12', 'San Juan del Cesar', 10.7711, -73.0025, '13:00', 'SLA: 24h · Inventario'],
-    ['PDV-04', 'D1 Mercado Público Fonseca', 'Hard Discount', 'CM', 'Jueves', 'Jose Aponte', 'Carrera 18 #12-40', 'Fonseca', 10.8861, -72.8515, '14:45', 'SLA: 48h · Exhibición'],
-    ['PDV-05', 'Distribuidora Mayorista El Maná', 'Mayorista', 'CDA', 'Viernes', 'Kleyder Rodriguez', 'Calle 16 #22-10', 'Maicao', 11.3812, -72.2450, '16:00', 'SLA: 24h · Re-visita'],
-    ['PDV-06', 'Minimarket Los Laureles', 'Conveniencia', 'PF', 'Lunes', 'Samuel Ramos Quintero', 'Calle 12 #4-55', 'Uribia', 11.7139, -72.2660, '09:00', 'SLA: 48h · Cobertura Alta Guajira'],
-    ['PDV-07', 'Super Éxito Salinas', 'Supermercados', 'CM', 'Martes', 'Samuel Ramos Quintero', 'Avenida de la Sal #3-18', 'Manaure', 11.7792, -72.4494, '11:30', 'SLA: 24h · Auditoría Promo'],
-    ['PDV-08', 'Centro de Acopio Villanueva', 'CDA', 'CDA', 'Miércoles', 'Jose Aponte', 'Carrera 8 #10-05', 'Villanueva', 10.6056, -72.9789, '16:30', 'SLA: 24h · Entrega Logística'],
-    ['PDV-09', 'Supermercado Central Albania', 'Supermercados', 'CM', 'Jueves', 'Kleyder Rodriguez', 'Calle 4 #7-19', 'Albania', 11.1611, -72.5928, '11:00', 'SLA: 24h · Auditoría Stock'],
-    ['PDV-10', 'Abarrotes y Granero Hatonuevo', 'Tradicional', 'PF', 'Viernes', 'Kleyder Rodriguez', 'Carrera 9 #5-12', 'Hatonuevo', 11.0617, -72.7633, '14:00', 'SLA: 48h · Canal Tradicional']
+    ['PDV-01', 'Supertienda Olímpica Centro', 'Supermercados', 'CM', 'Lunes', 'Samuel Ramos Quintero', 'Calle 15 #8-20', 'Riohacha', 11.5442, -72.9069, '08:00', 84, 'Quiebre de stock presencial', 'SLA: 24h · Prioridad Alta Alerta'],
+    ['PDV-02', 'Tienda y Abarrotes La Gran Parada', 'Tradicional', 'PF', 'Martes', 'Kleyder Rodriguez', 'Carrera 11 #14-30', 'Maicao', 11.3778, -72.2389, '08:30', 72, 'Discrepancia de inventario físico', 'SLA: 48h · Alerta Inventario'],
+    ['PDV-03', 'Droguería La Economía San Juan', 'Droguerías', 'PF', 'Miércoles', 'Jose Aponte', 'Calle 5 #6-12', 'San Juan del Cesar', 10.7711, -73.0025, '08:30', 96, 'Superó límite de 3 meses sin visita', 'SLA: Urgente Alerta'],
+    ['PDV-04', 'D1 Mercado Público Fonseca', 'Hard Discount', 'CM', 'Jueves', 'Jose Aponte', 'Carrera 18 #12-40', 'Fonseca', 10.8861, -72.8515, '10:45', 14, 'Ninguna', 'SLA: 48h · Exhibición Regular'],
+    ['PDV-05', 'Distribuidora Mayorista El Maná', 'Mayorista', 'CDA', 'Viernes', 'Kleyder Rodriguez', 'Calle 16 #22-10', 'Maicao', 11.3812, -72.2450, '11:15', 18, 'Ninguna', 'SLA: 24h · Cargue Regular'],
+    ['PDV-06', 'Minimarket Los Laureles', 'Conveniencia', 'PF', 'Lunes', 'Samuel Ramos Quintero', 'Calle 12 #4-55', 'Uribia', 11.7139, -72.2660, '11:00', 105, 'Máxima mora alta guajira', 'SLA: 48h · Prioridad Alerta'],
+    ['PDV-07', 'Super Éxito Salinas', 'Supermercados', 'CM', 'Martes', 'Samuel Ramos Quintero', 'Avenida de la Sal #3-18', 'Manaure', 11.7792, -72.4494, '14:00', 12, 'Ninguna', 'SLA: 24h · Auditoría Promo'],
+    ['PDV-08', 'Centro de Acopio Villanueva', 'CDA', 'CDA', 'Miércoles', 'Jose Aponte', 'Carrera 8 #10-05', 'Villanueva', 10.6056, -72.9789, '14:30', 20, 'Ninguna', 'SLA: 24h · Entrega Regular'],
+    ['PDV-09', 'Supermercado Central Albania', 'Supermercados', 'CM', 'Jueves', 'Kleyder Rodriguez', 'Calle 4 #7-19', 'Albania', 11.1611, -72.5928, '14:00', 15, 'Ninguna', 'SLA: 24h · Auditoría Stock'],
+    ['PDV-10', 'Abarrotes y Granero Hatonuevo', 'Tradicional', 'PF', 'Viernes', 'Kleyder Rodriguez', 'Carrera 9 #5-12', 'Hatonuevo', 11.0617, -72.7633, '15:30', 22, 'Ninguna', 'SLA: 48h · Canal Tradicional']
   ];
 
   const wsData = [headers, ...sampleRows];
@@ -49,6 +52,8 @@ export function downloadRoutesTemplate() {
     { wch: 14 },
     { wch: 14 },
     { wch: 18 },
+    { wch: 16 },
+    { wch: 32 },
     { wch: 32 },
   ];
 
@@ -74,7 +79,7 @@ export async function parseRoutesFile(file: File, auditors: Auditor[]): Promise<
   const worksheet = workbook.Sheets[sheetName];
 
   const rawRows = XLSX.utils.sheet_to_json<Record<string, any>>(worksheet, { defval: '' });
-  const parsedSteps: RouteStep[] = [];
+  const candidates: PointCandidate[] = [];
 
   rawRows.forEach((row, index) => {
     // Helper to find column values safely
@@ -179,7 +184,20 @@ export async function parseRoutesFile(file: File, auditors: Auditor[]): Promise<
     const time = getVal(['horario', 'hora', 'horarioprogramado', 'time', 'horavisita']) || `${8 + (index % 8)}:00`;
     const sla = getVal(['sla', 'slaobservaciones', 'observaciones', 'notas', 'prioridad']) || (channel ? `Canal: ${channel}` : 'SLA 48h');
 
-    // 8. Assigned Auditor
+    // 8. Alert & Days without visit
+    const daysRaw = getVal(['diassinvisita', 'dias_sin_visita', 'diassinatencion', 'mora', 'diassinvisitar', 'diasmora']);
+    const daysWithoutVisit = daysRaw ? parseInt(daysRaw, 10) : undefined;
+    const alertRaw = getVal(['alerta', 'alertacategoria', 'categoriaalerta', 'alert', 'novedad', 'tipoalerta', 'alertaprioritaria', 'alertacampo']);
+    const alertDesc = getVal(['descripcion_alerta', 'motivoalerta', 'detallealerta', 'alertadescripcion', 'observacionalerta', 'detallenovedad']);
+
+    let alertCategory: string | undefined = undefined;
+    if (alertRaw && alertRaw.toLowerCase() !== 'ninguna' && alertRaw.toLowerCase() !== 'sin novedad') {
+      alertCategory = 'alerta_operativa';
+    } else if (daysWithoutVisit && daysWithoutVisit >= 60) {
+      alertCategory = daysWithoutVisit >= 90 ? 'critico_mas_3_meses' : 'sin_visita_2_3_meses';
+    }
+
+    // 9. Assigned Auditor
     const auditorRaw = getVal(['auditor', 'auditorasignado', 'responsable', 'asesor', 'zona']);
     let matchedAuditor = auditors.find((a) =>
       a.name.toLowerCase().includes(auditorRaw.toLowerCase()) ||
@@ -187,32 +205,22 @@ export async function parseRoutesFile(file: File, auditors: Auditor[]): Promise<
       a.code.toLowerCase() === auditorRaw.toLowerCase()
     );
 
-    if (!matchedAuditor) {
-      matchedAuditor = auditors[index % auditors.length] || auditors[0];
-    }
-
-    // 9. Day of week (Lunes a Viernes)
+    // 10. Day of week (Lunes a Viernes)
     const dayRaw = getVal(['dia', 'diasemana', 'dia_semana', 'day', 'jornada']).toLowerCase();
-    let day: 'lunes' | 'martes' | 'miércoles' | 'jueves' | 'viernes' = 'martes';
-    if (dayRaw.includes('lun')) day = 'lunes';
-    else if (dayRaw.includes('mar')) day = 'martes';
-    else if (dayRaw.includes('mie') || dayRaw.includes('mié')) day = 'miércoles';
-    else if (dayRaw.includes('jue')) day = 'jueves';
-    else if (dayRaw.includes('vie')) day = 'viernes';
-    else {
-      const daysCycle: Array<'lunes' | 'martes' | 'miércoles' | 'jueves' | 'viernes'> = [
-        'lunes', 'martes', 'miércoles', 'jueves', 'viernes'
-      ];
-      day = daysCycle[index % daysCycle.length];
-    }
+    let explicitDay: RouteStep['day'] | undefined = undefined;
+    if (dayRaw.includes('lun')) explicitDay = 'lunes';
+    else if (dayRaw.includes('mar')) explicitDay = 'martes';
+    else if (dayRaw.includes('mie') || dayRaw.includes('mié')) explicitDay = 'miércoles';
+    else if (dayRaw.includes('jue')) explicitDay = 'jueves';
+    else if (dayRaw.includes('vie')) explicitDay = 'viernes';
 
-    parsedSteps.push({
+    candidates.push({
       id: `step-${Date.now()}-${index}-${Math.random().toString(36).substring(2, 6)}`,
       code,
       name,
       channel,
       format,
-      day,
+      day: explicitDay,
       address: fullAddress,
       municipality: municipality || 'La Guajira',
       lat,
@@ -220,11 +228,59 @@ export async function parseRoutesFile(file: File, auditors: Auditor[]): Promise<
       hasGps,
       time,
       sla,
-      status: 'pending',
-      auditorId: matchedAuditor?.id || 'aud-1',
-      auditorName: matchedAuditor?.name || 'Samuel Ramos Quintero',
+      daysWithoutVisit,
+      alertCategory: alertCategory as AlertCategory | undefined,
+      alertDescription: alertDesc || (daysWithoutVisit && daysWithoutVisit >= 60 ? `${daysWithoutVisit} días sin visita presencial` : undefined),
+      auditorId: matchedAuditor?.id,
+      auditorName: matchedAuditor?.name,
     });
   });
 
-  return parsedSteps;
+  // Check if any candidates need automated alert-prioritized distribution
+  const needsAutoDistribution = candidates.some((c) => !c.auditorId);
+  if (needsAutoDistribution) {
+    const { assignedSteps } = distributePointsWithAlertPriority(candidates, auditors);
+    return assignedSteps;
+  }
+
+  // If explicit auditors were given, still prioritize alert points so they appear first in each day
+  const resultSteps: RouteStep[] = candidates.map((c, index) => {
+    const daysCycle: Array<RouteStep['day']> = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes'];
+    const finalDay = c.day || daysCycle[index % daysCycle.length];
+    const aud = auditors.find((a) => a.id === c.auditorId) || auditors[index % auditors.length] || auditors[0];
+
+    return {
+      id: c.id || `step-${Date.now()}-${index}`,
+      code: c.code,
+      name: c.name,
+      channel: c.channel,
+      format: c.format,
+      day: finalDay,
+      address: c.address,
+      municipality: c.municipality || 'La Guajira',
+      lat: c.lat,
+      lng: c.lng,
+      hasGps: c.hasGps ?? false,
+      time: c.time || `${8 + (index % 8)}:00`,
+      sla: c.sla || 'SLA 48h',
+      status: 'pending',
+      auditorId: aud.id,
+      auditorName: aud.name,
+      notes: c.alertDescription ? `🚨 Prioridad Alerta: ${c.alertDescription}` : undefined,
+      daysWithoutVisit: c.daysWithoutVisit,
+      alertCategory: (c.alertCategory as AlertCategory | undefined) || (c.daysWithoutVisit && c.daysWithoutVisit >= 60 ? 'sin_visita_2_3_meses' : undefined),
+      alertDescription: c.alertDescription,
+    };
+  });
+
+  // Sort steps: alerts first, then regular
+  resultSteps.sort((a, b) => {
+    const isAlertA = !!a.alertCategory || (a.daysWithoutVisit || 0) >= 60;
+    const isAlertB = !!b.alertCategory || (b.daysWithoutVisit || 0) >= 60;
+    if (isAlertA && !isAlertB) return -1;
+    if (!isAlertA && isAlertB) return 1;
+    return 0;
+  });
+
+  return resultSteps;
 }

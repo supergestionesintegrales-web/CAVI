@@ -81,6 +81,19 @@ export interface Auditor {
   moraPending: number;
 }
 
+export interface VisitRecord {
+  id: string;
+  timestamp: string;
+  date: string;
+  time: string;
+  auditorName: string;
+  result: 'auditado' | 'no_auditado' | 'revisita_pendiente';
+  reason?: string;
+  notes?: string;
+}
+
+export type AlertCategory = 'sin_visita_2_3_meses' | 'critico_mas_3_meses' | 'inventario_discrepancia' | 'precio_no_conforme' | 'sla_vencido' | 'ninguna';
+
 export interface RouteStep {
   id: string;
   time: string;
@@ -93,7 +106,7 @@ export interface RouteStep {
   lat?: number;
   lng?: number;
   hasGps?: boolean;
-  status: 'completed' | 'in_progress' | 'pending';
+  status: 'completed' | 'in_progress' | 'pending' | 'not_audited' | 'revisit_needed';
   notes?: string;
   sla?: string;
   distance?: string;
@@ -102,9 +115,16 @@ export interface RouteStep {
   day?: 'lunes' | 'martes' | 'miércoles' | 'jueves' | 'viernes';
   daysWithoutVisit?: number;
   lastVisitDate?: string;
-  alertCategory?: 'sin_visita_2_3_meses' | 'critico_mas_3_meses' | 'inventario_discrepancia' | 'precio_no_conforme' | 'sla_vencido' | 'ninguna';
+  alertCategory?: AlertCategory;
   alertDescription?: string;
   zone?: 'Norte' | 'Centro' | 'Sur';
+
+  // Audit and visit tracking
+  visitCount?: number;
+  auditStatus?: 'auditado' | 'no_auditado' | 'revisita_pendiente' | 'en_curso' | 'pendiente';
+  auditReason?: string;
+  auditDate?: string;
+  visitHistory?: VisitRecord[];
 }
 
 export interface FloatingPoint {

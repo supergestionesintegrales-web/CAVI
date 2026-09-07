@@ -9,12 +9,15 @@ export interface ScheduledPoint {
   municipality: string;
   address: string;
   timeSlot: string;
-  status: 'completed' | 'in_progress' | 'pending';
+  status: 'completed' | 'not_audited' | 'revisit_needed' | 'in_progress' | 'pending';
   priority: 'Alta' | 'Normal' | 'Re-visita';
   estimatedDuration: string;
   contactPerson?: string;
   phone?: string;
   caviNotes?: string;
+  visitCount?: number;
+  auditReason?: string;
+  notes?: string;
 }
 
 export interface AuditorDaySchedule {

@@ -27,11 +27,117 @@ export const ScheduleScreen: React.FC<ScheduleScreenProps> = ({ onShowToast }) =
   const [calendarView, setCalendarView] = useState<'month' | 'week'>('month');
   const [weekSubView, setWeekSubView] = useState<'day' | 'matrix'>('day');
   const [selectedPointForModal, setSelectedPointForModal] = useState<ScheduledPoint | null>(null);
+
+  // Status & visits state override per point ID
+  const [pointStatusOverrides, setPointStatusOverrides] = useState<
+    Record<
+      string,
+      {
+        status: 'completed' | 'not_audited' | 'revisit_needed' | 'in_progress' | 'pending';
+        auditReason?: string;
+        visitCount: number;
+        notes?: string;
+      }
+    >
+  >({});
+
+  // Audit modal temporary form state
+  const [modalAuditStatus, setModalAuditStatus] = useState<'completed' | 'not_audited' | 'revisit_needed' | 'in_progress' | 'pending'>('completed');
+  const [modalAuditReason, setModalAuditReason] = useState<string>('Local Cerrado');
+  const [modalVisitCount, setModalVisitCount] = useState<number>(1);
+  const [modalAuditNotes, setModalAuditNotes] = useState<string>('');
+
   const [isAiFixApplied, setIsAiFixApplied] = useState(false);
   const [isApplyingFix, setIsApplyingFix] = useState(false);
   const [alertDismissed, setAlertDismissed] = useState(false);
   // Lists start folded (plegadas) by default; click to unfold
   const [expandedAuditorIds, setExpandedAuditorIds] = useState<string[]>([]);
+
+  const handleOpenAuditModal = (point: ScheduledPoint) => {
+    const existing = pointStatusOverrides[point.id] || {
+      status: point.status,
+      auditReason: point.auditReason || (point.status === 'not_audited' ? 'Local Cerrado' : 'Inventario Incompleto'),
+      visitCount: point.visitCount !== undefined ? point.visitCount : (point.status === 'completed' ? 1 : 1),
+      notes: point.notes || '',
+    };
+    setSelectedPointForModal(point);
+    setModalAuditStatus(existing.status);
+    setModalAuditReason(existing.auditReason || (existing.status === 'not_audited' ? 'Local Cerrado' : 'Inventario Incompleto'));
+    setModalVisitCount(existing.visitCount !== undefined ? existing.visitCount : (existing.status === 'completed' ? 1 : 1));
+    setModalAuditNotes(existing.notes || '');
+  };
+
+  const handleSaveModalAudit = () => {
+    if (!selectedPointForModal) return;
+    setPointStatusOverrides((prev) => ({
+      ...prev,
+      [selectedPointForModal.id]: {
+        status: modalAuditStatus,
+        auditReason: (modalAuditStatus === 'not_audited' || modalAuditStatus === 'revisit_needed') ? modalAuditReason : undefined,
+        visitCount: Math.max(0, modalVisitCount),
+        notes: modalAuditNotes,
+      }
+    }));
+
+    const statusLabel =
+      modalAuditStatus === 'completed'
+        ? 'Auditado (Efectivo)'
+        : modalAuditStatus === 'not_audited'
+        ? `No Auditado (${modalAuditReason})`
+        : modalAuditStatus === 'revisit_needed'
+        ? `Dejado para Re-visita (${modalAuditReason})`
+        : 'Programado';
+
+    onShowToast(
+      'Auditoría Registrada',
+      `Punto ${selectedPointForModal.code} (${selectedPointForModal.name}): ${statusLabel}. Total visitas: ${modalVisitCount}.`,
+      modalAuditStatus === 'completed' ? 'success' : 'info'
+    );
+
+    setSelectedPointForModal(null);
+  };
+
+  const handleQuickTogglePointStatus = (point: ScheduledPoint) => {
+    const current = pointStatusOverrides[point.id] || {
+      status: point.status,
+      visitCount: point.visitCount !== undefined ? point.visitCount : (point.status === 'completed' ? 1 : 0),
+      auditReason: point.auditReason,
+      notes: point.notes,
+    };
+
+    let nextStatus: 'completed' | 'not_audited' | 'revisit_needed' | 'in_progress' | 'pending' = 'completed';
+    let nextVisits = current.visitCount;
+    let nextReason: string | undefined = undefined;
+
+    if (current.status === 'pending') {
+      nextStatus = 'completed';
+      nextVisits = Math.max(1, nextVisits + 1);
+    } else if (current.status === 'completed') {
+      nextStatus = 'revisit_needed';
+      nextReason = 'Inventario Incompleto';
+    } else if (current.status === 'revisit_needed') {
+      nextStatus = 'not_audited';
+      nextReason = 'Local Cerrado';
+    } else {
+      nextStatus = 'pending';
+    }
+
+    setPointStatusOverrides((prev) => ({
+      ...prev,
+      [point.id]: {
+        status: nextStatus,
+        visitCount: nextVisits,
+        auditReason: nextReason,
+        notes: current.notes,
+      }
+    }));
+
+    onShowToast(
+      'Estado Rápido Actualizado',
+      `${point.code}: ${nextStatus === 'completed' ? 'Auditado' : nextStatus === 'not_audited' ? 'No Auditado' : nextStatus === 'revisit_needed' ? 'Re-visita' : 'Pendiente'} (${nextVisits} visitas)`,
+      nextStatus === 'completed' ? 'success' : 'info'
+    );
+  };
 
   const toggleAuditor = (id: string) => {
     setExpandedAuditorIds((prev) =>
@@ -149,16 +255,40 @@ export const ScheduleScreen: React.FC<ScheduleScreenProps> = ({ onShowToast }) =
     return weekSchedules.reduce((acc, w) => acc + w.completedVisits, 0);
   }, [weekSchedules]);
 
-  // Schedule for selected day
+  // Schedule for selected day with audit overrides
   const dailySchedule: AuditorDaySchedule[] = useMemo(() => {
-    return getScheduleForDay(
+    const raw = getScheduleForDay(
       currentYear,
       currentMonth,
       selectedDay,
       today.getDate(),
       isCurrentMonth
     );
-  }, [currentYear, currentMonth, selectedDay, today, isCurrentMonth]);
+
+    return raw.map((aud) => {
+      const mergedPoints = aud.points.map((pt) => {
+        const override = pointStatusOverrides[pt.id];
+        if (override) {
+          return {
+            ...pt,
+            status: override.status,
+            auditReason: override.auditReason,
+            visitCount: override.visitCount,
+            notes: override.notes,
+          };
+        }
+        return pt;
+      });
+
+      const completed = mergedPoints.filter((p) => p.status === 'completed').length;
+      return {
+        ...aud,
+        points: mergedPoints,
+        completedVisits: completed,
+        progressPercent: mergedPoints.length > 0 ? Math.round((completed / mergedPoints.length) * 100) : 0,
+      };
+    });
+  }, [currentYear, currentMonth, selectedDay, today, isCurrentMonth, pointStatusOverrides]);
 
   // Overall day metrics
   const totalDayVisits = useMemo(() => {
@@ -400,7 +530,7 @@ END:VCALENDAR`;
               />
             </div>
 
-            <div className="flex justify-between items-center mt-3 pt-2 text-[#bbcabf] border-t border-[#222a3d]/50 text-xs">
+            <div className="flex justify-between items-center mt-3 pt-2 text-slate-300 dark:text-[#cbd5e1] border-t border-[#222a3d]/50 text-xs">
               <div className="flex items-center gap-1">
                 <span className="material-symbols-outlined text-[15px] text-[#0088ff]">
                   check_circle
@@ -410,7 +540,7 @@ END:VCALENDAR`;
                 </span>
               </div>
               <div className="flex items-center gap-1 text-[11px]">
-                <span>Día seleccionado:</span>
+                <span className="text-slate-300 dark:text-[#cbd5e1]">Día seleccionado:</span>
                 <span className="text-[#dae2fd] font-bold">{selectedDay} de {MONTH_NAMES[currentMonth]}</span>
               </div>
             </div>
@@ -429,7 +559,7 @@ END:VCALENDAR`;
                     : `Semana: ${currentWeekDays[0].getDate()} ${MONTH_NAMES[currentWeekDays[0].getMonth()].slice(0, 3)} al ${currentWeekDays[6].getDate()} ${MONTH_NAMES[currentWeekDays[6].getMonth()].slice(0, 3)}`}
                 </span>
               </div>
-              <span className="text-[10px] text-[#bbcabf] bg-[#171f33] px-2 py-0.5 rounded-md border border-[#222a3d]">
+              <span className="text-[10px] text-slate-300 dark:text-[#cbd5e1] bg-[#171f33] px-2 py-0.5 rounded-md border border-[#222a3d] font-medium">
                 {calendarView === 'month' ? 'Toca un día para ver visitas' : '7 días de la semana activa'}
               </span>
             </div>
@@ -437,14 +567,14 @@ END:VCALENDAR`;
             {calendarView === 'month' ? (
               <>
                 {/* Days of week header */}
-                <div className="grid grid-cols-7 gap-1 text-center text-xs text-[#bbcabf] pb-1 font-bold border-b border-[#222a3d]/60">
+                <div className="grid grid-cols-7 gap-1 text-center text-xs text-slate-300 dark:text-[#cbd5e1] pb-1 font-bold border-b border-[#222a3d]/60">
                   <span>L</span>
                   <span>M</span>
                   <span>M</span>
                   <span>J</span>
                   <span>V</span>
-                  <span className="text-[#86948a]">S</span>
-                  <span className="text-[#86948a]">D</span>
+                  <span className="text-slate-400 dark:text-[#94a3b8]">S</span>
+                  <span className="text-slate-400 dark:text-[#94a3b8]">D</span>
                 </div>
 
                 {/* Calendar days grid */}
@@ -453,7 +583,7 @@ END:VCALENDAR`;
                   {Array.from({ length: firstDayOfMonth }).map((_, idx) => (
                     <div
                       key={`empty-${idx}`}
-                      className="aspect-square flex flex-col items-center justify-center rounded-xl bg-[#0b1326]/30 opacity-20 text-xs text-[#bbcabf]"
+                      className="aspect-square flex flex-col items-center justify-center rounded-xl bg-[#0b1326]/30 opacity-20 text-xs text-[#cbd5e1]"
                     />
                   ))}
 
@@ -477,14 +607,14 @@ END:VCALENDAR`;
                           type="button"
                           onClick={() => handleSelectDay(day)}
                           title={`Día ${day} - Fin de semana`}
-                          className={`aspect-square flex flex-col items-center justify-between p-1 rounded-xl transition-all cursor-pointer ${
+                          className={`aspect-square flex flex-col items-center justify-between p-1 rounded-xl transition-all cursor-pointer border ${
                             isSelected
-                              ? 'bg-[#171f33] ring-2 ring-[#0088ff] text-[#dae2fd] font-bold'
-                              : 'bg-[#0b1326]/50 text-[#86948a] hover:bg-[#171f33]'
+                              ? 'bg-[#171f33] ring-2 ring-[#0088ff] text-white font-bold border-[#0088ff]'
+                              : 'bg-[#0b1326] text-slate-300 dark:text-[#cbd5e1] hover:bg-[#171f33] border-[#222a3d]/60'
                           }`}
                         >
-                          <span className="text-xs">{day}</span>
-                          <span className="text-[8px] text-[#86948a]">Guardia</span>
+                          <span className="text-xs font-bold">{day}</span>
+                          <span className="text-[8px] text-slate-400 dark:text-[#94a3b8] font-semibold">Guardia</span>
                         </button>
                       );
                     }
@@ -528,7 +658,7 @@ END:VCALENDAR`;
                             className={`text-[9px] font-mono ${
                               isSelected
                                 ? 'text-[#ffffff] font-bold'
-                                : 'text-[#bbcabf]'
+                                : 'text-slate-300 dark:text-[#cbd5e1] font-semibold'
                             }`}
                           >
                             {visitsCount}
@@ -540,7 +670,7 @@ END:VCALENDAR`;
                 </div>
 
                 {/* Legend */}
-                <div className="flex items-center justify-between pt-2 border-t border-[#222a3d]/50 text-[10px] text-[#bbcabf]">
+                <div className="flex items-center justify-between pt-2 border-t border-[#222a3d]/50 text-[10px] text-slate-300 dark:text-[#cbd5e1] font-medium">
                   <div className="flex items-center gap-1">
                     <span className="w-2 h-2 rounded-full bg-[#0088ff]" />
                     <span>Ruta Normal</span>
@@ -579,7 +709,7 @@ END:VCALENDAR`;
                           : isToday
                           ? 'bg-[#171f33] text-[#dae2fd] border-[#10b981]'
                           : isWeekend
-                          ? 'bg-[#0b1326]/60 text-[#86948a] border-[#222a3d]/40 hover:bg-[#171f33]'
+                          ? 'bg-[#0b1326] text-slate-300 dark:text-[#cbd5e1] border-[#222a3d] hover:bg-[#171f33]'
                           : 'bg-[#171f33] text-[#dae2fd] border-[#222a3d] hover:bg-[#222a3d]'
                       }`}
                     >
@@ -608,7 +738,7 @@ END:VCALENDAR`;
                               </span>
                             )}
                           </div>
-                          <p className={`text-[11px] ${isDaySelected ? 'text-white/90' : 'text-[#bbcabf]'}`}>
+                          <p className={`text-[11px] ${isDaySelected ? 'text-white/90' : 'text-slate-300 dark:text-[#cbd5e1]'}`}>
                             {isWeekend ? 'Guardia Pasiva (Sin ruta)' : `${wDay.totalVisits} visitas programadas`}
                           </p>
                         </div>
@@ -617,7 +747,7 @@ END:VCALENDAR`;
                       <div className="flex items-center gap-2">
                         {isWeekend ? (
                           <span className={`text-[10px] px-2 py-0.5 rounded-md font-semibold ${
-                            isDaySelected ? 'bg-white/20 text-white' : 'bg-[#0b1326] text-[#86948a]'
+                            isDaySelected ? 'bg-white/20 text-white' : 'bg-[#0b1326] text-slate-300 dark:text-[#cbd5e1] border border-[#222a3d]'
                           }`}>
                             Fin de semana
                           </span>
@@ -626,7 +756,7 @@ END:VCALENDAR`;
                             <span className={`text-xs font-mono font-bold block ${isDaySelected ? 'text-white' : 'text-[#0088ff]'}`}>
                               {wDay.completedVisits}/{wDay.totalVisits}
                             </span>
-                            <span className={`text-[10px] block ${isDaySelected ? 'text-white/80' : 'text-[#bbcabf]'}`}>
+                            <span className={`text-[10px] block ${isDaySelected ? 'text-white/80' : 'text-slate-300 dark:text-[#cbd5e1]'}`}>
                               {Math.round((wDay.completedVisits / Math.max(1, wDay.totalVisits)) * 100)}% avance
                             </span>
                           </div>
@@ -640,15 +770,15 @@ END:VCALENDAR`;
                 {/* Week Total KPIs Box */}
                 <div className="mt-3 p-3 rounded-xl bg-[#0b1326] border border-[#222a3d] space-y-2">
                   <div className="flex justify-between items-center text-xs">
-                    <span className="text-[#bbcabf]">Total Visitas Semana:</span>
+                    <span className="text-slate-300 dark:text-[#cbd5e1]">Total Visitas Semana:</span>
                     <span className="font-mono font-bold text-[#dae2fd]">{totalWeekVisits} visitas</span>
                   </div>
                   <div className="flex justify-between items-center text-xs">
-                    <span className="text-[#bbcabf]">Completadas al momento:</span>
+                    <span className="text-slate-300 dark:text-[#cbd5e1]">Completadas al momento:</span>
                     <span className="font-mono font-bold text-[#0088ff]">{completedWeekVisits} realizadas</span>
                   </div>
                   <div className="flex justify-between items-center text-xs">
-                    <span className="text-[#bbcabf]">Efectividad semanal:</span>
+                    <span className="text-slate-300 dark:text-[#cbd5e1]">Efectividad semanal:</span>
                     <span className="font-mono font-bold text-[#0088ff]">
                       {totalWeekVisits > 0 ? `${Math.round((completedWeekVisits / totalWeekVisits) * 100)}%` : '0%'}
                     </span>
@@ -799,32 +929,32 @@ END:VCALENDAR`;
                       return (
                         <div
                           key={`matrix-${wDay.year}-${wDay.month}-${wDay.day}`}
-                          className={`rounded-xl bg-[#0b1326] border p-3.5 flex flex-col justify-between transition-all ${
+                          className={`rounded-xl bg-white dark:bg-[#0b1326] border p-3.5 flex flex-col justify-between transition-all shadow-xs ${
                             isDaySelected
-                              ? 'border-[#0088ff] ring-1 ring-[#0088ff]/60 shadow-lg'
-                              : 'border-[#222a3d] hover:border-[#38bdf8]/40'
+                              ? 'border-[#0088ff] ring-1 ring-[#0088ff]/60 shadow-md'
+                              : 'border-slate-200 dark:border-[#222a3d] hover:border-[#0088ff] dark:hover:border-[#38bdf8]/40'
                           }`}
                         >
                           <div>
                             {/* Day Header */}
-                            <div className="flex items-center justify-between pb-2.5 border-b border-[#222a3d]">
+                            <div className="flex items-center justify-between pb-2.5 border-b border-slate-200 dark:border-[#222a3d]">
                               <div className="flex items-center gap-2">
                                 <span className={`w-7 h-7 rounded-lg text-xs font-bold flex items-center justify-center ${
-                                  isDaySelected ? 'bg-[#0088ff] text-white' : 'bg-[#171f33] text-[#dae2fd]'
+                                  isDaySelected ? 'bg-[#0088ff] text-white' : 'bg-slate-100 text-slate-900 dark:bg-[#171f33] dark:text-[#dae2fd]'
                                 }`}>
                                   {wDay.day}
                                 </span>
                                 <div>
-                                  <p className="text-xs font-bold text-[#dae2fd] leading-tight">
+                                  <p className="text-xs font-bold text-slate-900 dark:text-[#dae2fd] leading-tight">
                                     {wDay.dayName}
                                   </p>
-                                  <p className="text-[10px] text-[#bbcabf]">
+                                  <p className="text-[10px] text-slate-600 dark:text-[#bbcabf]">
                                     {wDay.day} de {MONTH_NAMES[wDay.month].slice(0, 3)}
                                   </p>
                                 </div>
                               </div>
 
-                              <span className="text-[11px] font-mono font-bold text-[#0088ff] bg-[#171f33] px-2 py-0.5 rounded-md border border-[#222a3d]">
+                              <span className="text-[11px] font-mono font-bold text-[#0088ff] bg-blue-50 dark:bg-[#171f33] px-2 py-0.5 rounded-md border border-blue-200 dark:border-[#222a3d]">
                                 {wDay.totalVisits} visitas
                               </span>
                             </div>
@@ -832,21 +962,21 @@ END:VCALENDAR`;
                             {/* Auditor assignments preview */}
                             <div className="space-y-2.5 pt-3">
                               {wDay.schedules.map((aud) => (
-                                <div key={aud.auditorId} className="bg-[#131b2e] p-2.5 rounded-lg border border-[#222a3d]/80">
+                                <div key={aud.auditorId} className="bg-slate-50 dark:bg-[#131b2e] p-2.5 rounded-lg border border-slate-200 dark:border-[#222a3d]/80">
                                   <div className="flex items-center justify-between mb-1.5">
                                     <div className="flex items-center gap-1.5">
                                       <span
                                         className="w-2 h-2 rounded-full"
                                         style={{ backgroundColor: aud.routeColor }}
                                       />
-                                      <span className="text-[11px] font-bold text-white">
+                                      <span className="text-[11px] font-bold text-slate-900 dark:text-white">
                                         {aud.auditorName.split(' ')[0]}
                                       </span>
-                                      <span className="text-[10px] text-[#bbcabf]">
+                                      <span className="text-[10px] text-slate-600 dark:text-[#bbcabf]">
                                         ({aud.zone})
                                       </span>
                                     </div>
-                                    <span className="text-[10px] font-mono text-[#bbcabf]">
+                                    <span className="text-[10px] font-mono text-slate-600 dark:text-[#bbcabf]">
                                       {aud.points.length} pts
                                     </span>
                                   </div>
@@ -857,7 +987,7 @@ END:VCALENDAR`;
                                       <div
                                         key={pt.id}
                                         onClick={() => setSelectedPointForModal(pt)}
-                                        className="text-[10px] text-[#cbd5e1] hover:text-[#0088ff] flex items-center justify-between gap-1 py-0.5 cursor-pointer truncate"
+                                        className="text-[10px] text-slate-700 dark:text-[#cbd5e1] hover:text-[#0088ff] flex items-center justify-between gap-1 py-0.5 cursor-pointer truncate"
                                       >
                                         <span className="truncate">
                                           • {pt.name} ({pt.municipality})
@@ -1189,29 +1319,80 @@ END:VCALENDAR`;
                                   <span>{point.timeSlot}</span>
                                 </div>
 
-                                <div className="flex items-center gap-2">
-                                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                 <div className="flex items-center gap-1.5 flex-wrap justify-end">
+                                  {/* Visit count indicator */}
+                                  {(point.visitCount !== undefined && point.visitCount > 0) && (
+                                    <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-[#171f33] text-[#38bdf8] border border-[#222a3d] flex items-center gap-1">
+                                      <span className="material-symbols-outlined text-[11px]">history</span>
+                                      {point.visitCount} {point.visitCount === 1 ? 'visita' : 'visitas'}
+                                    </span>
+                                  )}
+
+                                  {/* Status badge */}
+                                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1 ${
                                     point.status === 'completed'
-                                      ? 'bg-[#10b981]/20 text-[#4edea3] border border-[#4edea3]/30'
+                                      ? 'bg-[#10b981]/20 text-[#4edea3] border border-[#4edea3]/40'
+                                      : point.status === 'not_audited'
+                                      ? 'bg-[#ef4444]/20 text-[#f87171] border border-[#f87171]/40'
+                                      : point.status === 'revisit_needed'
+                                      ? 'bg-[#a855f7]/20 text-[#c084fc] border border-[#c084fc]/40'
                                       : point.status === 'in_progress'
-                                      ? 'bg-[#ffb95f]/20 text-[#ffb95f] border border-[#ffb95f]/30'
-                                      : 'bg-[#222a3d] text-[#bbcabf]'
+                                      ? 'bg-[#ffb95f]/20 text-[#ffb95f] border border-[#ffb95f]/40'
+                                      : 'bg-[#222a3d] text-[#cbd5e1] border border-[#334155]'
                                   }`}>
-                                    {point.status === 'completed'
-                                      ? '✓ Auditado'
-                                      : point.status === 'in_progress'
-                                      ? 'En Progreso'
-                                      : 'Programado'}
+                                    <span className="material-symbols-outlined text-[12px]">
+                                      {point.status === 'completed'
+                                        ? 'check_circle'
+                                        : point.status === 'not_audited'
+                                        ? 'cancel'
+                                        : point.status === 'revisit_needed'
+                                        ? 'replay'
+                                        : point.status === 'in_progress'
+                                        ? 'sync'
+                                        : 'schedule'}
+                                    </span>
+                                    <span>
+                                      {point.status === 'completed'
+                                        ? 'Auditado'
+                                        : point.status === 'not_audited'
+                                        ? 'No Auditado'
+                                        : point.status === 'revisit_needed'
+                                        ? 'Re-visita'
+                                        : point.status === 'in_progress'
+                                        ? 'En Curso'
+                                        : 'Programado'}
+                                    </span>
                                   </span>
 
+                                  {/* Quick Toggle Button */}
                                   <button
                                     type="button"
-                                    onClick={() => setSelectedPointForModal(point)}
-                                    className="px-2.5 py-1 rounded-lg bg-[#222a3d] hover:bg-[#2d3449] text-xs text-[#dae2fd] font-semibold transition-all border border-[#222a3d] hover:border-[#0088ff]/40 cursor-pointer"
+                                    onClick={() => handleQuickTogglePointStatus(point)}
+                                    className="p-1 rounded-lg bg-[#171f33] hover:bg-[#222a3d] text-[#cbd5e1] hover:text-white transition-all border border-[#222a3d] cursor-pointer"
+                                    title="Cambio rápido de estado (Auditado / Re-visita / No auditado / Programado)"
                                   >
-                                    Ver Ficha
+                                    <span className="material-symbols-outlined text-[14px]">published_with_changes</span>
+                                  </button>
+
+                                  {/* Audit / Ficha Button */}
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenAuditModal(point)}
+                                    className="px-2.5 py-1 rounded-lg bg-[#0088ff] hover:bg-[#0070d8] text-xs text-white font-bold transition-all border border-transparent shadow-xs hover:shadow-[#0088ff]/30 flex items-center gap-1 cursor-pointer"
+                                    title="Auditar punto, registrar motivo o número de visitas"
+                                  >
+                                    <span className="material-symbols-outlined text-[14px]">assignment_turned_in</span>
+                                    <span>Auditar</span>
                                   </button>
                                 </div>
+
+                                {/* Reason label if not audited or revisit */}
+                                {(point.status === 'not_audited' || point.status === 'revisit_needed') && point.auditReason && (
+                                  <div className="text-[10px] text-red-400 dark:text-[#fca5a5] flex items-center gap-1">
+                                    <span className="material-symbols-outlined text-[12px]">info</span>
+                                    <span>Causa: {point.auditReason}</span>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           ))

@@ -248,29 +248,29 @@ export const MonthlyRoutesView: React.FC<MonthlyRoutesViewProps> = ({
         {/* METRICS ROW */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-4 pt-4 border-t border-[#222a3d]">
           <div className="bg-[#0b1326] p-3 rounded-xl border border-[#222a3d]">
-            <span className="text-[11px] text-[#bbcabf] block">Paradas Proyectadas Mes</span>
+            <span className="text-[11px] text-slate-300 dark:text-[#cbd5e1] font-semibold block">Paradas Proyectadas Mes</span>
             <span className="text-lg font-mono font-bold text-white mt-0.5 block">
               {totalStopsMonth} Visitas
             </span>
           </div>
 
           <div className="bg-[#0b1326] p-3 rounded-xl border border-[#222a3d]">
-            <span className="text-[11px] text-[#bbcabf] block">Cobertura GPS Satelital</span>
+            <span className="text-[11px] text-slate-300 dark:text-[#cbd5e1] font-semibold block">Cobertura GPS Satelital</span>
             <span className="text-lg font-mono font-bold text-[#38bdf8] mt-0.5 flex items-center gap-1">
               <span>{gpsPercentage}%</span>
-              <span className="text-[10px] text-[#bbcabf] font-normal font-sans">verificadas</span>
+              <span className="text-[10px] text-slate-400 dark:text-[#cbd5e1] font-normal font-sans">verificadas</span>
             </span>
           </div>
 
           <div className="bg-[#0b1326] p-3 rounded-xl border border-[#222a3d]">
-            <span className="text-[11px] text-[#bbcabf] block">Red Departamental</span>
+            <span className="text-[11px] text-slate-300 dark:text-[#cbd5e1] font-semibold block">Red Departamental</span>
             <span className="text-lg font-mono font-bold text-white mt-0.5 block">
               15 Municipios
             </span>
           </div>
 
           <div className="bg-[#0b1326] p-3 rounded-xl border border-[#222a3d]">
-            <span className="text-[11px] text-[#bbcabf] block">Auditores en Campo</span>
+            <span className="text-[11px] text-slate-300 dark:text-[#cbd5e1] font-semibold block">Auditores en Campo</span>
             <span className="text-lg font-mono font-bold text-[#0088ff] mt-0.5 block">
               {auditors.length} Asignados
             </span>
@@ -282,7 +282,7 @@ export const MonthlyRoutesView: React.FC<MonthlyRoutesViewProps> = ({
       <div className="bg-[#171f33] border border-[#222a3d] rounded-2xl p-3 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2 flex-1 min-w-[240px]">
           <div className="relative flex-1">
-            <span className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-[18px] text-[#94a3b8]">
+            <span className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-[18px] text-[#38bdf8]">
               search
             </span>
             <input
@@ -290,7 +290,7 @@ export const MonthlyRoutesView: React.FC<MonthlyRoutesViewProps> = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Filtrar paradas por nombre, municipio, código..."
-              className="w-full pl-9 pr-3 py-1.5 rounded-xl bg-[#0b1326] text-xs text-white placeholder-[#94a3b8] focus:outline-none focus:ring-1 focus:ring-[#0088ff] border border-[#222a3d]"
+              className="w-full pl-9 pr-3 py-1.5 rounded-xl bg-[#0b1326] text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#0088ff] border border-[#222a3d]"
             />
           </div>
 
@@ -340,9 +340,9 @@ export const MonthlyRoutesView: React.FC<MonthlyRoutesViewProps> = ({
             return (
               <div
                 key={dayName}
-                className={`py-2 rounded-xl text-xs font-bold uppercase tracking-wider ${
+                className={`py-2 rounded-xl text-xs font-extrabold uppercase tracking-wider ${
                   isWeekend
-                    ? 'bg-[#0b1326]/40 text-[#86948a]'
+                    ? 'bg-[#0b1326] text-slate-300 dark:text-[#cbd5e1] border border-[#222a3d]'
                     : 'bg-[#0f172a] text-white border border-[#222a3d]'
                 }`}
               >
@@ -387,16 +387,16 @@ export const MonthlyRoutesView: React.FC<MonthlyRoutesViewProps> = ({
                   className={`min-h-[90px] sm:min-h-[110px] rounded-xl p-2 sm:p-2.5 transition-all flex flex-col justify-between cursor-pointer border ${
                     isSelected
                       ? 'bg-[#1e293b] border-[#0088ff] ring-1 ring-[#0088ff]'
-                      : 'bg-[#0b1326]/40 border-[#222a3d]/40 text-[#86948a] hover:bg-[#0b1326]/70'
+                      : 'bg-[#0b1326] border-[#222a3d] text-slate-300 dark:text-[#cbd5e1] hover:bg-[#131b2e]'
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-[#86948a]">{dayNum}</span>
-                    <span className="text-[9px] font-mono px-1 py-0.2 rounded bg-[#0b1326] text-[#64748b]">
+                    <span className="text-xs font-bold text-slate-200 dark:text-white">{dayNum}</span>
+                    <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-800 dark:bg-[#1e293b] text-slate-300 dark:text-[#94a3b8] border border-slate-700 dark:border-[#334155]">
                       Descanso
                     </span>
                   </div>
-                  <div className="text-[10px] text-[#64748b] leading-tight mt-auto">
+                  <div className="text-[11px] text-slate-300 dark:text-[#cbd5e1] font-medium leading-tight mt-auto">
                     Guardia pasiva / Cierre administrativo
                   </div>
                 </div>
@@ -411,7 +411,7 @@ export const MonthlyRoutesView: React.FC<MonthlyRoutesViewProps> = ({
                   isSelected
                     ? 'bg-[#131b2e] border-[#0088ff] ring-2 ring-[#0088ff]/60 shadow-md'
                     : isToday
-                    ? 'bg-[#171f33] border-[#0088ff] text-white shadow-sm'
+                    ? 'bg-[#171f33] border-[#0088ff] text-white shadow-sm ring-1 ring-[#0088ff]/40'
                     : 'bg-[#131b2e] border-[#222a3d] hover:border-[#0088ff]/50 hover:bg-[#1a233b]'
                 }`}
               >
@@ -419,14 +419,14 @@ export const MonthlyRoutesView: React.FC<MonthlyRoutesViewProps> = ({
                 <div className="flex items-center justify-between gap-1">
                   <div className="flex items-center gap-1">
                     <span
-                      className={`text-xs font-bold leading-none ${
-                        isSelected || isToday ? 'text-white' : 'text-[#dae2fd]'
+                      className={`text-xs font-extrabold leading-none ${
+                        isSelected || isToday ? 'text-white' : 'text-slate-100 dark:text-white'
                       }`}
                     >
                       {dayNum}
                     </span>
                     {isToday && (
-                      <span className="text-[9px] font-bold px-1 py-0.2 rounded bg-[#0088ff] text-white">
+                      <span className="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-[#0088ff] text-white shadow-xs">
                         HOY
                       </span>
                     )}
@@ -439,11 +439,11 @@ export const MonthlyRoutesView: React.FC<MonthlyRoutesViewProps> = ({
 
                 {/* Content snippet */}
                 <div className="my-1.5 space-y-1">
-                  <div className="flex items-center gap-1 text-[10px] text-[#bbcabf] truncate">
-                    <span className="material-symbols-outlined text-[12px] text-[#0088ff]">
+                  <div className="flex items-center gap-1 text-[11px] text-slate-200 dark:text-[#f1f5f9] font-medium truncate">
+                    <span className="material-symbols-outlined text-[13px] text-[#0088ff] shrink-0">
                       location_on
                     </span>
-                    <span className="truncate">
+                    <span className="truncate font-semibold">
                       {dayStops.length > 0
                         ? Array.from(new Set(dayStops.map((s) => s.municipality || 'Riohacha'))).slice(0, 2).join(', ')
                         : 'Sin paradas'}
@@ -451,16 +451,16 @@ export const MonthlyRoutesView: React.FC<MonthlyRoutesViewProps> = ({
                   </div>
 
                   {dayStops.length > 0 && (
-                    <div className="flex items-center gap-1 text-[9px] font-mono text-[#38bdf8]">
-                      <span className="material-symbols-outlined text-[10px]">gps_fixed</span>
+                    <div className="flex items-center gap-1 text-[9px] font-mono text-[#38bdf8] font-bold">
+                      <span className="material-symbols-outlined text-[11px]">gps_fixed</span>
                       <span>{dayGpsCount}/{dayStops.length} GPS</span>
                     </div>
                   )}
                 </div>
 
                 {/* Footer action */}
-                <div className="pt-1 border-t border-[#222a3d]/60 flex items-center justify-between">
-                  <span className="text-[9px] text-[#86948a] uppercase font-bold">
+                <div className="pt-1 border-t border-[#222a3d]/80 flex items-center justify-between">
+                  <span className="text-[10px] text-slate-300 dark:text-[#cbd5e1] uppercase font-bold">
                     {dayInfo?.label.slice(0, 3)}
                   </span>
                   <button
@@ -472,11 +472,11 @@ export const MonthlyRoutesView: React.FC<MonthlyRoutesViewProps> = ({
                         onShowToast(`Día ${dayInfo.label}`, `Cambiando a la vista detallada de ${dayInfo.label}.`, 'info');
                       }
                     }}
-                    className="text-[10px] font-bold text-[#0088ff] hover:text-[#38bdf8] flex items-center gap-0.5 hover:underline"
+                    className="text-[11px] font-bold text-[#38bdf8] hover:text-white flex items-center gap-0.5 transition-colors cursor-pointer"
                     title={`Abrir vista diaria de ${dayInfo?.label}`}
                   >
                     <span>Ver Día</span>
-                    <span className="material-symbols-outlined text-[11px]">arrow_forward</span>
+                    <span className="material-symbols-outlined text-[12px]">arrow_forward</span>
                   </button>
                 </div>
               </div>
@@ -503,7 +503,7 @@ export const MonthlyRoutesView: React.FC<MonthlyRoutesViewProps> = ({
                   {selectedDaySteps.length} paradas
                 </span>
               </h3>
-              <p className="text-xs text-[#bbcabf]">
+              <p className="text-xs text-slate-300 dark:text-[#cbd5e1]">
                 {selectedDayInfo
                   ? `Rutas operativas asignadas en el ciclo ${selectedDayInfo.label}`
                   : 'Día no laboral para inspección presencial ordinaria'}
@@ -599,7 +599,7 @@ export const MonthlyRoutesView: React.FC<MonthlyRoutesViewProps> = ({
                     </p>
                   </div>
 
-                  <div className="mt-2 pt-2 border-t border-[#222a3d] flex items-center justify-between text-[10px] text-[#bbcabf]">
+                  <div className="mt-2 pt-2 border-t border-[#222a3d] flex items-center justify-between text-[10px] text-slate-300 dark:text-[#cbd5e1]">
                     <span>{step.municipality || 'La Guajira'}</span>
                     <span className="font-semibold text-white">{aud ? aud.name : 'Sin asignar'}</span>
                   </div>
@@ -636,7 +636,7 @@ export const MonthlyRoutesView: React.FC<MonthlyRoutesViewProps> = ({
               >
                 <div>
                   <span className="text-xs font-bold text-white block">{mun.name}</span>
-                  <span className="text-[10px] text-[#86948a] block">Zona {mun.zone}</span>
+                  <span className="text-[10px] text-slate-400 dark:text-[#cbd5e1] block">Zona {mun.zone}</span>
                 </div>
                 <span className="text-xs font-mono font-bold px-1.5 py-0.5 rounded bg-[#0088ff]/15 text-[#38bdf8] border border-[#0088ff]/30">
                   {munSteps.length}

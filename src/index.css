@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *, [data-theme="dark"], [data-theme="dark"] *));
+
 @theme {
   --color-surface: #0b1326;
   --color-surface-dim: #0b1326;
@@ -35,10 +37,10 @@
   --color-on-error: #690005;
   --color-on-error-container: #ffdad6;
 
-  --color-on-surface: #dae2fd;
-  --color-on-surface-variant: #bbcabf;
-  --color-outline: #86948a;
-  --color-outline-variant: #3c4a42;
+  --color-on-surface: #f1f5f9;
+  --color-on-surface-variant: #cbd5e1;
+  --color-outline: #94a3b8;
+  --color-outline-variant: #475569;
 
   --spacing-space-xxs: 0.125rem;
   --spacing-space-xs: 0.25rem;
@@ -275,6 +277,50 @@ body.light {
 }
 
 /* Secondary Descriptive Text */
+[data-theme="light"] .day-matrix-title,
+.theme-light .day-matrix-title,
+.light .day-matrix-title {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+}
+
+[data-theme="light"] .day-matrix-subtitle,
+.theme-light .day-matrix-subtitle,
+.light .day-matrix-subtitle {
+  color: #334155 !important;
+  font-weight: 500 !important;
+}
+
+[data-theme="light"] .day-matrix-header,
+.theme-light .day-matrix-header,
+.light .day-matrix-header {
+  background-color: #f8fafc !important;
+  border-bottom-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .day-matrix-btn,
+.theme-light .day-matrix-btn,
+.light .day-matrix-btn {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] .day-matrix-btn:hover,
+.theme-light .day-matrix-btn:hover,
+.light .day-matrix-btn:hover {
+  background-color: #f1f5f9 !important;
+  color: #0088ff !important;
+}
+
+[data-theme="light"] .day-matrix-badge,
+.theme-light .day-matrix-badge,
+.light .day-matrix-badge {
+  background-color: #dbeafe !important;
+  color: #1e40af !important;
+  border-color: #bfdbfe !important;
+}
+
 [data-theme="light"] .text-\[\#cbd5e1\],
 .theme-light .text-\[\#cbd5e1\],
 .light .text-\[\#cbd5e1\] {
@@ -924,11 +970,108 @@ body.light {
   color: #3730a3 !important;
 }
 
-[data-theme="light"] .border-\[\#3131c0\]\/50 p,
-[data-theme="light"] .border-\[\#3131c0\]\/50 span,
-.theme-light .border-\[\#3131c0\]\/50 p,
-.theme-light .border-\[\#3131c0\]\/50 span,
-.light .border-\[\#3131c0\]\/50 p,
-.light .border-\[\#3131c0\]\/50 span {
+[data-theme="light"] .border-[#3131c0]/50 p,
+[data-theme="light"] .border-[#3131c0]/50 span,
+.theme-light .border-[#3131c0]/50 p,
+.theme-light .border-[#3131c0]/50 span,
+.light .border-[#3131c0]/50 p,
+.light .border-[#3131c0]/50 span {
   color: #3730a3 !important;
 }
+
+/* ==========================================================================
+   DARK THEME (TEMA OSCURO) - GUARANTEED TEXT VISIBILITY & CONTRAST
+   Replaces any dark slate text with bright readable text in Dark Mode.
+   ========================================================================== */
+html.dark,
+body.dark,
+[data-theme="dark"],
+html:not([data-theme="light"]):not(.theme-light):not(.light),
+body:not([data-theme="light"]):not(.theme-light):not(.light) {
+  background-color: #0b1326;
+  color: #f1f5f9;
+}
+
+/* Guarantee white/bright headings in dark mode */
+html.dark h1, html.dark h2, html.dark h3, html.dark h4, html.dark h5, html.dark h6,
+[data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3, [data-theme="dark"] h4,
+html:not([data-theme="light"]):not(.theme-light):not(.light) h1,
+html:not([data-theme="light"]):not(.theme-light):not(.light) h2,
+html:not([data-theme="light"]):not(.theme-light):not(.light) h3,
+html:not([data-theme="light"]):not(.theme-light):not(.light) h4 {
+  color: #ffffff;
+}
+
+/* In dark mode, transform dark slate text to high-contrast white / light slate */
+html.dark .text-slate-900,
+[data-theme="dark"] .text-slate-900,
+html:not([data-theme="light"]):not(.theme-light):not(.light) .text-slate-900 {
+  color: #ffffff !important;
+}
+
+html.dark .text-slate-800,
+[data-theme="dark"] .text-slate-800,
+html:not([data-theme="light"]):not(.theme-light):not(.light) .text-slate-800 {
+  color: #f8fafc !important;
+}
+
+html.dark .text-slate-700,
+[data-theme="dark"] .text-slate-700,
+html:not([data-theme="light"]):not(.theme-light):not(.light) .text-slate-700 {
+  color: #e2e8f0 !important;
+}
+
+html.dark .text-slate-600,
+[data-theme="dark"] .text-slate-600,
+html:not([data-theme="light"]):not(.theme-light):not(.light) .text-slate-600 {
+  color: #cbd5e1 !important;
+}
+
+html.dark .text-slate-500,
+[data-theme="dark"] .text-slate-500,
+html:not([data-theme="light"]):not(.theme-light):not(.light) .text-slate-500 {
+  color: #94a3b8 !important;
+}
+
+/* Fix low-contrast palette hexes in Dark Mode */
+html.dark .text-\[\#bbcabf\],
+[data-theme="dark"] .text-\[\#bbcabf\],
+html:not([data-theme="light"]):not(.theme-light):not(.light) .text-\[\#bbcabf\] {
+  color: #cbd5e1 !important;
+}
+
+html.dark .text-\[\#86948a\],
+[data-theme="dark"] .text-\[\#86948a\],
+html:not([data-theme="light"]):not(.theme-light):not(.light) .text-\[\#86948a\] {
+  color: #94a3b8 !important;
+}
+
+/* Cronograma de semana (Weekly matrix & schedule) specific text in dark mode */
+html.dark .day-matrix-title,
+[data-theme="dark"] .day-matrix-title,
+html:not([data-theme="light"]):not(.theme-light):not(.light) .day-matrix-title {
+  color: #ffffff !important;
+}
+
+html.dark .day-matrix-subtitle,
+[data-theme="dark"] .day-matrix-subtitle,
+html:not([data-theme="light"]):not(.theme-light):not(.light) .day-matrix-subtitle {
+  color: #cbd5e1 !important;
+}
+
+html.dark .day-matrix-btn,
+[data-theme="dark"] .day-matrix-btn,
+html:not([data-theme="light"]):not(.theme-light):not(.light) .day-matrix-btn {
+  background-color: #1e293b !important;
+  color: #ffffff !important;
+  border-color: #334155 !important;
+}
+
+html.dark .day-matrix-badge,
+[data-theme="dark"] .day-matrix-badge,
+html:not([data-theme="light"]):not(.theme-light):not(.light) .day-matrix-badge {
+  background-color: rgba(0, 136, 255, 0.25) !important;
+  color: #38bdf8 !important;
+  border-color: rgba(0, 136, 255, 0.4) !important;
+}
+

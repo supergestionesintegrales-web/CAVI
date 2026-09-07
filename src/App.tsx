@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { TabType, RouteStep, FloatingPoint, Auditor, MacroFile, UserRole } from './types';
+import { TabType, RouteStep, FloatingPoint, Auditor, MacroFile, UserRole, VisitRecord } from './types';
 import {
   AUDITORS_DATA,
   INITIAL_SAMUEL_STEPS,
@@ -7,6 +7,11 @@ import {
   INITIAL_ALERT_POINTS,
 } from './data/mockData';
 import { INITIAL_MACRO_FILES } from './data/macroFoldersData';
+import {
+  distributePointsWithAlertPriority,
+  MASTER_SAMPLE_CANDIDATE_POINTS,
+  PointCandidate,
+} from './utils/pointAssignment';
 import { Header } from './components/Header';
 import { BottomNav } from './components/BottomNav';
 import { Toast, ToastData } from './components/Toast';
@@ -128,16 +133,138 @@ export default function App() {
     setRouteSteps((prev) =>
       prev.map((s) => {
         if (s.id === id) {
-          const nextStatus =
-            s.status === 'pending'
-              ? ('in_progress' as const)
-              : s.status === 'in_progress'
-              ? ('completed' as const)
-              : ('pending' as const);
-          return { ...s, status: nextStatus };
+          let nextStatus: RouteStep['status'] = 'in_progress';
+          let nextVisitCount = s.visitCount || 0;
+
+          if (s.status === 'pending') {
+            nextStatus = 'in_progress';
+          } else if (s.status === 'in_progress') {
+            nextStatus = 'completed';
+            nextVisitCount = Math.max(1, nextVisitCount + 1);
+          } else if (s.status === 'completed') {
+            nextStatus = 'revisit_needed';
+            nextVisitCount = Math.max(1, nextVisitCount + 1);
+          } else if (s.status === 'revisit_needed') {
+            nextStatus = 'not_audited';
+          } else {
+            nextStatus = 'pending';
+          }
+
+          const statusLabel =
+            nextStatus === 'completed'
+              ? 'Auditado (Efectivo)'
+              : nextStatus === 'revisit_needed'
+              ? 'Dejado para Re-visita'
+              : nextStatus === 'not_audited'
+              ? 'No Auditado'
+              : nextStatus === 'in_progress'
+              ? 'En Curso'
+              : 'Pendiente';
+
+          showToast('Estado Actualizado', `${s.code} marcado como: ${statusLabel} (${nextVisitCount} visita(s))`, 'info');
+
+          return {
+            ...s,
+            status: nextStatus,
+            visitCount: nextVisitCount,
+            auditStatus:
+              nextStatus === 'completed'
+                ? 'auditado'
+                : nextStatus === 'not_audited'
+                ? 'no_auditado'
+                : nextStatus === 'revisit_needed'
+                ? 'revisita_pendiente'
+                : nextStatus === 'in_progress'
+                ? 'en_curso'
+                : 'pendiente',
+          };
         }
         return s;
       })
+    );
+  };
+
+  const handleUpdateAuditStatus = (
+    id: string,
+    result: {
+      status: 'completed' | 'not_audited' | 'revisit_needed' | 'in_progress' | 'pending';
+      auditReason?: string;
+      notes?: string;
+      visitCount: number;
+    }
+  ) => {
+    setRouteSteps((prev) =>
+      prev.map((s) => {
+        if (s.id === id) {
+          const now = new Date();
+          const dateStr = now.toLocaleDateString('es-CO', { day: '2-digit', month: '2-digit', year: 'numeric' });
+          const timeStr = now.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+          const formattedTimestamp = `${dateStr} ${timeStr}`;
+
+          let auditResultType: 'auditado' | 'no_auditado' | 'revisita_pendiente' = 'auditado';
+          if (result.status === 'not_audited') auditResultType = 'no_auditado';
+          else if (result.status === 'revisit_needed') auditResultType = 'revisita_pendiente';
+
+          const newRecord: VisitRecord = {
+            id: `visit-${Date.now()}-${Math.random().toString(36).substring(2, 5)}`,
+            timestamp: formattedTimestamp,
+            date: dateStr,
+            time: timeStr,
+            auditorName: s.auditorName || 'Auditor Asignado',
+            result: auditResultType,
+            reason: result.auditReason,
+            notes: result.notes,
+          };
+
+          const prevHistory = s.visitHistory || [];
+          const updatedHistory =
+            result.status === 'completed' || result.status === 'not_audited' || result.status === 'revisit_needed'
+              ? [newRecord, ...prevHistory]
+              : prevHistory;
+
+          return {
+            ...s,
+            status: result.status,
+            auditStatus:
+              result.status === 'completed'
+                ? 'auditado'
+                : result.status === 'not_audited'
+                ? 'no_auditado'
+                : result.status === 'revisit_needed'
+                ? 'revisita_pendiente'
+                : result.status === 'in_progress'
+                ? 'en_curso'
+                : 'pendiente',
+            auditReason: result.auditReason,
+            notes: result.notes || s.notes,
+            visitCount: result.visitCount,
+            auditDate: formattedTimestamp,
+            visitHistory: updatedHistory,
+          };
+        }
+        return s;
+      })
+    );
+
+    const statusLabel =
+      result.status === 'completed'
+        ? 'Auditado (Efectivo)'
+        : result.status === 'not_audited'
+        ? `No Auditado (${result.auditReason || 'Fallido'})`
+        : result.status === 'revisit_needed'
+        ? `Dejado para Re-visita (${result.auditReason || 'Programado'})`
+        : result.status === 'in_progress'
+        ? 'En Curso'
+        : 'Pendiente';
+
+    showToast(
+      'Visita Registrada',
+      `Punto marcado como: ${statusLabel}. Total visitas acumuladas: ${result.visitCount}`,
+      result.status === 'completed'
+        ? 'success'
+        : result.status === 'not_audited'
+        ? 'alert'
+        : 'info'
     );
   };
 
@@ -308,64 +435,64 @@ export default function App() {
     );
   };
 
-  // Auto assign all with CAVI AI prioritizing zone and days
+  // Auto assign prioritizing alert points, then completing load with remaining points
   const handleAutoAssignAll = () => {
-    if (floatingPoints.length === 0) {
-      showToast('Sin puntos pendientes', 'No hay puntos con alertas para distribuir.');
-      return;
-    }
+    let candidatesToProcess: PointCandidate[] = [];
 
-    const pointsToDistribute = [...floatingPoints];
-    const daysCycle: RouteStep['day'][] = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes'];
-
-    const newCreatedSteps: RouteStep[] = pointsToDistribute.map((fp, idx) => {
-      let targetAuditor = auditors.find((a) => a.zone === fp.zone);
-      if (!targetAuditor) {
-        targetAuditor = auditors[idx % auditors.length];
-      }
-      const dayAssigned: RouteStep['day'] = daysCycle[idx % daysCycle.length];
-
-      return {
-        id: `step-auto-${Date.now()}-${idx}`,
-        time: `${9 + (idx % 6)}:30 AM`,
+    if (floatingPoints.length > 0) {
+      // Convert floating points to candidates (Phase 1 high priority alerts)
+      const fpCandidates: PointCandidate[] = floatingPoints.map((fp) => ({
         code: fp.code,
         format: fp.format,
         name: fp.name,
         address: fp.address,
         municipality: fp.municipality || 'La Guajira',
-        zone: fp.zone || targetAuditor.zone,
-        day: dayAssigned,
-        auditorId: targetAuditor.id,
-        auditorName: targetAuditor.name,
-        status: 'pending',
-        notes: fp.alertDescription || `${fp.daysWithoutVisit || 75}d sin visita - Despacho CAVI`,
-        daysWithoutVisit: fp.daysWithoutVisit,
-        alertCategory: fp.alertCategory,
-        alertDescription: fp.alertDescription,
-        hasGps: true,
-        lat: targetAuditor.zone === 'Norte' ? 11.544 : targetAuditor.zone === 'Centro' ? 11.380 : 10.771,
-        lng: targetAuditor.zone === 'Norte' ? -72.907 : targetAuditor.zone === 'Centro' ? -72.240 : -72.999,
-      };
-    });
+        zone: fp.zone,
+        daysWithoutVisit: fp.daysWithoutVisit || 75,
+        priority: fp.priority || 'ALTA',
+        hasAlert: true,
+        alertCategory: fp.alertCategory || 'mora_visita',
+        alertDescription: fp.alertDescription || `${fp.daysWithoutVisit || 75}d sin visita`,
+      }));
 
-    setRouteSteps((prev) => [...newCreatedSteps, ...prev]);
+      // Add regular candidate points to complete each auditor's capacity
+      const regularPool = MASTER_SAMPLE_CANDIDATE_POINTS.filter((p) => !p.hasAlert);
+      candidatesToProcess = [...fpCandidates, ...regularPool];
+    } else {
+      // Use full candidate set containing both alert points and regular completion points
+      candidatesToProcess = [...MASTER_SAMPLE_CANDIDATE_POINTS];
+    }
+
+    const { assignedSteps, alertCount, regularCount, auditorSummary } = distributePointsWithAlertPriority(
+      candidatesToProcess,
+      auditors,
+      routeSteps
+    );
+
+    if (assignedSteps.length === 0) {
+      showToast('Cargue Completo', 'Todos los auditores ya tienen su cargue y cuotas al 100%.', 'info');
+      return;
+    }
+
+    setRouteSteps((prev) => [...assignedSteps, ...prev]);
     setFloatingPoints([]);
+    localStorage.removeItem('cavi_real_floating_points');
 
-    // Increase targets on auditors
+    // Update auditors target and audited totals
     setAuditors((prev) =>
       prev.map((aud) => {
-        const assignedToThis = newCreatedSteps.filter((s) => s.auditorId === aud.id).length;
+        const summary = auditorSummary[aud.id];
+        if (!summary) return aud;
         return {
           ...aud,
-          visitsTarget: aud.visitsTarget + assignedToThis,
-          auditedTotal: aud.auditedTotal + assignedToThis,
+          visitsTarget: aud.visitsTarget + summary.assigned,
         };
       })
     );
 
     showToast(
-      'Distribución CAVI Exitosa',
-      `Se asignaron automáticamente ${pointsToDistribute.length} puntos críticos según zona operativa (Norte/Centro/Sur) y cronograma.`,
+      'Cargue Exitoso (Prioridad de Alertas)',
+      `Se asignaron primero ${alertCount} puntos con alerta de campo y luego ${regularCount} puntos regulares para completar el cargue de cada auditor.`,
       'success'
     );
   };
@@ -375,8 +502,8 @@ export default function App() {
     setFloatingPoints(INITIAL_ALERT_POINTS);
     localStorage.setItem('cavi_real_floating_points', JSON.stringify(INITIAL_ALERT_POINTS));
     showToast(
-      'Puntos Críticos Recargados',
-      'Se han restablecido los 6 puntos críticos de prueba con mora de 2 a 3 meses y alertas operativas.',
+      'Puntos Recargados',
+      'Se han preparado nuevos puntos con alertas y moras para demostrar la priorización en el cargue.',
       'info'
     );
   };
@@ -506,6 +633,7 @@ export default function App() {
             onAddRouteStep={handleAddRouteStep}
             onDeleteRouteStep={handleDeleteRouteStep}
             onToggleStepStatus={handleToggleStepStatus}
+            onUpdateAuditStatus={handleUpdateAuditStatus}
             onImportRouteSteps={handleImportRouteSteps}
             onClearRouteSteps={handleClearRouteSteps}
             onAddFloatingPoint={handleAddFloatingPoint}
