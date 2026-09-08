@@ -1,4 +1,9 @@
 import { Auditor, RouteStep, FloatingPoint, FormatType, AlertCategory } from '../types';
+import { GUAJIRA_73_MONTHLY_POINTS, WORKLOAD_CONSTRAINTS } from '../data/guajiraPointsData';
+
+export { WORKLOAD_CONSTRAINTS, GUAJIRA_73_MONTHLY_POINTS };
+
+export const WORKLOAD_RULES = WORKLOAD_CONSTRAINTS;
 
 export interface PointCandidate {
   id?: string;
@@ -216,21 +221,27 @@ export function distributePointsWithAlertPriority(
     };
   });
 
-  // Helper to pick the best auditor for a candidate
-  const getBestAuditorForZone = (candidateZone: string, preferLowestLoad = false): Auditor => {
-    // 1. Exact zone match
+  // Helper to pick the best auditor for a candidate respecting the 24-25 weekly target
+  const getBestAuditorForZone = (candidateZone: string): Auditor => {
+    // 1. Exact zone matches where auditor has not reached weekly capacity (25 points)
     const zoneMatches = auditors.filter(
       (a) => a.zone.toLowerCase() === candidateZone.toLowerCase()
     );
 
+    const availableZoneAuditors = zoneMatches.filter(
+      (a) => auditorLoads[a.id].assignedSteps.length < WORKLOAD_CONSTRAINTS.WEEKLY_AVG_MAX
+    );
+
+    if (availableZoneAuditors.length > 0) {
+      availableZoneAuditors.sort(
+        (a, b) =>
+          auditorLoads[a.id].assignedSteps.length -
+          auditorLoads[b.id].assignedSteps.length
+      );
+      return availableZoneAuditors[0];
+    }
+
     if (zoneMatches.length > 0) {
-      if (preferLowestLoad && zoneMatches.length > 1) {
-        zoneMatches.sort(
-          (a, b) =>
-            auditorLoads[a.id].assignedSteps.length -
-            auditorLoads[b.id].assignedSteps.length
-        );
-      }
       return zoneMatches[0];
     }
 
@@ -243,7 +254,7 @@ export function distributePointsWithAlertPriority(
     return sorted[0];
   };
 
-  // Helper to pick the best day for an auditor
+  // Helper to pick the best day for an auditor respecting the 8-10 points/day rule
   const getBestDayForAuditor = (
     auditorId: string,
     isAlert: boolean
@@ -251,23 +262,55 @@ export function distributePointsWithAlertPriority(
     const loadInfo = auditorLoads[auditorId];
     if (!loadInfo) return 'lunes';
 
-    // For alerts, prefer early week: lunes, martes, miércoles
-    const dayPool: RouteStep['day'][] = isAlert
-      ? ['lunes', 'martes', 'miércoles', 'jueves', 'viernes']
-      : ['lunes', 'martes', 'miércoles', 'jueves', 'viernes'];
+    // Prefer Lunes, Martes, Miércoles to concentrate field audits into 8-10 points/day
+    const preferredDays: RouteStep['day'][] = ['lunes', 'martes', 'miércoles'];
+    const allDays: RouteStep['day'][] = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes'];
 
-    // Pick day with minimum stops currently scheduled
-    let bestDay = dayPool[0];
-    let minStops = loadInfo.dayCounts[bestDay];
-
-    for (const d of dayPool) {
-      if (loadInfo.dayCounts[d] < minStops) {
-        minStops = loadInfo.dayCounts[d];
-        bestDay = d;
+    // 1. Fill preferred days up to minimum daily workload (8 points)
+    for (const d of preferredDays) {
+      if (loadInfo.dayCounts[d] < WORKLOAD_CONSTRAINTS.DAILY_MIN_POINTS) {
+        return d;
       }
     }
-    return bestDay;
+
+    // 2. If each preferred day already has 8 points, fill up to maximum daily workload (10 points)
+    for (const d of preferredDays) {
+      if (loadInfo.dayCounts[d] < WORKLOAD_CONSTRAINTS.DAILY_MAX_POINTS) {
+        return d;
+      }
+    }
+
+    // 3. If preferred days are full (10 points each), schedule on Jueves/Viernes
+    for (const d of allDays) {
+      if (loadInfo.dayCounts[d] < WORKLOAD_CONSTRAINTS.DAILY_MAX_POINTS) {
+        return d;
+      }
+    }
+
+    // Fallback: day with least load
+    let minDay = allDays[0];
+    let minStops = loadInfo.dayCounts[minDay];
+    for (const d of allDays) {
+      if (loadInfo.dayCounts[d] < minStops) {
+        minStops = loadInfo.dayCounts[d];
+        minDay = d;
+      }
+    }
+    return minDay;
   };
+
+  const SCHEDULED_TIME_SLOTS = [
+    '08:00 AM',
+    '08:45 AM',
+    '09:30 AM',
+    '10:15 AM',
+    '11:00 AM',
+    '01:30 PM',
+    '02:15 PM',
+    '03:00 PM',
+    '03:45 PM',
+    '04:30 PM',
+  ];
 
   const newlyAssignedSteps: RouteStep[] = [];
 
@@ -278,7 +321,7 @@ export function distributePointsWithAlertPriority(
     const zone =
       candidate.zone ||
       guessZoneFromLocation(candidate.municipality || candidate.address || '');
-    const matchedAuditor = getBestAuditorForZone(zone, false);
+    const matchedAuditor = getBestAuditorForZone(zone);
     const assignedDay =
       candidate.day && validDays.includes(candidate.day)
         ? candidate.day
@@ -288,10 +331,8 @@ export function distributePointsWithAlertPriority(
     loadInfo.dayCounts[assignedDay]++;
     loadInfo.alertCount++;
 
-    const orderInDay = loadInfo.dayCounts[assignedDay];
-    const hour = 8 + (orderInDay % 4);
-    const minute = orderInDay % 2 === 0 ? '00' : '30';
-    const timeStr = `${hour < 10 ? '0' + hour : hour}:${minute} AM`;
+    const orderInDay = loadInfo.dayCounts[assignedDay] - 1;
+    const timeStr = SCHEDULED_TIME_SLOTS[orderInDay % SCHEDULED_TIME_SLOTS.length];
 
     const alertDays = candidate.daysWithoutVisit || 75;
     const alertDesc =
@@ -339,21 +380,7 @@ export function distributePointsWithAlertPriority(
       candidate.zone ||
       guessZoneFromLocation(candidate.municipality || candidate.address || '');
 
-    // Check load balancing: if zone auditor is already overloaded compared to peers, balance
-    const zoneAuditor = getBestAuditorForZone(zone, false);
-    const zoneAuditorLoad = auditorLoads[zoneAuditor.id].assignedSteps.length;
-
-    // Lowest overall auditor load
-    const minLoadAuditor = [...auditors].sort(
-      (a, b) =>
-        auditorLoads[a.id].assignedSteps.length -
-        auditorLoads[b.id].assignedSteps.length
-    )[0];
-    const minAuditorLoad = auditorLoads[minLoadAuditor.id].assignedSteps.length;
-
-    // Prefer zone auditor, but if discrepancy > 3 paradas, balance to complete cargue
-    const matchedAuditor =
-      zoneAuditorLoad - minAuditorLoad > 3 ? minLoadAuditor : zoneAuditor;
+    const matchedAuditor = getBestAuditorForZone(zone);
 
     const assignedDay =
       candidate.day && validDays.includes(candidate.day)
@@ -364,12 +391,8 @@ export function distributePointsWithAlertPriority(
     loadInfo.dayCounts[assignedDay]++;
     loadInfo.regularCount++;
 
-    const orderInDay = loadInfo.dayCounts[assignedDay];
-    const hour = 10 + (orderInDay % 6);
-    const timePeriod = hour >= 12 ? 'PM' : 'AM';
-    const displayHour = hour > 12 ? hour - 12 : hour;
-    const minute = orderInDay % 2 === 0 ? '15' : '45';
-    const timeStr = `${displayHour}:${minute} ${timePeriod}`;
+    const orderInDay = loadInfo.dayCounts[assignedDay] - 1;
+    const timeStr = SCHEDULED_TIME_SLOTS[orderInDay % SCHEDULED_TIME_SLOTS.length];
 
     const step: RouteStep = {
       id: candidate.id || `step-reg-${Date.now()}-${idx}-${Math.random().toString(36).slice(2, 5)}`,
@@ -429,239 +452,8 @@ export function distributePointsWithAlertPriority(
 }
 
 /**
- * Master sample candidate points combining critical points and regular stores
- * across La Guajira (15 municipalities) for seamless demonstration of prioritized cargue.
+ * Master sample candidate points (73 puntos totales de muestreo mensual)
+ * distribuidos según las directrices operativas en los 15 municipios de La Guajira.
  */
-export const MASTER_SAMPLE_CANDIDATE_POINTS: PointCandidate[] = [
-  // 1. Alert Points (Prioritized)
-  {
-    code: 'CM-108',
-    name: 'Éxito Riohacha Centro',
-    format: 'CM',
-    address: 'Av. de los Estudiantes #12-40, Riohacha',
-    municipality: 'Riohacha',
-    zone: 'Norte',
-    daysWithoutVisit: 84,
-    alertCategory: 'sin_visita_2_3_meses',
-    alertDescription: '84 días sin visita presencial · Quiebre de stock y desabastecimiento',
-    priority: 'Urgente',
-    hasGps: true,
-    lat: 11.5442,
-    lng: -72.9069,
-  },
-  {
-    code: 'PF-042',
-    name: 'Maicao Comercio Central',
-    format: 'PF',
-    address: 'Calle 16 #13-05, Mercado Público, Maicao',
-    municipality: 'Maicao',
-    zone: 'Centro',
-    daysWithoutVisit: 72,
-    alertCategory: 'inventario_discrepancia',
-    alertDescription: '72 días sin visita · Discrepancia de stock físico vs sistema',
-    priority: 'Alta',
-    hasGps: true,
-    lat: 11.3778,
-    lng: -72.2389,
-  },
-  {
-    code: 'CDA-07',
-    name: 'Centro Agropecuario San Juan',
-    format: 'CDA',
-    address: 'Cra 6 #14-22, Salida San Juan del Cesar',
-    municipality: 'San Juan del Cesar',
-    zone: 'Sur',
-    daysWithoutVisit: 96,
-    alertCategory: 'critico_mas_3_meses',
-    alertDescription: '96 días sin visita (>3 meses) · Superó límite máximo de supervisión',
-    priority: 'Urgente',
-    hasGps: true,
-    lat: 10.7711,
-    lng: -73.0025,
-  },
-  {
-    code: 'CM-102',
-    name: 'Tienda Ara Maicao Central',
-    format: 'CM',
-    address: 'Calle 16 #11-24, Maicao',
-    municipality: 'Maicao',
-    zone: 'Centro',
-    daysWithoutVisit: 65,
-    alertCategory: 'sin_visita_2_3_meses',
-    alertDescription: '65 días sin visita (~2.2 meses) · Expiró ventana bimestral',
-    priority: 'Alta',
-    hasGps: true,
-    lat: 11.3812,
-    lng: -72.245,
-  },
-  {
-    code: 'PF-89',
-    name: 'Droguería y Variedades Manaure',
-    format: 'PF',
-    address: 'Av. Las Salinas #4-18, Manaure',
-    municipality: 'Manaure',
-    zone: 'Norte',
-    daysWithoutVisit: 78,
-    alertCategory: 'precio_no_conforme',
-    alertDescription: '78 días sin visita · Precios fuera de parámetro en canal PF',
-    priority: 'Urgente',
-    hasGps: true,
-    lat: 11.7792,
-    lng: -72.4494,
-  },
-  {
-    code: 'CM-115',
-    name: 'Super Inter Fonseca Central',
-    format: 'CM',
-    address: 'Calle 12 #18-35, Fonseca',
-    municipality: 'Fonseca',
-    zone: 'Sur',
-    daysWithoutVisit: 62,
-    alertCategory: 'sin_visita_2_3_meses',
-    alertDescription: '62 días sin visita · Revisión de material POP y planograma',
-    priority: 'Alta',
-    hasGps: true,
-    lat: 10.8861,
-    lng: -72.8515,
-  },
-  {
-    code: 'PF-33',
-    name: 'Distribuidora Uribia Central',
-    format: 'PF',
-    address: 'Calle 3 #5-12, Plaza Principal, Uribia',
-    municipality: 'Uribia',
-    zone: 'Norte',
-    daysWithoutVisit: 105,
-    alertCategory: 'critico_mas_3_meses',
-    alertDescription: '105 días sin visita (3.5 meses) · Máxima antigüedad sin inspección',
-    priority: 'Urgente',
-    hasGps: true,
-    lat: 11.7139,
-    lng: -72.266,
-  },
-  {
-    code: 'CM-96',
-    name: 'Supertienda Villanueva Real',
-    format: 'CM',
-    address: 'Carrera 8 #11-50, Villanueva',
-    municipality: 'Villanueva',
-    zone: 'Sur',
-    daysWithoutVisit: 88,
-    alertCategory: 'sla_vencido',
-    alertDescription: '88 días sin visita · SLA vencido para homologación de precios',
-    priority: 'Urgente',
-    hasGps: true,
-    lat: 10.6056,
-    lng: -72.9789,
-  },
+export const MASTER_SAMPLE_CANDIDATE_POINTS: PointCandidate[] = GUAJIRA_73_MONTHLY_POINTS;
 
-  // 2. Regular Points (Assigned after alerts to complete the cargue)
-  {
-    code: 'CM-01',
-    name: 'Olímpica Calle Ancha Riohacha',
-    format: 'CM',
-    address: 'Calle 7 #10-15, Riohacha',
-    municipality: 'Riohacha',
-    zone: 'Norte',
-    daysWithoutVisit: 14,
-    hasGps: true,
-    lat: 11.545,
-    lng: -72.908,
-  },
-  {
-    code: 'PF-12',
-    name: 'Granero El Paisa Maicao',
-    format: 'PF',
-    address: 'Carrera 10 #12-30, Maicao',
-    municipality: 'Maicao',
-    zone: 'Centro',
-    daysWithoutVisit: 18,
-    hasGps: true,
-    lat: 11.379,
-    lng: -72.241,
-  },
-  {
-    code: 'PF-15',
-    name: 'Droguería La Principal San Juan',
-    format: 'PF',
-    address: 'Calle 4 #8-20, San Juan del Cesar',
-    municipality: 'San Juan del Cesar',
-    zone: 'Sur',
-    daysWithoutVisit: 12,
-    hasGps: true,
-    lat: 10.772,
-    lng: -73.003,
-  },
-  {
-    code: 'CDA-02',
-    name: 'Centro de Acopio Cerrejón Albania',
-    format: 'CDA',
-    address: 'Vía Principal Albania Km 2',
-    municipality: 'Albania',
-    zone: 'Centro',
-    daysWithoutVisit: 21,
-    hasGps: true,
-    lat: 11.1611,
-    lng: -72.5928,
-  },
-  {
-    code: 'CM-05',
-    name: 'Supermercado Los Primos Fonseca',
-    format: 'CM',
-    address: 'Carrera 19 #14-25, Fonseca',
-    municipality: 'Fonseca',
-    zone: 'Sur',
-    daysWithoutVisit: 16,
-    hasGps: true,
-    lat: 10.887,
-    lng: -72.852,
-  },
-  {
-    code: 'PF-22',
-    name: 'Abarrotes Hatonuevo Central',
-    format: 'PF',
-    address: 'Calle 5 #9-18, Hatonuevo',
-    municipality: 'Hatonuevo',
-    zone: 'Centro',
-    daysWithoutVisit: 25,
-    hasGps: true,
-    lat: 11.0617,
-    lng: -72.7633,
-  },
-  {
-    code: 'CM-33',
-    name: 'D1 Mercado Villanueva',
-    format: 'CM',
-    address: 'Carrera 7 #12-10, Villanueva',
-    municipality: 'Villanueva',
-    zone: 'Sur',
-    daysWithoutVisit: 19,
-    hasGps: true,
-    lat: 10.606,
-    lng: -72.979,
-  },
-  {
-    code: 'PF-45',
-    name: 'Minimarket Los Laureles Dibulla',
-    format: 'PF',
-    address: 'Calle Principal #3-22, Dibulla',
-    municipality: 'Dibulla',
-    zone: 'Norte',
-    daysWithoutVisit: 22,
-    hasGps: true,
-    lat: 11.2725,
-    lng: -73.3094,
-  },
-  {
-    code: 'CM-50',
-    name: 'Supermercado Central Barrancas',
-    format: 'CM',
-    address: 'Calle 10 #7-40, Barrancas',
-    municipality: 'Barrancas',
-    zone: 'Sur',
-    daysWithoutVisit: 15,
-    hasGps: true,
-    lat: 10.9572,
-    lng: -72.7886,
-  },
-];

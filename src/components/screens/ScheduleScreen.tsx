@@ -499,24 +499,24 @@ END:VCALENDAR`;
             <div className="flex justify-between items-start mb-3">
               <div>
                 <span className="text-[11px] text-[#bbcabf] uppercase tracking-wider font-semibold">
-                  Avance Mensual ({MONTH_NAMES[currentMonth]} {currentYear})
+                  Muestreo Mensual ({MONTH_NAMES[currentMonth]} {currentYear})
                 </span>
                 <div className="flex items-baseline gap-1.5 mt-1">
                   <span className="text-2xl font-bold text-[#4edea3]">
-                    {isCurrentMonth ? `${Math.min(daysInMonth * 10, 240)}` : '260'}
+                    {isCurrentMonth ? `${Math.min(today.getDate() * 3, 73)}` : '73'}
                   </span>
                   <span className="text-xs text-[#bbcabf]">
-                    / {daysInMonth * 12} visitas meta
+                    / 73 visitas meta (Universo: 606 PDV)
                   </span>
                 </div>
               </div>
               <div className="flex flex-col items-end">
                 <div className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#171f33] border border-[#ffb95f]/30">
                   <span className="material-symbols-outlined text-[14px] text-[#ffb95f]">
-                    hourglass_bottom
+                    tune
                   </span>
                   <span className="text-[11px] text-[#ffb95f] font-semibold">
-                    {Math.max(0, daysInMonth - (isCurrentMonth ? today.getDate() : 0))} días hábiles rest.
+                    Carga: 8-10 PDV/día · 24-25 sem.
                   </span>
                 </div>
                 <span className="text-[10px] text-[#bbcabf] mt-1">3 Auditores activos en La Guajira</span>
@@ -525,8 +525,8 @@ END:VCALENDAR`;
 
             <div className="w-full bg-[#0b1326] h-2.5 rounded-full overflow-hidden p-0.5 border border-[#222a3d]">
               <div
-                className="bg-gradient-to-r from-[#0088ff] via-[#38bdf8] to-[#60a5fa] h-full rounded-full transition-all duration-700 ease-out shadow-[0_0_10px_rgba(0,136,255,0.4)]"
-                style={{ width: `${isCurrentMonth ? Math.min(100, Math.round((today.getDate() / daysInMonth) * 100)) : 85}%` }}
+                className="bg-gradient-to-r from-[#0088ff] via-[#38bdf8] to-[#4edea3] h-full rounded-full transition-all duration-700 ease-out shadow-[0_0_10px_rgba(0,136,255,0.4)]"
+                style={{ width: `${isCurrentMonth ? Math.min(100, Math.round(((Math.min(today.getDate() * 3, 73)) / 73) * 100)) : 100}%` }}
               />
             </div>
 

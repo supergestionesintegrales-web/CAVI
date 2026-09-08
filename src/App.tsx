@@ -102,11 +102,15 @@ export default function App() {
       const pfCount = audSteps.filter((s) => s.format === 'PF').length;
       const cdaCount = audSteps.filter((s) => s.format === 'CDA').length;
       const effectiveness = visitsTarget > 0 ? Math.round((visitsDone / visitsTarget) * 100) : 100;
+      const daysUsed = new Set(audSteps.map((s) => s.day).filter(Boolean));
+      const activeDaysCount = daysUsed.size > 0 ? daysUsed.size : (visitsTarget > 0 ? 3 : 1);
+      const pointsPerDay = visitsTarget > 0 ? Math.round((visitsTarget / activeDaysCount) * 10) / 10 : 8.5;
+
       return {
         ...aud,
         visitsDone,
         visitsTarget,
-        pointsPerDay: visitsTarget,
+        pointsPerDay,
         auditedTotal: visitsDone,
         targetBreakdown: { cm: cmCount, pf: pfCount, cda: cdaCount },
         effectiveness,
@@ -455,11 +459,12 @@ export default function App() {
         alertDescription: fp.alertDescription || `${fp.daysWithoutVisit || 75}d sin visita`,
       }));
 
-      // Add regular candidate points to complete each auditor's capacity
-      const regularPool = MASTER_SAMPLE_CANDIDATE_POINTS.filter((p) => !p.hasAlert);
+      // Add regular candidate points to complete each auditor's capacity (up to 73 monthly total)
+      const alertCodes = new Set(fpCandidates.map((c) => c.code));
+      const regularPool = MASTER_SAMPLE_CANDIDATE_POINTS.filter((p) => !alertCodes.has(p.code));
       candidatesToProcess = [...fpCandidates, ...regularPool];
     } else {
-      // Use full candidate set containing both alert points and regular completion points
+      // Use full candidate set containing 73 monthly sampling points
       candidatesToProcess = [...MASTER_SAMPLE_CANDIDATE_POINTS];
     }
 
@@ -491,8 +496,8 @@ export default function App() {
     );
 
     showToast(
-      'Cargue Exitoso (Prioridad de Alertas)',
-      `Se asignaron primero ${alertCount} puntos con alerta de campo y luego ${regularCount} puntos regulares para completar el cargue de cada auditor.`,
+      'Cargue y Distribución de Carga Exitoso',
+      `Se asignaron ${assignedSteps.length} puntos de venta del muestreo mensual (8-10 PDV/día, ~24-25/semana por auditor), priorizando ${alertCount} alertas críticas de campo.`,
       'success'
     );
   };

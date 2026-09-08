@@ -85,6 +85,8 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
 
   const totalVisitsTarget = auditors.reduce((acc, a) => acc + (a.visitsTarget || 0), 0);
   const totalVisitsDone = auditors.reduce((acc, a) => acc + (a.visitsDone || 0), 0);
+  const effectiveTarget = totalVisitsTarget > 0 ? totalVisitsTarget : 73;
+  const progressPct = Math.min(100, Math.round((totalVisitsDone / effectiveTarget) * 100));
   const avgEffectiveness = totalVisitsTarget > 0 ? Math.round((totalVisitsDone / totalVisitsTarget) * 100) : 100;
   const alertCount = auditors.filter((a) => a.hasAlert).length;
 
@@ -323,14 +325,14 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                 </div>
 
                 <div className="flex flex-col bg-[#171f33] p-3 rounded-lg border border-[#222a3d]/50">
-                  <span className="text-[11px] text-[#bbcabf]">Meta Semanal</span>
+                  <span className="text-[11px] text-[#bbcabf]">Meta Mensual (Muestreo)</span>
                   <div className="flex items-baseline gap-1 mt-0.5">
-                    <span className="text-2xl font-headline font-bold text-[#4edea3]">58</span>
-                    <span className="text-sm text-[#bbcabf]">/ 78</span>
+                    <span className="text-2xl font-headline font-bold text-[#4edea3]">{totalVisitsDone}</span>
+                    <span className="text-sm text-[#bbcabf]">/ {effectiveTarget}</span>
                   </div>
                   <div className="flex items-center gap-1 mt-1">
-                    <span className="text-[11px] font-bold text-[#4edea3]">74.4% avance</span>
-                    <span className="text-[11px] text-[#bbcabf]">| 20 rest.</span>
+                    <span className="text-[11px] font-bold text-[#4edea3]">{progressPct}% avance</span>
+                    <span className="text-[11px] text-[#bbcabf]">| {Math.max(0, effectiveTarget - totalVisitsDone)} rest.</span>
                   </div>
                 </div>
               </div>
@@ -340,12 +342,12 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                 <div className="w-full bg-[#2d3449] h-2 rounded-full overflow-hidden flex">
                   <div
                     className="bg-[#4edea3] h-full rounded-full transition-all duration-700"
-                    style={{ width: '74.4%' }}
+                    style={{ width: `${Math.max(4, Math.min(100, progressPct))}%` }}
                   ></div>
                 </div>
                 <div className="flex justify-between text-[11px] text-[#bbcabf]">
-                  <span>0 visitas</span>
-                  <span>Meta objetivo: 78 visitas</span>
+                  <span>{totalVisitsDone} visitas realizadas</span>
+                  <span>Meta mensual: {effectiveTarget} de 606 puntos (8-10 PDV/día)</span>
                 </div>
               </div>
 
