@@ -846,6 +846,7 @@ export default function App() {
           setUnreadCount(0);
           showToast('Alertas leídas', 'Todas las notificaciones fueron archivadas.');
         }}
+        alerts={dataAlerts}
       />
 
       <ProfileModal
