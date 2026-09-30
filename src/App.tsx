@@ -37,7 +37,7 @@ import { RoutesScreen } from './components/screens/RoutesScreen';
 import { ScheduleScreen } from './components/screens/ScheduleScreen';
 import { MacroFoldersScreen } from './components/screens/MacroFoldersScreen';
 import { LeaseScreen } from './components/screens/LeaseScreen';
-import { parseLeasePointsFromMacroFiles, generateLeaseDataAlerts, LeaseDataAlert } from './utils/dataReconciliation';
+import { parseLeasePointsFromMacroFiles, parseLeaseSalesFromMacroFiles, generateLeaseDataAlerts, LeaseDataAlert } from './utils/dataReconciliation';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabType>('dashboard-cavi');
@@ -474,15 +474,17 @@ export default function App() {
     });
     const previous = leasePoints;
     const result = parseLeasePointsFromMacroFiles(newFiles, previous);
-    if (result.detectedRows > 0) {
-      const alerts = generateLeaseDataAlerts(previous, result.points);
-      setLeasePoints(result.points);
+    const salesResult = parseLeaseSalesFromMacroFiles(newFiles, result.points);
+    const reconciledPoints = salesResult.detectedRows > 0 ? salesResult.points : result.points;
+    if (result.detectedRows > 0 || salesResult.detectedRows > 0) {
+      const alerts = generateLeaseDataAlerts(previous, reconciledPoints);
+      setLeasePoints(reconciledPoints);
       if (alerts.length > 0) {
         setDataAlerts((prev) => [...alerts, ...prev].slice(0, 200));
         const urgent = alerts.filter((a) => a.severity === 'urgent').length;
         showToast('Alertas generadas', alerts.length + ' alerta(s) detectadas por la actualización' + (urgent ? ', ' + urgent + ' urgente(s).' : '.'), 'alert');
       } else {
-        showToast('Arrendamientos actualizados', result.detectedRows + ' registro(s) conciliados sin reemplazar los datos existentes.', 'success');
+        showToast('Arrendamientos actualizados', (result.detectedRows + salesResult.detectedRows) + ' registro(s) conciliados sin reemplazar los datos existentes.', 'success');
       }
     }
   };
