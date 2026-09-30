@@ -1353,3 +1353,39 @@ html:not([data-theme="light"]):not(.theme-light):not(.light) .day-matrix-badge {
   color-scheme: dark;
 }
 
+/* CAVIMAPS legend must keep its own high-contrast palette.
+   Generic light-theme text rules must never turn its labels black. */
+[data-theme="light"] .cavi-map-legend,
+.theme-light .cavi-map-legend,
+.light .cavi-map-legend {
+  background: rgba(15, 23, 42, 0.97) !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="light"] .cavi-map-legend [class~="text-white"],
+.theme-light .cavi-map-legend [class~="text-white"],
+.light .cavi-map-legend [class~="text-white"] {
+  color: #f8fafc !important;
+}
+
+[data-theme="light"] .cavi-map-legend [class~="text-[#94a3b8]"],
+.theme-light .cavi-map-legend [class~="text-[#94a3b8]"],
+.light .cavi-map-legend [class~="text-[#94a3b8]"] {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="light"] .cavi-map-legend [class*="bg-[#1e293b]"],
+.theme-light .cavi-map-legend [class*="bg-[#1e293b]"],
+.light .cavi-map-legend [class*="bg-[#1e293b]"] {
+  background-color: #1e293b !important;
+}
+
+[data-theme="light"] .cavi-map-legend-toggle,
+.theme-light .cavi-map-legend-toggle,
+.light .cavi-map-legend-toggle {
+  background: rgba(15, 23, 42, 0.97) !important;
+  border-color: #475569 !important;
+  color: #e2e8f0 !important;
+}
+
