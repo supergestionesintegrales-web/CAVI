@@ -102,6 +102,9 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
           visited: s.status === 'completed',
         }));
     }
+    // When the parent supplies grouped auditor routes, do not inject the demo route.
+    if (routeGroups.length > 0) return [];
+
     // Default initial strategic route across La Guajira
     return [
       { id: 'h1', name: 'Riohacha Centro (CDA Sede la 10)', lat: 11.548376, lng: -72.909395, municipality: 'Riohacha', channel: 'CDA' },
@@ -127,7 +130,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  // Sync when initialRouteStops changes externally
+  // Sync when the parent changes the active route.
   useEffect(() => {
     if (initialRouteStops && initialRouteStops.length > 0) {
       const validStops = initialRouteStops
@@ -146,6 +149,12 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
       }
     }
   }, [initialRouteStops]);
+
+  useEffect(() => {
+    if (initialRouteStops.length === 0 && routeGroups.length > 0) {
+      setRouteWaypoints([]);
+    }
+  }, [initialRouteStops, routeGroups]);
 
   // Persist custom points
   const handleSaveCustomPoints = (newPoints: CaviPoint[], mode: 'append' | 'replace') => {
