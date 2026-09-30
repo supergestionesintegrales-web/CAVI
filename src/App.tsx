@@ -492,7 +492,8 @@ export default function App() {
   const [isCriticalPointsOpen, setIsCriticalPointsOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(3);
+  const [unreadCount, setUnreadCount] = useState(0);
+  useEffect(() => { setUnreadCount(dataAlerts.length); }, [dataAlerts]);
 
   // Toasts
   const [toasts, setToasts] = useState<ToastData[]>([]);
