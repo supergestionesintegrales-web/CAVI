@@ -683,14 +683,12 @@ export default function App() {
   };
 
   // Macro files handling
-  const handleAddMacroFiles = (newFiles: MacroFile[]) => {
-    setMacroFiles((prev) => [...newFiles, ...prev]);
-  };
+  const handleAddMacroFiles = (newFiles: MacroFile[]) => handleAddFiles(newFiles);
 
   const handleInjectRoutesFromMacro = (file: MacroFile) => {
     setActiveRouteSourceFile(file.name);
     if (file.parsedRouteSteps && file.parsedRouteSteps.length > 0) {
-      setRouteSteps(file.parsedRouteSteps);
+      handleImportRouteSteps(file.parsedRouteSteps);
       showToast(
         'Rutas Actualizadas en Vivo',
         `Se cargaron ${file.parsedRouteSteps.length} paradas operativas desde "${file.name}".`,
@@ -709,7 +707,7 @@ export default function App() {
         sla: '45 min',
         notes: `Importado de macro ${file.name} - Hoja ${firstSheet.name}`,
       }));
-      setRouteSteps(newSteps);
+      handleImportRouteSteps(newSteps);
       showToast(
         'Rutas Sincronizadas con Éxito',
         `Se inyectaron las paradas de la hoja "${firstSheet.name}" a la ruta activa de campo.`,
