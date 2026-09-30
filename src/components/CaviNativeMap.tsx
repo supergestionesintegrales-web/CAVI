@@ -467,6 +467,8 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
       }
     };
 
+    const stopRenderer = L.canvas();
+
     routeGroups.forEach((group) => {
       drawRouteTrace(group.stops, group.color, 4, routeGroupsLayer);
 
@@ -553,41 +555,6 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
       routeMarkers.addLayer(marker);
     });
   }, [routeWaypoints, isGuidedModeActive, currentLegIndex, allAvailablePoints]);
-
-  // Auditor route groups are rendered in their own lightweight Leaflet layers.
-  useEffect(() => {
-    const layer = routeGroupMarkersLayerRef.current;
-    const routesLayer = routeGroupsLayerRef.current;
-    if (!mapInstanceRef.current || !layer || !routesLayer) return;
-
-    layer.clearLayers();
-    routesLayer.clearLayers();
-    if (routeGroups.length === 0) return;
-
-    routeGroups.forEach((group) => {
-      const validStops = group.stops.filter((stop) => Number.isFinite(stop.lat) && Number.isFinite(stop.lng));
-      if (validStops.length >= 2) {
-        L.polyline(validStops.map((stop) => [stop.lat, stop.lng] as [number, number]), {
-          color: group.color, weight: 4, opacity: 0.8, dashArray: '7 6', interactive: false,
-        }).addTo(routesLayer);
-      }
-
-      validStops.forEach((stop, index) => {
-        const marker = L.circleMarker([stop.lat, stop.lng], {
-          radius: 7, color: group.color, weight: 2, fillColor: group.color, fillOpacity: 0.9, bubblingMouseEvents: false,
-        });
-        marker.bindTooltip(
-          '<strong>' + group.label + '</strong><br/>' + (index + 1) + '. ' + stop.name + '<br/>' + (stop.municipality || ''),
-          { direction: 'top', offset: [0, -8], opacity: 0.95 }
-        );
-        marker.on('click', () => {
-          const found = allAvailablePoints.find((p) => p.name === stop.name || p.id === stop.id);
-          if (found) setSelectedPoint(found);
-        });
-        layer.addLayer(marker);
-      });
-    });
-  }, [routeGroups, allAvailablePoints]);
 
   // 4. Guided Displacement Simulation Engine
   useEffect(() => {
