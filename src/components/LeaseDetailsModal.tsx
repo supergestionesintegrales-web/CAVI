@@ -4,6 +4,7 @@ import {
   evaluatePointOpenStatus,
   formatCOP,
   getContractDaysRemaining,
+  getLeaseLifecycleStatus,
 } from '../data/leasePointsData';
 
 interface LeaseDetailsModalProps {
@@ -25,6 +26,8 @@ export const LeaseDetailsModal: React.FC<LeaseDetailsModalProps> = ({
 
   const status = evaluatePointOpenStatus(point);
   const contract = getContractDaysRemaining(point.contractEndDate);
+  const lifecycle = getLeaseLifecycleStatus(point);
+  const sales = point.salesSummary;
 
   const daysList: { key: keyof WeeklySchedule; label: string }[] = [
     { key: 'monday', label: 'Lunes' },
@@ -252,6 +255,82 @@ export const LeaseDetailsModal: React.FC<LeaseDetailsModalProps> = ({
                   {point.contractStartDate} hasta {point.contractEndDate} ({contract.label})
                 </span>
               </div>
+            </div>
+          </div>
+
+          {/* Actividad Comercial / Giros */}
+          <div className="p-4 bg-[#131b2e] rounded-xl border border-[#222a3d] space-y-3">
+            <div className="flex items-center justify-between gap-2">
+              <span className="font-bold text-white flex items-center gap-1.5 text-xs">
+                <span className="material-symbols-outlined text-[18px] text-[#38bdf8]">monitoring</span>
+                Actividad Comercial / Giros
+              </span>
+              <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border ${
+                sales?.status === 'with_sales'
+                  ? 'bg-[#10b981]/10 text-[#4edea3] border-[#10b981]/30'
+                  : sales?.status === 'no_sales'
+                  ? 'bg-[#ffb95f]/10 text-[#ffb95f] border-[#ffb95f]/30'
+                  : 'bg-[#64748b]/10 text-[#94a3b8] border-[#64748b]/20'
+              }`}>
+                {sales?.status === 'with_sales' ? 'CON VENTAS' : sales?.status === 'no_sales' ? 'SIN VENTAS' : 'SIN DATOS'}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div className="p-2.5 bg-[#171f33] rounded-lg border border-[#2d3449]">
+                <span className="text-[9px] text-[#94a3b8] block uppercase">Última venta</span>
+                <span className="text-xs font-bold text-white">{sales?.lastSaleDate || 'Sin registro'}</span>
+              </div>
+              <div className="p-2.5 bg-[#171f33] rounded-lg border border-[#2d3449]">
+                <span className="text-[9px] text-[#94a3b8] block uppercase">Días sin venta</span>
+                <span className={`text-xs font-bold ${sales?.daysWithoutSale !== undefined && sales.daysWithoutSale >= 90 ? 'text-[#ffb4ab]' : sales?.daysWithoutSale !== undefined && sales.daysWithoutSale >= 60 ? 'text-[#ffb95f]' : 'text-[#4edea3]'}`}>
+                  {sales?.daysWithoutSale !== undefined ? sales.daysWithoutSale : 'N/D'}
+                </span>
+              </div>
+              <div className="p-2.5 bg-[#171f33] rounded-lg border border-[#2d3449]">
+                <span className="text-[9px] text-[#94a3b8] block uppercase">Giros / transacciones</span>
+                <span className="text-xs font-bold text-white">{sales?.totalTransactions ?? 'N/D'}</span>
+              </div>
+              <div className="p-2.5 bg-[#171f33] rounded-lg border border-[#2d3449]">
+                <span className="text-[9px] text-[#94a3b8] block uppercase">Total vendido</span>
+                <span className="text-xs font-bold text-[#4edea3] font-mono">{sales?.totalSalesAmount !== undefined ? formatCOP(sales.totalSalesAmount) : 'N/D'}</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[10px]">
+              <div className="text-[#94a3b8]">
+                Periodo analizado: <strong className="text-[#cbd5e1]">{sales?.coverageStartDate || 'N/D'} → {sales?.coverageEndDate || 'N/D'}</strong>
+              </div>
+              <div className="text-[#94a3b8] sm:text-right">
+                Fuente: <strong className="text-[#cbd5e1]">{sales?.salesSourceFile || 'No identificada'}</strong>
+              </div>
+            </div>
+
+            <div className="p-2.5 rounded-lg bg-[#0b1326] border border-[#222a3d] text-[10px] text-[#94a3b8]">
+              <strong className="text-[#cbd5e1]">Lectura CAVI:</strong> la falta de ventas genera una alerta comercial; no convierte por sí sola el punto en depurado contractual.
+            </div>
+          </div>
+
+          {/* Estado Contractual */}
+          <div className="p-4 bg-[#131b2e] rounded-xl border border-[#222a3d] space-y-2">
+            <span className="font-bold text-white flex items-center gap-1.5 text-xs">
+              <span className="material-symbols-outlined text-[18px] text-[#c084fc]">inventory_2</span>
+              Estado de Depuración Contractual
+            </span>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${
+                lifecycle.status === 'inactive'
+                  ? 'bg-[#a855f7]/10 text-[#c084fc] border-[#a855f7]/30'
+                  : 'bg-[#10b981]/10 text-[#4edea3] border-[#10b981]/30'
+              }`}>
+                {lifecycle.status === 'inactive' ? 'DEPURADO / INACTIVO' : 'ACTIVO'}
+              </span>
+              {lifecycle.inactivityLabel && (
+                <span className="text-[10px] text-[#ffb4ab]">Motivo: {lifecycle.inactivityLabel}</span>
+              )}
+              {point.inactivityDate && (
+                <span className="text-[10px] text-[#94a3b8]">Fecha: {point.inactivityDate}</span>
+              )}
             </div>
           </div>
 
