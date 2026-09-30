@@ -1,6 +1,6 @@
 import * as XLSX from 'xlsx';
 import { LeasePoint } from '../types';
-import { evaluatePointOpenStatus, formatCOP, getContractDaysRemaining } from '../data/leasePointsData';
+import { evaluatePointOpenStatus, formatCOP, getContractDaysRemaining, getLeaseLifecycleStatus } from '../data/leasePointsData';
 
 export function exportLeasePointsToExcel(points: LeasePoint[], fileName: string = 'Reporte_Arrendamientos_CAVI.xlsx') {
   const headers = [
@@ -8,6 +8,9 @@ export function exportLeasePointsToExcel(points: LeasePoint[], fileName: string 
     'Nombre del Punto',
     'Tipo de Inmueble',
     'Estado Operativo',
+    'Estado del Punto',
+    'Motivo Inactividad',
+    'Fecha Inactividad',
     'Situación en Tiempo Real',
     'Horario Lunes a Viernes',
     'Horario Sábado',
@@ -42,6 +45,7 @@ export function exportLeasePointsToExcel(points: LeasePoint[], fileName: string 
   const rows = points.map((p) => {
     const status = evaluatePointOpenStatus(p, now);
     const contract = getContractDaysRemaining(p.contractEndDate);
+    const lifecycle = getLeaseLifecycleStatus(p, now);
 
     const weekdayStr = p.schedule.monday.isOpen
       ? `${p.schedule.monday.open} - ${p.schedule.monday.close}${
@@ -68,6 +72,9 @@ export function exportLeasePointsToExcel(points: LeasePoint[], fileName: string 
       p.name,
       p.propertyType,
       status.isOpenNow ? 'ABIERTO' : 'CERRADO',
+      lifecycle.lifecycleStatus === 'active' ? 'ACTIVO' : 'INACTIVO',
+      lifecycle.inactivityLabel || '',
+      p.inactivityDate || '',
       `${status.statusBadgeText} - ${status.timeContext}`,
       weekdayStr,
       saturdayStr,
