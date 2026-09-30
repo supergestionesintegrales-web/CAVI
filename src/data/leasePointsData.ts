@@ -579,6 +579,19 @@ export function evaluatePointOpenStatus(
   todayHours: DayHours;
   dayName: string;
 } {
+  const lifecycle = getLeaseLifecycleStatus(point, referenceDate);
+  if (lifecycle.lifecycleStatus === 'inactive') {
+    return {
+      isOpenNow: false,
+      statusCategory: 'contract_ended',
+      statusBadgeText: lifecycle.inactivityLabel || 'Punto Inactivo',
+      statusDescription: point.statusNotes || lifecycle.inactivityLabel || 'Inmueble fuera de operación',
+      timeContext: 'No operativo',
+      todayHours: CLOSED_DAY,
+      dayName: 'N/A',
+    };
+  }
+
   if (point.operatingStatus === 'contract_ended') {
     return {
       isOpenNow: false,
