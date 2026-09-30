@@ -37,6 +37,7 @@ import { RoutesScreen } from './components/screens/RoutesScreen';
 import { ScheduleScreen } from './components/screens/ScheduleScreen';
 import { MacroFoldersScreen } from './components/screens/MacroFoldersScreen';
 import { LeaseScreen } from './components/screens/LeaseScreen';
+import { parseLeasePointsFromMacroFiles, generateLeaseDataAlerts, LeaseDataAlert } from './utils/dataReconciliation';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabType>('dashboard-cavi');
@@ -90,6 +91,9 @@ export default function App() {
   });
 
   const [activeRouteSourceFile, setActiveRouteSourceFile] = useState<string>('Rutas_LaGuajira_Departamental.xlsx');
+
+  const [dataAlerts, setDataAlerts] = useState<LeaseDataAlert[]>(() => { try { const saved = localStorage.getItem('cavi_data_alerts'); return saved ? JSON.parse(saved) : []; } catch { return []; } });
+  useEffect(() => { try { localStorage.setItem('cavi_data_alerts', JSON.stringify(dataAlerts)); } catch {} }, [dataAlerts]);
 
   // Persist changes to localStorage
   useEffect(() => {
@@ -308,8 +312,15 @@ export default function App() {
   };
 
   const handleImportRouteSteps = (imported: RouteStep[]) => {
-    setRouteSteps((prev) => [...prev, ...imported]);
-    showToast('Rutas Importadas', `${imported.length} paradas reales cargadas a la red.`, 'success');
+    setRouteSteps((prev) => {
+      const map = new Map(prev.map((s) => [s.code.toLowerCase(), s]));
+      imported.forEach((incoming) => {
+        const existing = map.get(incoming.code.toLowerCase());
+        map.set(incoming.code.toLowerCase(), { ...(existing || incoming), ...incoming, id: existing?.id || incoming.id, visitHistory: incoming.visitHistory?.length ? incoming.visitHistory : existing?.visitHistory });
+      });
+      return Array.from(map.values());
+    });
+    showToast('Actualización incremental', imported.length + ' registros procesados. Los puntos existentes fueron actualizados y los nuevos incorporados sin borrar información anterior.', 'success');
   };
 
   const handleClearRouteSteps = () => {
@@ -389,7 +400,11 @@ export default function App() {
 
   // Lease management handlers
   const handleAddLeasePoint = (point: LeasePoint) => {
-    setLeasePoints((prev) => [point, ...prev]);
+    setLeasePoints((prev) => {
+      const existing = prev.find((p) => p.code.toLowerCase() === point.code.toLowerCase());
+      if (!existing) return [point, ...prev];
+      return prev.map((p) => p.code.toLowerCase() === point.code.toLowerCase() ? { ...p, ...point, incidents: point.incidents?.length ? point.incidents : p.incidents } : p);
+    });
   };
 
   const handleUpdateLeasePoint = (point: LeasePoint) => {
@@ -445,6 +460,31 @@ export default function App() {
       })
     );
     showToast('Novedad Resuelta', 'La novedad fue marcada como resuelta satisfactoriamente.', 'success');
+  };
+
+  // Reconciliación automática: cada archivo cargado actualiza el repositorio, no lo reemplaza.
+  const handleAddFiles = (newFiles: MacroFile[]) => {
+    setMacroFiles((prev) => {
+      const byKey = new Map(prev.map((f) => [f.path.toLowerCase(), f]));
+      newFiles.forEach((incoming) => {
+        const existing = byKey.get(incoming.path.toLowerCase());
+        byKey.set(incoming.path.toLowerCase(), existing ? { ...existing, ...incoming, id: existing.id, rawFile: incoming.rawFile || existing.rawFile, sheets: incoming.sheets?.length ? incoming.sheets : existing.sheets, extractedMeta: { ...existing.extractedMeta, ...incoming.extractedMeta } } : incoming);
+      });
+      return Array.from(byKey.values());
+    });
+    const previous = leasePoints;
+    const result = parseLeasePointsFromMacroFiles(newFiles, previous);
+    if (result.detectedRows > 0) {
+      const alerts = generateLeaseDataAlerts(previous, result.points);
+      setLeasePoints(result.points);
+      if (alerts.length > 0) {
+        setDataAlerts((prev) => [...alerts, ...prev].slice(0, 200));
+        const urgent = alerts.filter((a) => a.severity === 'urgent').length;
+        showToast('Alertas generadas', alerts.length + ' alerta(s) detectadas por la actualización' + (urgent ? ', ' + urgent + ' urgente(s).' : '.'), 'alert');
+      } else {
+        showToast('Arrendamientos actualizados', result.detectedRows + ' registro(s) conciliados sin reemplazar los datos existentes.', 'success');
+      }
+    }
   };
 
   // Modals state
