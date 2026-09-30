@@ -135,11 +135,46 @@ export function parseLeasePointsFromMacroFiles(files: Array<{ name: string; shee
   return { points: Array.from(byCode.values()), warnings, detectedRows: candidates.length };
 }
 
+export function parseLeaseSalesFromMacroFiles(files: Array<{ name: string; sheets?: Array<{ name:string; columns:string[]; data:(string|number|boolean|null)[][] }> }>, existing: LeasePoint[], now = new Date()): { points: LeasePoint[]; detectedRows: number; warnings: string[] } {
+  const byCode = new Map(existing.map(p => [p.code.toLowerCase(), p]));
+  const latestByCode = new Map<string, { date:string; amount:number; count:number; start:string; end:string; file:string }>();
+  let detectedRows = 0;
+  const warnings:string[] = [];
+  for (const file of files) {
+    const likelySales = /venta|ventas|giro|transacc|produccion|recaudo/i.test(file.name) || file.sheets?.some(s => s.columns.some(c => /venta|ventas|giro|transacc|valor venta|fecha venta/i.test(c)));
+    if (!likelySales) continue;
+    for (const sheet of file.sheets || []) {
+      for (const raw of sheet.data || []) {
+        const row = Object.fromEntries((sheet.columns || []).map((c,i)=>[c,raw[i] ?? '']));
+        const code = clean(get(row,['Codigo Punto','Codigo PDV','Codigo','Codigo Inmueble','ID Punto','ID','Punto']));
+        const name = clean(get(row,['Nombre del Punto','Nombre Punto','Punto de Venta','Nombre','Establecimiento']));
+        const date = parseDate(get(row,['Fecha Venta','Fecha','Fecha Movimiento','Fecha Transaccion','Fecha Transacción','Dia','Día']));
+        if ((!code && !name) || !date) continue;
+        detectedRows++;
+        const key = (code || name).toLowerCase();
+        const amount = parseMoney(get(row,['Valor Venta','Venta','Ventas','Valor','Monto','Total']));
+        const current = latestByCode.get(key);
+        const start = current ? (new Date(current.start) < new Date(date) ? current.start : date) : date;
+        const end = current ? (new Date(current.end) > new Date(date) ? current.end : date) : date;
+        latestByCode.set(key,{date: current && new Date(current.date) > new Date(date) ? current.date : date,amount:(current?.amount || 0)+amount,count:(current?.count || 0)+1,start,end,file:file.name});
+      }
+    }
+  }
+  for (const [key, summary] of latestByCode) {
+    const point = byCode.get(key);
+    if (!point) continue;
+    const days = Math.max(0, Math.floor((now.getTime()-new Date(summary.date).getTime())/86400000));
+    byCode.set(key,{...point,salesSummary:{lastSaleDate:summary.date,daysWithoutSale:days,totalTransactions:summary.count,totalSalesAmount:summary.amount,salesSourceFile:summary.file,coverageStartDate:summary.start,coverageEndDate:summary.end,status:summary.amount > 0 || summary.count > 0 ? 'with_sales':'no_sales'}});
+  }
+  if (detectedRows === 0) warnings.push('No se detectaron movimientos de ventas en los archivos cargados.');
+  return {points:Array.from(byCode.values()),detectedRows,warnings};
+}
+
 export interface LeaseDataAlert {
   id:string;
   code:string;
   pointName:string;
-  type:'canon_increased'|'point_closed'|'point_reopened'|'not_visited'|'contract_expiring'|'new_point';
+  type:'canon_increased'|'point_closed'|'point_reopened'|'not_visited'|'contract_expiring'|'new_point'|'sales_inactivity';
   title:string;
   message:string;
   severity:'urgent'|'warning'|'info';
@@ -165,6 +200,11 @@ export function generateLeaseDataAlerts(previous: LeasePoint[], next: LeasePoint
     const newInactive = p.lifecycleStatus === 'inactive' || p.operatingStatus === 'contract_ended';
     if (!oldInactive && newInactive) alerts.push({id:`closed-${p.code}-${today}`,code:p.code,pointName:p.name,type:'point_closed',title:'Punto cerrado / inactivo',message:`${p.name} cambió a estado inactivo. ${p.inactivityReason || 'Revisar motivo'}.`,severity:'urgent',createdAt:now.toISOString()});
     if (oldInactive && !newInactive) alerts.push({id:`reopen-${p.code}-${today}`,code:p.code,pointName:p.name,type:'point_reopened',title:'Punto reactivado',message:`${p.name} volvió a estado activo.`,severity:'info',createdAt:now.toISOString()});
+    if (p.salesSummary?.lastSaleDate && (p.salesSummary.daysWithoutSale || 0) >= 60) {
+      const days = p.salesSummary.daysWithoutSale || 0;
+      alerts.push({id:'sales-'+p.code+'-'+p.salesSummary.lastSaleDate,code:p.code,pointName:p.name,type:'sales_inactivity',title:'Sin ventas prolongadas',message:p.name+' registra '+days+' días sin movimiento de ventas desde '+p.salesSummary.lastSaleDate+'. Esto es una alerta comercial y no confirma por sí sola una depuración contractual.',severity:days >= 90 ? 'urgent' : 'warning',createdAt:now.toISOString()});
+    }
+
     if (p.lastAuditDate) {
       const days = Math.floor((today - new Date(p.lastAuditDate).getTime()) / 86400000);
       if (days >= 60) alerts.push({id:`visit-${p.code}-${p.lastAuditDate}`,code:p.code,pointName:p.name,type:'not_visited',title:'Punto no visitado',message:`${p.name} lleva ${days} días sin auditoría registrada.`,severity:days >= 90?'urgent':'warning',createdAt:now.toISOString()});
