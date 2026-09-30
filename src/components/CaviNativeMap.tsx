@@ -31,6 +31,7 @@ export interface RouteWaypoint {
 interface CaviNativeMapProps {
   initialPoints?: CaviPoint[];
   initialRouteStops?: { id?: string; name: string; lat: number; lng: number; code?: string; municipality?: string; status?: string }[];
+  routeGroups?: Array<{ id: string; label: string; color: string; stops: { id?: string; name: string; lat: number; lng: number; code?: string; municipality?: string; status?: string }[] }>;
   onPointSelect?: (point: CaviPoint) => void;
   onStopArrival?: (stop: RouteWaypoint) => void;
   className?: string;
@@ -43,6 +44,7 @@ interface CaviNativeMapProps {
 export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
   initialPoints = CAVI_POINTS,
   initialRouteStops = [],
+  routeGroups = [],
   onPointSelect,
   onStopArrival,
   className = '',
@@ -56,6 +58,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
   const tileLayerRef = useRef<L.TileLayer | null>(null);
   const markersLayerRef = useRef<L.LayerGroup | null>(null);
   const routePolylineRef = useRef<L.Polyline | null>(null);
+  const routeGroupsLayerRef = useRef<L.LayerGroup | null>(null);
   const routeMarkersLayerRef = useRef<L.LayerGroup | null>(null);
   const guideVehicleMarkerRef = useRef<L.Marker | null>(null);
 
@@ -105,6 +108,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
     // When the parent supplies grouped auditor routes, do not inject the demo route.
     if (routeGroups.length > 0) return [];
 
+    if (routeGroups.length > 0) return [];
     // Default initial strategic route across La Guajira
     return [
       { id: 'h1', name: 'Riohacha Centro (CDA Sede la 10)', lat: 11.548376, lng: -72.909395, municipality: 'Riohacha', channel: 'CDA' },
@@ -266,11 +270,13 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
         dashArray: '10, 8',
       }).addTo(map);
       const routeMarkersLayer = L.layerGroup().addTo(map);
+      const routeGroupsLayer = L.layerGroup().addTo(map);
 
       mapInstanceRef.current = map;
       markersLayerRef.current = markersLayer;
       routePolylineRef.current = routePolyline;
       routeMarkersLayerRef.current = routeMarkersLayer;
+      routeGroupsLayerRef.current = routeGroupsLayer;
 
       L.control.zoom({ position: 'bottomright' }).addTo(map);
     }
@@ -412,11 +418,21 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
 
   // 3. Render Route Polyline & Waypoint Badges
   useEffect(() => {
-    if (!mapInstanceRef.current || !routePolylineRef.current || !routeMarkersLayerRef.current) return;
+    if (!mapInstanceRef.current || !routePolylineRef.current || !routeMarkersLayerRef.current || !routeGroupsLayerRef.current) return;
     const polyline = routePolylineRef.current;
     const routeMarkers = routeMarkersLayerRef.current;
+    const routeGroupsLayer = routeGroupsLayerRef.current;
 
     routeMarkers.clearLayers();
+    routeGroupsLayer.clearLayers();
+    routeGroups.filter((group) => group.stops.length >= 2).forEach((group) => {
+      const latLngs = group.stops.filter((s) => s.lat && s.lng).map((s) => [s.lat, s.lng] as [number, number]);
+      if (latLngs.length >= 2) {
+        L.polyline(latLngs, { color: group.color, weight: 5, opacity: 0.9, dashArray: '8, 6' })
+          .bindTooltip(group.label, { sticky: true })
+          .addTo(routeGroupsLayer);
+      }
+    });
 
     if (routeWaypoints.length < 2) {
       polyline.setLatLngs([]);
