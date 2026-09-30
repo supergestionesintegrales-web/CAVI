@@ -194,6 +194,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
       id: auditor.id,
       label: `Ruta · ${auditor.name}`,
       color: routeColors[index % routeColors.length],
+      zone: auditor.zone,
       stops: activeRouteStops.filter((s) => s.auditorId === auditor.id),
     })).filter((group) => group.stops.length > 0);
   }, [activeRouteStops, auditors, effectiveAuditorForMap]);
