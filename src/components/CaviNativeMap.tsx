@@ -320,107 +320,64 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
     const markersLayer = markersLayerRef.current;
     markersLayer.clearLayers();
 
+    const pointRenderer = L.canvas({ padding: 0.25 });
+    const escapeHtml = (value: string) =>
+      value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
     filteredPoints.forEach((pt) => {
       const meta = getPointTypeMeta(pt.channel, pt.category);
       const isCustom = pt.id.startsWith('imported-') || pt.id.startsWith('manual-') || pt.id.startsWith('txt-');
+      const name = escapeHtml(pt.name || 'Punto sin nombre');
+      const municipality = escapeHtml(pt.municipality || 'La Guajira');
+      const code = pt.codePdv ? escapeHtml(pt.codePdv) : '';
+      const typeLabel = escapeHtml(meta.fullLabel || meta.label);
 
-      const divIcon = L.divIcon({
-        className: 'cavi-point-marker-custom',
-        html: `
-          <div style="
-            display: inline-flex;
-            align-items: center;
-            filter: drop-shadow(0 3px 6px rgba(0,0,0,0.65));
-            cursor: pointer;
-            transform: translate(-50%, -50%);
-            transition: transform 0.16s ease-out;
-            user-select: none;
-          " class="cavi-map-point-hover">
-            <!-- CIRCULAR ICON BADGE -->
-            <div style="
-              width: 26px;
-              height: 26px;
-              border-radius: 50%;
-              background: ${meta.color};
-              border: 2px solid ${isCustom ? '#facc15' : '#ffffff'};
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              color: #ffffff;
-              box-shadow: 0 0 10px ${meta.color}99;
-              flex-shrink: 0;
-              z-index: 2;
-            ">
-              <span class="material-symbols-outlined" style="font-size: 15px; line-height: 1; display: inline-block;">${meta.icon}</span>
+      // Canvas markers keep all PDVs visible without creating hundreds of DOM nodes.
+      const marker = L.circleMarker([pt.lat, pt.lng], {
+        renderer: pointRenderer,
+        radius: 7,
+        color: isCustom ? '#facc15' : '#ffffff',
+        weight: 1.5,
+        fillColor: meta.color,
+        fillOpacity: 0.95,
+        bubblingMouseEvents: false,
+      });
+
+      marker.bindTooltip(
+        `<strong>${name}</strong><br/>${typeLabel} · ${municipality}${code ? ` · Cod: <strong>${code}</strong>` : ''}`,
+        {
+          direction: 'top',
+          offset: [0, -7],
+          opacity: 0.97,
+          sticky: true,
+        }
+      );
+
+      marker.bindPopup(
+        `
+          <div style="min-width: 220px; font-family: Inter, system-ui, sans-serif;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px;">
+              <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${meta.color};box-shadow:0 0 0 2px rgba(255,255,255,.85);"></span>
+              <strong style="font-size:14px;color:#0f172a;">${name}</strong>
             </div>
-
-            <!-- NAME & CHANNEL LABEL PILL -->
-            <div style="
-              background: rgba(11, 19, 38, 0.95);
-              backdrop-filter: blur(4px);
-              border: 1.5px solid ${meta.color};
-              border-left: none;
-              margin-left: -6px;
-              padding: 2px 7px 2px 9px;
-              border-radius: 0 10px 10px 0;
-              display: flex;
-              align-items: center;
-              gap: 4px;
-              white-space: nowrap;
-              z-index: 1;
-            ">
-              <span style="
-                background: ${meta.color};
-                color: #ffffff;
-                font-size: 8px;
-                font-weight: 800;
-                padding: 1px 3.5px;
-                border-radius: 3px;
-                letter-spacing: 0.03em;
-                line-height: 1.1;
-              ">${meta.label}</span>
-              <span style="
-                color: #f1f5f9;
-                font-size: 9px;
-                font-weight: 700;
-                max-width: 95px;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                line-height: 1.2;
-              ">${pt.name}</span>
+            <div style="font-size:12px;color:#475569;line-height:1.55;">
+              <div><strong>Tipo:</strong> ${typeLabel}</div>
+              <div><strong>Municipio:</strong> ${municipality}</div>
+              ${code ? `<div><strong>Código PDV:</strong> ${code}</div>` : ''}
+              ${isCustom ? '<div style="color:#b45309;"><strong>Origen:</strong> Punto cargado</div>' : ''}
             </div>
           </div>
         `,
-        iconSize: [26, 26],
-        iconAnchor: [13, 13],
-      });
-
-      const marker = L.marker([pt.lat, pt.lng], { icon: divIcon });
+        { closeButton: true, maxWidth: 320 }
+      );
 
       marker.on('click', () => {
         setSelectedPoint(pt);
         if (onPointSelect) onPointSelect(pt);
       });
 
-      marker.bindTooltip(
-        `
-        <div style="display: flex; align-items: center; gap: 8px; padding: 2px 0;">
-          <div style="width: 28px; height: 28px; border-radius: 8px; background: ${meta.color}; display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.4);">
-            <span class="material-symbols-outlined" style="font-size: 17px; line-height: 1;">${meta.icon}</span>
-          </div>
-          <div>
-            <div style="display: flex; align-items: center; gap: 4px;">
-              <span style="background: ${meta.color}; color: #ffffff; font-size: 8.5px; font-weight: 800; padding: 1px 4px; border-radius: 3px;">${meta.label}</span>
-              <strong style="color: #ffffff; font-size: 11px;">${pt.name}</strong>
-            </div>
-            <div style="font-size: 10px; color: #cbd5e1; margin-top: 2px;">
-              ${pt.municipality} · ${meta.fullLabel} ${pt.codePdv ? `· Cod: <strong style="color: #38bdf8;">${pt.codePdv}</strong>` : ''}${isCustom ? ' · <span style="color: #fcd34d;">(Cargado .txt)</span>' : ''}
-            </div>
-          </div>
-        </div>
-        `,
-        { direction: 'top', offset: [0, -10], opacity: 0.96 }
-      );
+      marker.on('mouseover', () => marker.setStyle({ radius: 9, weight: 2 }));
+      marker.on('mouseout', () => marker.setStyle({ radius: 7, weight: 1.5 }));
 
       markersLayer.addLayer(marker);
     });
