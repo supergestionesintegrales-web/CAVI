@@ -814,6 +814,7 @@ export default function App() {
             onResolveIncident={handleResolveLeaseIncident}
             onShowToast={showToast}
             userRole={userRole}
+            alerts={dataAlerts}
           />
         )}
       </main>
