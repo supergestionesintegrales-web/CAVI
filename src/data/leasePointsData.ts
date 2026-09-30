@@ -540,6 +540,30 @@ export const INITIAL_LEASE_POINTS: LeasePoint[] = [
   },
 ];
 
+/** Determina el ciclo de vida contractual del inmueble, separado del horario diario. */
+export function getLeaseLifecycleStatus(point: LeasePoint, referenceDate: Date = new Date()): {
+  lifecycleStatus: 'active' | 'inactive';
+  inactivityReason?: LeasePoint['inactivityReason'];
+  inactivityLabel?: string;
+} {
+  if (point.inactivityReason) {
+    const labels: Record<NonNullable<LeasePoint['inactivityReason']>, string> = {
+      contract_cancelled: 'Contrato cancelado',
+      contract_expired: 'Contrato de arrendamiento vencido',
+      lease_terminated: 'Arrendamiento terminado',
+      closed_by_administration: 'Cerrado por administración',
+      other: 'Inactivo por otra razón',
+    };
+    return { lifecycleStatus: 'inactive', inactivityReason: point.inactivityReason, inactivityLabel: labels[point.inactivityReason] };
+  }
+  const today = new Date(referenceDate.getFullYear(), referenceDate.getMonth(), referenceDate.getDate());
+  const end = new Date(point.contractEndDate + 'T23:59:59');
+  if (point.operatingStatus === 'contract_ended' || end < today) {
+    return { lifecycleStatus: 'inactive', inactivityReason: 'contract_expired', inactivityLabel: 'Contrato de arrendamiento vencido' };
+  }
+  return { lifecycleStatus: 'active' };
+}
+
 /**
  * Calculates current real-time open / closed status for a leased point.
  */
