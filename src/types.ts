@@ -29,6 +29,17 @@ export interface WeeklySchedule { monday:DayHours; tuesday:DayHours; wednesday:D
 export interface LandlordInfo { name:string; phone:string; email?:string; documentId?:string; contactPerson?:string; }
 export interface LeaseIncident { id:string; date:string; time:string; type:'Cierre no autorizado'|'Retraso en apertura'|'Cierre anticipado'|'Corte de energía / agua'|'Mantenimiento preventivo'|'Novedad de infraestructura'|'Inspección de auditoría'; description:string; reportedBy:string; resolved:boolean; resolutionNotes?:string; }
 
+export interface LeaseSalesSummary {
+  lastSaleDate?: string;
+  daysWithoutSale?: number;
+  totalTransactions?: number;
+  totalSalesAmount?: number;
+  salesSourceFile?: string;
+  coverageStartDate?: string;
+  coverageEndDate?: string;
+  status?: 'with_sales'|'no_sales'|'no_data';
+}
+
 export interface LeasePoint {
   id:string; code:string; name:string; propertyType:LeasePropertyType;
   operatingStatus:LeaseOperatingStatus;
@@ -40,5 +51,5 @@ export interface LeasePoint {
   address:string; neighborhood:string; municipality:string; department:string; reference?:string; lat:number; lng:number;
   schedule:WeeklySchedule;
   contractNumber:string; monthlyRent:number; adminFee?:number; contractStartDate:string; contractEndDate:string; areaSqMeters:number;
-  landlord:LandlordInfo; electricMeter?:string; waterMeter?:string; lastAuditDate?:string; lastAuditorName?:string; incidents:LeaseIncident[];
+  landlord:LandlordInfo; electricMeter?:string; waterMeter?:string; lastAuditDate?:string; lastAuditorName?:string; incidents:LeaseIncident[]; salesSummary?: LeaseSalesSummary;
 }
