@@ -332,6 +332,8 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
       const name = escapeHtml(pt.name || 'Punto sin nombre');
       const municipality = escapeHtml(pt.municipality || 'La Guajira');
       const code = pt.codePdv ? escapeHtml(pt.codePdv) : '';
+      const zone = escapeHtml(pt.zone || 'Norte');
+      const auditor = escapeHtml(pt.auditorName || 'Auditor no definido');
       const typeLabel = escapeHtml(meta.fullLabel || meta.label);
 
       // Canvas markers keep all PDVs visible without creating hundreds of DOM nodes.
@@ -365,6 +367,8 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
             <div style="font-size:12px;color:#475569;line-height:1.55;">
               <div><strong>Tipo:</strong> ${typeLabel}</div>
               <div><strong>Municipio:</strong> ${municipality}</div>
+              <div><strong>Zona:</strong> ${zone}</div>
+              <div><strong>Auditor asignado:</strong> ${auditor}</div>
               ${code ? `<div><strong>Código PDV:</strong> ${code}</div>` : ''}
               ${isCustom ? '<div style="color:#b45309;"><strong>Origen:</strong> Punto cargado</div>' : ''}
             </div>
@@ -998,5 +1002,3 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
           {/* Municipality selector */}
           <select
             value={selectedMunicipality}
-            onChange={(e) => setSelectedMunicipality(e.target.value)}
-            className="bg-[#131b2e] text-white text-xs px-2.5 py-1.5 rounded-xl border border-[#222a3d] focus:outline-none focus:ring-1 focus:ring-[#0088ff] cursor-pointer"
