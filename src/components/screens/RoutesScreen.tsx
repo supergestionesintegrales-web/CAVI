@@ -94,11 +94,13 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
 
   // Map layout & sizing states
   const [mapLayoutMode, setMapLayoutMode] = useState<'panoramic_large' | 'split'>('panoramic_large');
-  const [selectedAuditorForMap, setSelectedAuditorForMap] = useState<string>('todos');
+  const [selectedAuditorForMap, setSelectedAuditorForMap] = useState<string>(isAuxiliar ? activeAuditorId : 'todos');
   const [selectedAuditorForCalendar, setSelectedAuditorForCalendar] = useState<string>(activeAuditorId || 'aud-1');
 
   // Filter auditors by zone
   const filteredAuditors = auditors.filter((aud) => {
+    // Auxiliar: aislamiento estricto a su propio auditor.
+    if (isAuxiliar && aud.id !== activeAuditorId) return false;
     if (selectedZone === 'Todas') return true;
     return aud.zone === selectedZone;
   });
