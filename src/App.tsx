@@ -405,7 +405,8 @@ export default function App() {
     status: LeaseOperatingStatus,
     override: 'force_open' | 'force_closed' | null,
     notes: string,
-    newIncident?: LeaseIncident
+    newIncident?: LeaseIncident,
+    inactivityReason?: LeasePoint['inactivityReason']
   ) => {
     setLeasePoints((prev) =>
       prev.map((p) => {
@@ -416,6 +417,9 @@ export default function App() {
             operatingStatus: status,
             manualOverrideStatus: override,
             statusNotes: notes,
+            inactivityReason: inactivityReason || (status === 'contract_ended' ? 'contract_cancelled' : undefined),
+            inactivityDate: inactivityReason || status === 'contract_ended' ? new Date().toISOString().split('T')[0] : p.inactivityDate,
+            lifecycleStatus: (inactivityReason || status === 'contract_ended') ? 'inactive' : 'active',
             incidents: updatedIncidents,
           };
         }
