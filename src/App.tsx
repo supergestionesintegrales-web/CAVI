@@ -1,5 +1,16 @@
 import { useState, useEffect, useMemo } from 'react';
-import { TabType, RouteStep, FloatingPoint, Auditor, MacroFile, UserRole, VisitRecord } from './types';
+import {
+  TabType,
+  RouteStep,
+  FloatingPoint,
+  Auditor,
+  MacroFile,
+  UserRole,
+  VisitRecord,
+  LeasePoint,
+  LeaseOperatingStatus,
+  LeaseIncident,
+} from './types';
 import {
   AUDITORS_DATA,
   INITIAL_SAMUEL_STEPS,
@@ -7,6 +18,7 @@ import {
   INITIAL_ALERT_POINTS,
 } from './data/mockData';
 import { INITIAL_MACRO_FILES } from './data/macroFoldersData';
+import { INITIAL_LEASE_POINTS, evaluatePointOpenStatus } from './data/leasePointsData';
 import {
   distributePointsWithAlertPriority,
   MASTER_SAMPLE_CANDIDATE_POINTS,
@@ -24,6 +36,7 @@ import { DashboardScreen } from './components/screens/DashboardScreen';
 import { RoutesScreen } from './components/screens/RoutesScreen';
 import { ScheduleScreen } from './components/screens/ScheduleScreen';
 import { MacroFoldersScreen } from './components/screens/MacroFoldersScreen';
+import { LeaseScreen } from './components/screens/LeaseScreen';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabType>('dashboard-cavi');
@@ -63,7 +76,29 @@ export default function App() {
     }
   });
 
+  const [leasePoints, setLeasePoints] = useState<LeasePoint[]>(() => {
+    try {
+      const saved = localStorage.getItem('cavi_real_lease_points');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+      return INITIAL_LEASE_POINTS;
+    } catch {
+      return INITIAL_LEASE_POINTS;
+    }
+  });
+
   const [activeRouteSourceFile, setActiveRouteSourceFile] = useState<string>('Rutas_LaGuajira_Departamental.xlsx');
+
+  // Persist changes to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('cavi_real_lease_points', JSON.stringify(leasePoints));
+    } catch {
+      // ignore
+    }
+  }, [leasePoints]);
 
   // Persist changes to localStorage
   useEffect(() => {
@@ -352,6 +387,62 @@ export default function App() {
     );
   };
 
+  // Lease management handlers
+  const handleAddLeasePoint = (point: LeasePoint) => {
+    setLeasePoints((prev) => [point, ...prev]);
+  };
+
+  const handleUpdateLeasePoint = (point: LeasePoint) => {
+    setLeasePoints((prev) => prev.map((p) => (p.id === point.id ? point : p)));
+  };
+
+  const handleDeleteLeasePoint = (pointId: string) => {
+    setLeasePoints((prev) => prev.filter((p) => p.id !== pointId));
+  };
+
+  const handleUpdateLeasePointStatus = (
+    pointId: string,
+    status: LeaseOperatingStatus,
+    override: 'force_open' | 'force_closed' | null,
+    notes: string,
+    newIncident?: LeaseIncident
+  ) => {
+    setLeasePoints((prev) =>
+      prev.map((p) => {
+        if (p.id === pointId) {
+          const updatedIncidents = newIncident ? [newIncident, ...p.incidents] : p.incidents;
+          return {
+            ...p,
+            operatingStatus: status,
+            manualOverrideStatus: override,
+            statusNotes: notes,
+            incidents: updatedIncidents,
+          };
+        }
+        return p;
+      })
+    );
+  };
+
+  const handleResolveLeaseIncident = (pointId: string, incidentId: string, resolutionNotes: string) => {
+    setLeasePoints((prev) =>
+      prev.map((p) => {
+        if (p.id === pointId) {
+          return {
+            ...p,
+            incidents: p.incidents.map((inc) =>
+              inc.id === incidentId
+                ? { ...inc, resolved: true, resolutionNotes }
+                : inc
+            ),
+          };
+        }
+        return p;
+      })
+    );
+    showToast('Novedad Resuelta', 'La novedad fue marcada como resuelta satisfactoriamente.', 'success');
+  };
+
   // Modals state
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [isCriticalPointsOpen, setIsCriticalPointsOpen] = useState(false);
@@ -583,6 +674,10 @@ export default function App() {
     }
   };
 
+  const openLeaseCount = useMemo(() => {
+    return leasePoints.filter((pt) => evaluatePointOpenStatus(pt).isOpenNow).length;
+  }, [leasePoints]);
+
   return (
     <div className="min-h-screen bg-[#0b1326] text-[#dae2fd] flex flex-col selection:bg-[#0088ff]/30 selection:text-[#dae2fd]">
       {/* Global Floating Toast */}
@@ -615,6 +710,9 @@ export default function App() {
               auditors={liveAuditors}
               macroFilesCount={macroFiles.length}
               onGoToMacros={() => setActiveTab('archivos-macros')}
+              onGoToLease={() => setActiveTab('arrendamientos')}
+              leasePointsCount={leasePoints.length}
+              leaseOpenCount={openLeaseCount}
               onOpenScanner={() => setIsScannerOpen(true)}
               onOpenCriticalPoints={() => setIsCriticalPointsOpen(true)}
               onShowToast={showToast}
@@ -660,6 +758,19 @@ export default function App() {
             userRole={userRole}
             routeSteps={routeSteps}
             auditors={liveAuditors}
+          />
+        )}
+
+        {activeTab === 'arrendamientos' && (
+          <LeaseScreen
+            leasePoints={leasePoints}
+            onAddPoint={handleAddLeasePoint}
+            onUpdatePoint={handleUpdateLeasePoint}
+            onDeletePoint={handleDeleteLeasePoint}
+            onUpdatePointStatus={handleUpdateLeasePointStatus}
+            onResolveIncident={handleResolveLeaseIncident}
+            onShowToast={showToast}
+            userRole={userRole}
           />
         )}
       </main>

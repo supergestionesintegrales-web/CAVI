@@ -1,9 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { Auditor, RouteStep, FloatingPoint, UserRole } from '../../types';
-import { MAP_IMAGE } from '../../data/mockData';
 import { AddRouteModal } from '../AddRouteModal';
 import { AddFloatingPointModal } from '../AddFloatingPointModal';
 import { GpsTerritoryModal } from '../GpsTerritoryModal';
+import { CaviNativeMap } from '../CaviNativeMap';
 import { WeeklyRoutesMatrix } from '../WeeklyRoutesMatrix';
 import { MonthlyRoutesView } from '../MonthlyRoutesView';
 import { AuditVisitModal } from '../AuditVisitModal';
@@ -970,57 +970,18 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
 
         {/* RIGHT COLUMN: Interactive Territory Map & Floating Dispatch Pool */}
         <div className="lg:col-span-5 xl:col-span-5 space-y-4 lg:sticky lg:top-22">
-          {/* Map Territory Preview Snippet with Full Modal Trigger */}
-          <div
-            onClick={() => setIsGpsModalOpen(true)}
-            className="group cursor-pointer relative w-full h-56 lg:h-64 rounded-2xl overflow-hidden shadow-md border border-[#222a3d] hover:border-[#0088ff]/60 transition-all"
-            title="Haz clic para ver el mapa GPS completo en grande con todos los puntos"
-          >
-            <img
-              src={MAP_IMAGE}
-              alt="Red Departamental La Guajira"
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              referrerPolicy="no-referrer"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#060e20] via-[#060e20]/40 to-transparent" />
-
-            {/* Quick Action Top-Right Button */}
-            <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#060e20]/90 backdrop-blur-md border border-[#3b4760] text-white shadow-lg group-hover:bg-[#0088ff] group-hover:text-white group-hover:border-[#0088ff] transition-all">
-              <span className="material-symbols-outlined text-[16px]">open_in_full</span>
-              <span className="text-xs font-bold font-sans">Ver en Grande</span>
-            </div>
-
-            {/* Bottom Overlay Banner: Guaranteed White Text */}
-            <div
-              data-map-overlay="true"
-              data-gps-title="true"
-              className="map-overlay-banner gps-white-text absolute bottom-3 left-3 right-3 flex items-center justify-between bg-[#060e20]/95 backdrop-blur-md px-3.5 py-2.5 rounded-xl shadow-xl border border-[#222a3d] text-white"
-            >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#4edea3] animate-ping shrink-0" />
-                <div className="min-w-0">
-                  <span
-                    className="text-xs font-bold tracking-wide block truncate gps-title text-white"
-                    style={{ color: '#ffffff' }}
-                  >
-                    GPS · Red Departamental La Guajira
-                  </span>
-                  <span
-                    className="text-[11px] truncate block opacity-90 text-white"
-                    style={{ color: '#ffffff' }}
-                  >
-                    {steps.length} paradas asignadas · Click para ampliar
-                  </span>
-                </div>
-              </div>
-              <span
-                className="map-overlay-badge font-mono text-xs font-bold text-white px-2.5 py-1 rounded-lg bg-[#1e293b] border border-[#3b4760] shrink-0 ml-2"
-                style={{ color: '#ffffff', backgroundColor: '#1e293b' }}
-              >
-                15 Municipios
-              </span>
-            </div>
-          </div>
+          {/* Native CAVIMAPS Engine with Route Tracing & Guided Displacement */}
+          <CaviNativeMap
+            height="480px"
+            initialRouteStops={steps}
+            onStopArrival={(stop) => {
+              onShowToast(
+                'Parada Alcanzada',
+                `Llegada registrada en ${stop.name} (${stop.municipality || 'La Guajira'}).`,
+                'success'
+              );
+            }}
+          />
 
           {/* RIGHT COLUMN: SMART ROUTE PLANNER OR AUXILIAR FIELD PANEL */}
           {isAuxiliar ? (

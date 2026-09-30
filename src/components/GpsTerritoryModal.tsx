@@ -2,6 +2,7 @@ import React, { useState, useMemo, useRef } from 'react';
 import { RouteStep, FloatingPoint, Auditor } from '../types';
 import { MAP_IMAGE } from '../data/mockData';
 import { parseRoutesFile, downloadRoutesTemplate } from '../utils/routesExcel';
+import { CaviNativeMap } from './CaviNativeMap';
 
 interface GpsTerritoryModalProps {
   isOpen: boolean;
@@ -129,7 +130,7 @@ export const GpsTerritoryModal: React.FC<GpsTerritoryModalProps> = ({
   const [filterChannel, setFilterChannel] = useState<string>('todos');
   const [filterStatus, setFilterStatus] = useState<'todos' | 'completed' | 'in_progress' | 'pending' | 'floating'>('todos');
   const [searchQuery, setSearchQuery] = useState('');
-  const [mapStyle, setMapStyle] = useState<'satellite' | 'tactical' | 'clean'>('satellite');
+  const [mapStyle, setMapStyle] = useState<'google_mymaps' | 'satellite' | 'tactical' | 'clean'>('google_mymaps');
   const [showRoutesLines, setShowRoutesLines] = useState(true);
   const [zoomLevel, setZoomLevel] = useState<number>(1);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -340,14 +341,14 @@ export const GpsTerritoryModal: React.FC<GpsTerritoryModalProps> = ({
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <h1 className="text-base sm:text-lg font-headline font-bold text-white tracking-wide" style={{ color: '#ffffff' }}>
-                  GPS Red Departamental La Guajira
+                  CAVIMAPS · Red Departamental La Guajira
                 </h1>
                 <span className="px-2.5 py-0.5 rounded-full bg-[#1e293b] text-white text-[11px] font-bold border border-[#3b4760]" style={{ color: '#ffffff' }}>
                   15 Municipios Monitoreados
                 </span>
                 <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-[#064e3b] text-[#6ee7b7] text-[10px] font-bold">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#4edea3] animate-ping" />
-                  <span>Sincronización GPS en Vivo</span>
+                  <span>Sincronización CAVIMAPS en Vivo</span>
                 </span>
               </div>
               <p className="text-xs text-[#cbd5e1] truncate mt-0.5 font-medium">
@@ -370,10 +371,10 @@ export const GpsTerritoryModal: React.FC<GpsTerritoryModalProps> = ({
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 className="px-3 py-1.5 rounded-xl bg-[#0088ff] hover:bg-[#0070d8] text-white text-xs font-bold flex items-center gap-1.5 shadow-md shadow-[#0088ff]/30 active:scale-95 transition-all cursor-pointer"
-                title="Cargar matriz con dirección, nombre de tienda, canal comercial y geolocalización GPS"
+                title="Cargar matriz con dirección, nombre de tienda, canal comercial y geolocalización CAVIMAPS"
               >
                 <span className="material-symbols-outlined text-[16px]">upload_file</span>
-                <span className="hidden sm:inline">Cargar Matriz PDV (GPS)</span>
+                <span className="hidden sm:inline">Cargar Matriz PDV (CAVIMAPS)</span>
               </button>
             )}
 
@@ -381,22 +382,22 @@ export const GpsTerritoryModal: React.FC<GpsTerritoryModalProps> = ({
               type="button"
               onClick={downloadRoutesTemplate}
               className="p-2 rounded-xl bg-[#1e293b] hover:bg-[#2d3a58] text-[#cbd5e1] hover:text-white transition-colors cursor-pointer border border-[#3b4760] hidden md:flex items-center gap-1 text-xs font-medium"
-              title="Descargar formato modelo Excel con columnas de GPS y Canales"
+              title="Descargar formato modelo Excel con columnas de CAVIMAPS y Canales"
             >
               <span className="material-symbols-outlined text-[16px] text-[#38bdf8]">download</span>
-              <span>Plantilla GPS</span>
+              <span>Plantilla CAVIMAPS</span>
             </button>
 
             <button
               type="button"
               onClick={() => {
-                onShowToast('GPS Actualizado', 'Se refrescaron las coordenadas satelitales de los 15 municipios.', 'info');
+                onShowToast('CAVIMAPS Actualizado', 'Se refrescaron las coordenadas de los 15 municipios.', 'info');
               }}
               className="p-2 rounded-xl bg-[#1e293b] hover:bg-[#2d3a58] text-white transition-colors cursor-pointer border border-[#3b4760] hidden sm:flex items-center gap-1 text-xs font-bold"
-              title="Refrescar Satélite"
+              title="Refrescar CAVIMAPS"
             >
               <span className="material-symbols-outlined text-[17px] text-[#38bdf8]">my_location</span>
-              <span>Centrar GPS</span>
+              <span>Centrar CAVIMAPS</span>
             </button>
 
             <button
@@ -485,6 +486,15 @@ export const GpsTerritoryModal: React.FC<GpsTerritoryModalProps> = ({
             <div className="flex items-center gap-1 bg-[#0b1326] p-1 rounded-xl border border-[#222a3d]">
               <button
                 type="button"
+                onClick={() => setMapStyle('google_mymaps')}
+                className={`px-2 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                  mapStyle === 'google_mymaps' ? 'bg-[#0088ff] text-white shadow-sm shadow-[#0088ff]/30' : 'text-[#cbd5e1] hover:text-white'
+                }`}
+              >
+                CAVIMAPS
+              </button>
+              <button
+                type="button"
                 onClick={() => setMapStyle('satellite')}
                 className={`px-2 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
                   mapStyle === 'satellite' ? 'bg-[#0088ff] text-white shadow-sm shadow-[#0088ff]/30' : 'text-[#cbd5e1] hover:text-white'
@@ -502,6 +512,17 @@ export const GpsTerritoryModal: React.FC<GpsTerritoryModalProps> = ({
                 Táctico
               </button>
             </div>
+
+            <a
+              href="https://www.google.com/maps/d/viewer?mid=1NKLGdlcLM282BzWjh7CnaPJtdn6x42w"
+              target="_blank"
+              rel="noreferrer"
+              className="px-2.5 py-1.5 rounded-xl bg-[#0b1326] hover:bg-[#1e293b] text-[#cbd5e1] hover:text-white border border-[#222a3d] text-xs font-bold flex items-center gap-1 transition-all cursor-pointer"
+              title="Abrir mapa oficial en pestaña independiente (CAVIMAPS Web)"
+            >
+              <span className="material-symbols-outlined text-[14px]">open_in_new</span>
+              <span className="hidden sm:inline">CAVIMAPS Web</span>
+            </a>
           </div>
         </div>
 
@@ -511,216 +532,236 @@ export const GpsTerritoryModal: React.FC<GpsTerritoryModalProps> = ({
           {/* LEFT: EXPANDED INTERACTIVE GPS CANVAS */}
           <div className="flex-1 h-full min-h-[360px] relative overflow-hidden bg-[#060e20] flex items-center justify-center select-none">
             
-            {/* Map Background Layer */}
-            <div
-              className="absolute inset-0 transition-transform duration-300 ease-out origin-center"
-              style={{
-                transform: `scale(${zoomLevel})`,
-              }}
-            >
-              {mapStyle === 'satellite' ? (
-                <>
-                  <img
-                    src={MAP_IMAGE}
-                    alt="Mapa Satelital La Guajira"
-                    className="w-full h-full object-cover opacity-80 filter brightness-95 contrast-110"
-                    referrerPolicy="no-referrer"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#060e20] via-transparent to-[#060e20]/40 pointer-events-none" />
-                </>
-              ) : (
-                /* Tactical Vector Dark Grid */
-                <div className="w-full h-full bg-[#060e20] relative">
-                  <div
-                    className="absolute inset-0 opacity-15"
-                    style={{
-                      backgroundImage: `
-                        linear-gradient(to right, #38bdf8 1px, transparent 1px),
-                        linear-gradient(to bottom, #38bdf8 1px, transparent 1px)
-                      `,
-                      backgroundSize: '40px 40px',
-                    }}
-                  />
-                  {/* Subtle Geographic Silhouette of La Guajira */}
-                  <svg className="w-full h-full opacity-25" viewBox="0 0 100 100" preserveAspectRatio="none">
-                    <polygon
-                      points="12,78 30,55 58,40 76,20 88,14 94,22 84,42 70,62 55,75 35,88 18,92"
-                      fill="#0284c7"
+            {mapStyle === 'google_mymaps' ? (
+              /* NATIVE CAVIMAPS ENGINE WITH ROUTE TRACING & GUIDED NAVIGATION */
+              <div className="w-full h-full relative bg-[#060e20]">
+                <CaviNativeMap
+                  height="100%"
+                  initialRouteStops={steps}
+                  showFullscreenButton={false}
+                  onStopArrival={(stop) => {
+                    onShowToast(
+                      'Llegada Registrada',
+                      `Desplazamiento completado a ${stop.name} (${stop.municipality || 'La Guajira'}).`,
+                      'success'
+                    );
+                  }}
+                />
+              </div>
+            ) : (
+              /* CUSTOM TACTICAL / SATELLITE CANVAS */
+              <div
+                className="absolute inset-0 transition-transform duration-300 ease-out origin-center"
+                style={{
+                  transform: `scale(${zoomLevel})`,
+                }}
+              >
+                {mapStyle === 'satellite' ? (
+                  <>
+                    <img
+                      src={MAP_IMAGE}
+                      alt="Mapa Satelital La Guajira"
+                      className="w-full h-full object-cover opacity-80 filter brightness-95 contrast-110"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#060e20] via-transparent to-[#060e20]/40 pointer-events-none" />
+                  </>
+                ) : (
+                  /* Tactical Vector Dark Grid */
+                  <div className="w-full h-full bg-[#060e20] relative">
+                    <div
+                      className="absolute inset-0 opacity-15"
+                      style={{
+                        backgroundImage: `
+                          linear-gradient(to right, #38bdf8 1px, transparent 1px),
+                          linear-gradient(to bottom, #38bdf8 1px, transparent 1px)
+                        `,
+                        backgroundSize: '40px 40px',
+                      }}
+                    />
+                    {/* Subtle Geographic Silhouette of La Guajira */}
+                    <svg className="w-full h-full opacity-25" viewBox="0 0 100 100" preserveAspectRatio="none">
+                      <polygon
+                        points="12,78 30,55 58,40 76,20 88,14 94,22 84,42 70,62 55,75 35,88 18,92"
+                        fill="#0284c7"
+                      />
+                    </svg>
+                  </div>
+                )}
+
+                {/* Geographic Coordinates Grid Overlay */}
+                <div className="absolute inset-0 pointer-events-none border border-[#222a3d]/40">
+                  <span className="absolute top-2 left-2 text-[10px] font-mono text-[#38bdf8]/60">
+                    12°15'N · 72°30'W (Alta Guajira)
+                  </span>
+                  <span className="absolute bottom-2 left-2 text-[10px] font-mono text-[#38bdf8]/60">
+                    10°30'N · 73°05'W (Baja Guajira)
+                  </span>
+                  <span className="absolute top-2 right-2 text-[10px] font-mono text-[#38bdf8]/60">
+                    Troncal del Caribe (Ruta 90)
+                  </span>
+                </div>
+
+                {/* Highway Arteries Connections (Troncal del Caribe / Corredor del Carbón) */}
+                {showRoutesLines && (
+                  <svg className="absolute inset-0 w-full h-full pointer-events-none z-10">
+                    {/* Territorial Trunk Line: Riohacha -> Maicao -> Albania -> Fonseca -> San Juan -> Villanueva */}
+                    <polyline
+                      points="32,45 68,52 50,65 38,76 31,82 28,88"
+                      fill="none"
+                      stroke="#38bdf8"
+                      strokeWidth="2"
+                      strokeDasharray="4,4"
+                      strokeOpacity="0.4"
+                    />
+                    {/* Northern Highway: Riohacha -> Manaure -> Uribia */}
+                    <polyline
+                      points="32,45 42,34 66,38"
+                      fill="none"
+                      stroke="#10b981"
+                      strokeWidth="1.5"
+                      strokeDasharray="3,3"
+                      strokeOpacity="0.45"
                     />
                   </svg>
-                </div>
-              )}
+                )}
 
-              {/* Geographic Coordinates Grid Overlay */}
-              <div className="absolute inset-0 pointer-events-none border border-[#222a3d]/40">
-                <span className="absolute top-2 left-2 text-[10px] font-mono text-[#38bdf8]/60">
-                  12°15'N · 72°30'W (Alta Guajira)
-                </span>
-                <span className="absolute bottom-2 left-2 text-[10px] font-mono text-[#38bdf8]/60">
-                  10°30'N · 73°05'W (Baja Guajira)
-                </span>
-                <span className="absolute top-2 right-2 text-[10px] font-mono text-[#38bdf8]/60">
-                  Troncal del Caribe (Ruta 90)
-                </span>
-              </div>
-
-              {/* Highway Arteries Connections (Troncal del Caribe / Corredor del Carbón) */}
-              {showRoutesLines && (
-                <svg className="absolute inset-0 w-full h-full pointer-events-none z-10">
-                  {/* Territorial Trunk Line: Riohacha -> Maicao -> Albania -> Fonseca -> San Juan -> Villanueva */}
-                  <polyline
-                    points="32,45 68,52 50,65 38,76 31,82 28,88"
-                    fill="none"
-                    stroke="#38bdf8"
-                    strokeWidth="2"
-                    strokeDasharray="4,4"
-                    strokeOpacity="0.4"
-                  />
-                  {/* Northern Highway: Riohacha -> Manaure -> Uribia */}
-                  <polyline
-                    points="32,45 42,34 66,38"
-                    fill="none"
-                    stroke="#10b981"
-                    strokeWidth="1.5"
-                    strokeDasharray="3,3"
-                    strokeOpacity="0.45"
-                  />
-                </svg>
-              )}
-
-              {/* 15 MUNICIPALITY TERRITORIAL NODES */}
-              {GUAJIRA_MUNICIPALITIES.map((mun) => {
-                const pos = getCoordinatesPercent(mun.lat, mun.lng);
-                return (
-                  <div
-                    key={mun.id}
-                    style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
-                    className="absolute -translate-x-1/2 -translate-y-1/2 flex items-center gap-1 z-10 pointer-events-none select-none"
-                  >
-                    <span className="w-2 h-2 rounded-full bg-white/70 shadow-sm" />
-                    <span className="text-[10px] font-bold text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)] whitespace-nowrap">
-                      {mun.name}
-                    </span>
-                  </div>
-                );
-              })}
-
-              {/* INTERACTIVE ASSIGNED AND LOCATED PINS */}
-              {filteredPoints.map((pt, idx) => {
-                const isSelected = selectedPointId === pt.id;
-                const isCompleted = pt.status === 'completed';
-                const isCurrent = pt.status === 'in_progress';
-                const isFloating = pt.type === 'floating';
-
-                return (
-                  <div
-                    key={pt.id}
-                    style={{ left: `${pt.x}%`, top: `${pt.y}%` }}
-                    onClick={() => setSelectedPointId(pt.id)}
-                    className="absolute -translate-x-1/2 -translate-y-1/2 z-30 cursor-pointer group transition-transform hover:scale-125"
-                  >
-                    {/* Pin Glow Effect */}
-                    {isCurrent && (
-                      <span className="absolute -inset-2 rounded-full bg-[#f59e0b] animate-ping opacity-60 pointer-events-none" />
-                    )}
-
+                {/* 15 MUNICIPALITY TERRITORIAL NODES */}
+                {GUAJIRA_MUNICIPALITIES.map((mun) => {
+                  const pos = getCoordinatesPercent(mun.lat, mun.lng);
+                  return (
                     <div
-                      className={`relative flex items-center justify-center rounded-xl p-1 shadow-xl transition-all border ${
-                        isSelected
-                          ? 'ring-4 ring-white scale-125 z-40'
-                          : ''
-                      } ${
-                        isFloating
-                          ? 'bg-[#b91c1c] text-white border-white'
-                          : isCompleted
-                          ? 'bg-[#065f46] text-white border-[#34d399]'
-                          : isCurrent
-                          ? 'bg-[#b45309] text-white border-[#fbbf24] animate-pulse'
-                          : 'bg-[#1e293b] text-[#38bdf8] border-[#3b4760]'
-                      }`}
+                      key={mun.id}
+                      style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
+                      className="absolute -translate-x-1/2 -translate-y-1/2 flex items-center gap-1 z-10 pointer-events-none select-none"
                     >
-                      <span className="material-symbols-outlined text-[16px]">
-                        {isFloating
-                          ? 'priority_high'
-                          : isCompleted
-                          ? 'check'
-                          : isCurrent
-                          ? 'hourglass_top'
-                          : 'location_on'}
-                      </span>
-                      <span className="text-[9px] font-mono font-bold px-1 hidden sm:inline">
-                        {pt.code}
+                      <span className="w-2 h-2 rounded-full bg-white/70 shadow-sm" />
+                      <span className="text-[10px] font-bold text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)] whitespace-nowrap">
+                        {mun.name}
                       </span>
                     </div>
+                  );
+                })}
 
-                    {/* Point Label Hover Card */}
-                    <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1.5 hidden group-hover:flex flex-col items-center z-50 pointer-events-none">
-                      <div className="bg-[#0b1326]/95 backdrop-blur-md px-2.5 py-1.5 rounded-xl border border-[#2d3a58] shadow-2xl text-center whitespace-nowrap min-w-[130px]">
-                        <p className="text-[11px] font-bold text-white leading-tight">
-                          {pt.name}
-                        </p>
-                        <p className="text-[10px] text-[#cbd5e1] mt-0.5">
-                          {pt.municipality} · {pt.auditorName}
-                        </p>
-                        <span
-                          className={`inline-block mt-1 px-1.5 py-0.2 rounded text-[9px] font-bold ${
-                            isCompleted
-                              ? 'bg-[#064e3b] text-[#6ee7b7]'
-                              : isCurrent
-                              ? 'bg-[#78350f] text-[#fcd34d]'
-                              : isFloating
-                              ? 'bg-[#991b1b] text-white'
-                              : 'bg-[#1e293b] text-[#93c5fd]'
-                          }`}
-                        >
-                          {isCompleted ? 'Completada' : isCurrent ? 'En Curso' : isFloating ? 'Flotante' : 'Pendiente'}
+                {/* INTERACTIVE ASSIGNED AND LOCATED PINS */}
+                {filteredPoints.map((pt) => {
+                  const isSelected = selectedPointId === pt.id;
+                  const isCompleted = pt.status === 'completed';
+                  const isCurrent = pt.status === 'in_progress';
+                  const isFloating = pt.type === 'floating';
+
+                  return (
+                    <div
+                      key={pt.id}
+                      style={{ left: `${pt.x}%`, top: `${pt.y}%` }}
+                      onClick={() => setSelectedPointId(pt.id)}
+                      className="absolute -translate-x-1/2 -translate-y-1/2 z-30 cursor-pointer group transition-transform hover:scale-125"
+                    >
+                      {/* Pin Glow Effect */}
+                      {isCurrent && (
+                        <span className="absolute -inset-2 rounded-full bg-[#f59e0b] animate-ping opacity-60 pointer-events-none" />
+                      )}
+
+                      <div
+                        className={`relative flex items-center justify-center rounded-xl p-1 shadow-xl transition-all border ${
+                          isSelected
+                            ? 'ring-4 ring-white scale-125 z-40'
+                            : ''
+                        } ${
+                          isFloating
+                            ? 'bg-[#b91c1c] text-white border-white'
+                            : isCompleted
+                            ? 'bg-[#065f46] text-white border-[#34d399]'
+                            : isCurrent
+                            ? 'bg-[#b45309] text-white border-[#fbbf24] animate-pulse'
+                            : 'bg-[#1e293b] text-[#38bdf8] border-[#3b4760]'
+                        }`}
+                      >
+                        <span className="material-symbols-outlined text-[16px]">
+                          {isFloating
+                            ? 'priority_high'
+                            : isCompleted
+                            ? 'check'
+                            : isCurrent
+                            ? 'hourglass_top'
+                            : 'location_on'}
+                        </span>
+                        <span className="text-[9px] font-mono font-bold px-1 hidden sm:inline">
+                          {pt.code}
                         </span>
                       </div>
+
+                      {/* Point Label Hover Card */}
+                      <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1.5 hidden group-hover:flex flex-col items-center z-50 pointer-events-none">
+                        <div className="bg-[#0b1326]/95 backdrop-blur-md px-2.5 py-1.5 rounded-xl border border-[#2d3a58] shadow-2xl text-center whitespace-nowrap min-w-[130px]">
+                          <p className="text-[11px] font-bold text-white leading-tight">
+                            {pt.name}
+                          </p>
+                          <p className="text-[10px] text-[#cbd5e1] mt-0.5">
+                            {pt.municipality} · {pt.auditorName}
+                          </p>
+                          <span
+                            className={`inline-block mt-1 px-1.5 py-0.2 rounded text-[9px] font-bold ${
+                              isCompleted
+                                ? 'bg-[#064e3b] text-[#6ee7b7]'
+                                : isCurrent
+                                ? 'bg-[#78350f] text-[#fcd34d]'
+                                : isFloating
+                                ? 'bg-[#991b1b] text-white'
+                                : 'bg-[#1e293b] text-[#93c5fd]'
+                            }`}
+                          >
+                            {isCompleted ? 'Completada' : isCurrent ? 'En Curso' : isFloating ? 'Flotante' : 'Pendiente'}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            )}
 
-            {/* MAP FLOATING CONTROLS: ZOOM & TOGGLES */}
-            <div className="absolute top-4 right-4 z-40 flex flex-col gap-2 bg-[#131b2e]/90 backdrop-blur-md p-1.5 rounded-2xl border border-[#222a3d] shadow-xl">
-              <button
-                type="button"
-                onClick={() => setZoomLevel((z) => Math.min(2, z + 0.25))}
-                className="w-8 h-8 rounded-xl bg-[#1e293b] hover:bg-[#2d3a58] text-white flex items-center justify-center transition-colors cursor-pointer"
-                title="Acercar mapa (+)"
-              >
-                <span className="material-symbols-outlined text-[18px]">add</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setZoomLevel((z) => Math.max(0.8, z - 0.25))}
-                className="w-8 h-8 rounded-xl bg-[#1e293b] hover:bg-[#2d3a58] text-white flex items-center justify-center transition-colors cursor-pointer"
-                title="Alejar mapa (-)"
-              >
-                <span className="material-symbols-outlined text-[18px]">remove</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setZoomLevel(1)}
-                className="w-8 h-8 rounded-xl bg-[#1e293b] hover:bg-[#2d3a58] text-[#38bdf8] flex items-center justify-center transition-colors cursor-pointer text-[10px] font-mono font-bold"
-                title="Restablecer escala 100%"
-              >
-                100%
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowRoutesLines(!showRoutesLines)}
-                className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors cursor-pointer ${
-                  showRoutesLines ? 'bg-[#0088ff] text-white shadow-sm shadow-[#0088ff]/30' : 'bg-[#1e293b] text-[#cbd5e1]'
-                }`}
-                title="Mostrar/Ocultar Rutas Viales"
-              >
-                <span className="material-symbols-outlined text-[17px]">alt_route</span>
-              </button>
-            </div>
+            {/* MAP FLOATING CONTROLS: ZOOM & TOGGLES (FOR SATELLITE/TACTICAL MODES) */}
+            {mapStyle !== 'google_mymaps' && (
+              <div className="absolute top-4 right-4 z-40 flex flex-col gap-2 bg-[#131b2e]/90 backdrop-blur-md p-1.5 rounded-2xl border border-[#222a3d] shadow-xl">
+                <button
+                  type="button"
+                  onClick={() => setZoomLevel((z) => Math.min(2, z + 0.25))}
+                  className="w-8 h-8 rounded-xl bg-[#1e293b] hover:bg-[#2d3a58] text-white flex items-center justify-center transition-colors cursor-pointer"
+                  title="Acercar mapa (+)"
+                >
+                  <span className="material-symbols-outlined text-[18px]">add</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setZoomLevel((z) => Math.max(0.8, z - 0.25))}
+                  className="w-8 h-8 rounded-xl bg-[#1e293b] hover:bg-[#2d3a58] text-white flex items-center justify-center transition-colors cursor-pointer"
+                  title="Alejar mapa (-)"
+                >
+                  <span className="material-symbols-outlined text-[18px]">remove</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setZoomLevel(1)}
+                  className="w-8 h-8 rounded-xl bg-[#1e293b] hover:bg-[#2d3a58] text-[#38bdf8] flex items-center justify-center transition-colors cursor-pointer text-[10px] font-mono font-bold"
+                  title="Restablecer escala 100%"
+                >
+                  100%
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowRoutesLines(!showRoutesLines)}
+                  className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors cursor-pointer ${
+                    showRoutesLines ? 'bg-[#0088ff] text-white shadow-sm shadow-[#0088ff]/30' : 'bg-[#1e293b] text-[#cbd5e1]'
+                  }`}
+                  title="Mostrar/Ocultar Rutas Viales"
+                >
+                  <span className="material-symbols-outlined text-[17px]">alt_route</span>
+                </button>
+              </div>
+            )}
 
-            {/* MAP BOTTOM TERRITORIAL BANNER: PURE SOLID WHITE TEXT */}
+            {/* MAP BOTTOM TERRITORIAL BANNER */}
             <div
               data-map-overlay="true"
               className="map-overlay-banner absolute bottom-3 left-3 right-3 sm:right-auto sm:max-w-md bg-[#060e20]/95 backdrop-blur-md px-4 py-2.5 rounded-2xl shadow-2xl border border-[#222a3d] z-30"
@@ -729,10 +770,12 @@ export const GpsTerritoryModal: React.FC<GpsTerritoryModalProps> = ({
                 <span className="w-2.5 h-2.5 rounded-full bg-[#4edea3] animate-ping shrink-0" />
                 <div className="min-w-0">
                   <p className="text-xs font-bold text-white tracking-wide map-overlay-text" style={{ color: '#ffffff' }}>
-                    Red Departamental La Guajira · 15 Municipios
+                    {mapStyle === 'google_mymaps' ? 'CAVIMAPS Oficial · Red La Guajira' : 'Red Departamental La Guajira · 15 Municipios'}
                   </p>
                   <p className="text-[11px] text-white/90 truncate map-overlay-text mt-0.5" style={{ color: '#ffffff' }}>
-                    {filteredPoints.length} de {allLocatedPoints.length} puntos en pantalla · Haz clic en cualquier pin para ver detalles
+                    {mapStyle === 'google_mymaps'
+                      ? `${filteredPoints.length} paradas en lista lateral · Capas y rutas oficiales activas`
+                      : `${filteredPoints.length} de ${allLocatedPoints.length} puntos en pantalla · Haz clic en cualquier pin para ver detalles`}
                   </p>
                 </div>
               </div>
@@ -819,6 +862,28 @@ export const GpsTerritoryModal: React.FC<GpsTerritoryModalProps> = ({
                     <span className="text-[#94a3b8]">Hora / SLA:</span>
                     <span className="font-mono text-[#fcd34d] font-semibold">{selectedPoint.time}</span>
                   </div>
+                </div>
+
+                {/* Direct GPS Navigation Links */}
+                <div className="flex items-center gap-1.5">
+                  <a
+                    href={`https://www.google.com/maps/dir/?api=1&destination=${selectedPoint.lat},${selectedPoint.lng}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex-1 py-1.5 px-2 rounded-xl bg-[#0b1326] hover:bg-[#1e293b] text-[#38bdf8] hover:text-white border border-[#222a3d] text-[11px] font-bold flex items-center justify-center gap-1 transition-all"
+                  >
+                    <span className="material-symbols-outlined text-[14px]">directions</span>
+                    <span>Navegar GPS</span>
+                  </a>
+                  <a
+                    href={`https://www.waze.com/ul?ll=${selectedPoint.lat},${selectedPoint.lng}&navigate=yes`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex-1 py-1.5 px-2 rounded-xl bg-[#0b1326] hover:bg-[#1e293b] text-[#cbd5e1] hover:text-white border border-[#222a3d] text-[11px] font-bold flex items-center justify-center gap-1 transition-all"
+                  >
+                    <span className="material-symbols-outlined text-[14px]">navigation</span>
+                    <span>Waze</span>
+                  </a>
                 </div>
 
                 {/* Status Switcher Action */}

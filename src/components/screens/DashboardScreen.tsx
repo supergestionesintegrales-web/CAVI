@@ -5,6 +5,9 @@ interface DashboardScreenProps {
   auditors: Auditor[];
   macroFilesCount?: number;
   onGoToMacros?: () => void;
+  onGoToLease?: () => void;
+  leasePointsCount?: number;
+  leaseOpenCount?: number;
   onOpenScanner: () => void;
   onOpenCriticalPoints: () => void;
   onShowToast: (title: string, message: string, type?: 'success' | 'info' | 'alert') => void;
@@ -15,6 +18,9 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
   auditors,
   macroFilesCount = 8,
   onGoToMacros,
+  onGoToLease,
+  leasePointsCount = 12,
+  leaseOpenCount = 9,
   onOpenScanner,
   onOpenCriticalPoints,
   onShowToast,
@@ -290,6 +296,39 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
           </div>
         </div>
       )}
+
+      {/* SECCIÓN ARRENDAMIENTOS QUICK CARD */}
+      <div className="bg-[#131b2e] rounded-xl p-3.5 shadow-md border border-[#222a3d] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-10 h-10 rounded-xl bg-[#0088ff]/15 text-[#0088ff] flex items-center justify-center shrink-0">
+            <span className="material-symbols-outlined text-[22px]">storefront</span>
+          </div>
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="text-xs sm:text-sm font-bold text-white">
+                Gestión de Puntos en Arrendamiento
+              </h3>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#10b981]/20 text-[#4edea3] border border-[#10b981]/30">
+                {leaseOpenCount} Abiertos Ahora
+              </span>
+            </div>
+            <p className="text-[11px] text-[#94a3b8] mt-0.5">
+              Supervisión de {leasePointsCount} inmuebles comerciales en La Guajira, horarios de apertura y cierre, y geolocalización.
+            </p>
+          </div>
+        </div>
+
+        {onGoToLease && (
+          <button
+            type="button"
+            onClick={onGoToLease}
+            className="px-3.5 py-2 rounded-xl bg-[#0088ff] hover:bg-[#0070d8] text-white font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-1.5 shrink-0 cursor-pointer"
+          >
+            <span>Ver Arrendamientos</span>
+            <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+          </button>
+        )}
+      </div>
 
       {/* MAIN UNIFIED CONTENT GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">

@@ -15,6 +15,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
   const allNavItems: { id: TabType; label: string; icon: string; adminOnly?: boolean }[] = [
     { id: 'dashboard-cavi', label: 'Dash & KPIs', icon: 'auto_awesome_mosaic', adminOnly: true },
     { id: 'asignacion-rutas', label: userRole === 'auxiliar' ? 'Mis Rutas' : 'Rutas & Agenda', icon: 'alt_route' },
+    { id: 'arrendamientos', label: 'Arriendos', icon: 'storefront' },
     { id: 'archivos-macros', label: 'Config', icon: 'settings' },
   ];
 

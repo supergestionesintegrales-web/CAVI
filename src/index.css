@@ -149,6 +149,13 @@ body.light {
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.03) !important;
 }
 
+[data-theme="light"] .bg-\[\#0e172a\],
+.theme-light .bg-\[\#0e172a\],
+.light .bg-\[\#0e172a\] {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
 /* Secondary Panels, Tables & Inner Containers */
 [data-theme="light"] .bg-\[\#171f33\],
 .theme-light .bg-\[\#171f33\],

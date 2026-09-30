@@ -50,6 +50,7 @@ export const Header: React.FC<HeaderProps> = ({
   const allNavItems: { id: TabType; label: string; icon: string; adminOnly?: boolean }[] = [
     { id: 'dashboard-cavi', label: 'Dashboard & KPIs (Admin)', icon: 'auto_awesome_mosaic', adminOnly: true },
     { id: 'asignacion-rutas', label: isAuxiliar ? 'Mis Rutas y Agenda' : 'Rutas y Cronograma', icon: 'alt_route' },
+    { id: 'arrendamientos', label: 'Arrendamientos & Horarios', icon: 'storefront' },
     { id: 'archivos-macros', label: 'Configuración', icon: 'settings' },
   ];
 

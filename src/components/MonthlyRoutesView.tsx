@@ -237,9 +237,10 @@ export const MonthlyRoutesView: React.FC<MonthlyRoutesViewProps> = ({
                 type="button"
                 onClick={onOpenGpsModal}
                 className="px-3 py-2 rounded-xl bg-[#0088ff] hover:bg-[#0070d8] text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-md shadow-[#0088ff]/25 active:scale-95 cursor-pointer"
+                title="Abrir visor CAVIMAPS con la red departamental y rutas oficiales"
               >
-                <span className="material-symbols-outlined text-[16px]">map</span>
-                <span>Mapa Satelital GPS</span>
+                <span className="material-symbols-outlined text-[16px]">public</span>
+                <span>CAVIMAPS</span>
               </button>
             )}
           </div>
@@ -255,7 +256,7 @@ export const MonthlyRoutesView: React.FC<MonthlyRoutesViewProps> = ({
           </div>
 
           <div className="bg-[#0b1326] p-3 rounded-xl border border-[#222a3d]">
-            <span className="text-[11px] text-slate-300 dark:text-[#cbd5e1] font-semibold block">Cobertura GPS Satelital</span>
+            <span className="text-[11px] text-slate-300 dark:text-[#cbd5e1] font-semibold block">Cobertura CAVIMAPS / GPS</span>
             <span className="text-lg font-mono font-bold text-[#38bdf8] mt-0.5 flex items-center gap-1">
               <span>{gpsPercentage}%</span>
               <span className="text-[10px] text-slate-400 dark:text-[#cbd5e1] font-normal font-sans">verificadas</span>

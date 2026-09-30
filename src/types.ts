@@ -1,4 +1,4 @@
-export type TabType = 'dashboard-cavi' | 'asignacion-rutas' | 'cronograma' | 'resultados-kpis' | 'archivos-macros';
+export type TabType = 'dashboard-cavi' | 'asignacion-rutas' | 'cronograma' | 'resultados-kpis' | 'archivos-macros' | 'arrendamientos';
 
 export type UserRole = 'administrador' | 'auxiliar';
 
@@ -166,4 +166,106 @@ export interface DaySchedule {
   visits: number;
   status: 'normal' | 'alert' | 'warning' | 'today';
   note?: string;
+}
+
+export type LeasePropertyType =
+  | 'Local Comercial'
+  | 'Isla Comercial'
+  | 'Oficina Administrativa'
+  | 'Centro de Distribución / Bodega'
+  | 'Taquilla / Kiosko';
+
+export type LeaseOperatingStatus =
+  | 'open'                 // Abierto normalmente
+  | 'closed'               // Cerrado según horario
+  | 'temporarily_closed'   // Cerrado por novedad o contingencia
+  | 'maintenance'          // En mantenimiento o adecuación
+  | 'contract_ended';      // Desalojado / Finalizado
+
+export interface DayHours {
+  open: string;    // HH:mm, e.g. "08:00"
+  close: string;   // HH:mm, e.g. "18:00"
+  isOpen: boolean; // false si no abre ese día
+  hasLunchBreak?: boolean;
+  lunchStart?: string;
+  lunchEnd?: string;
+}
+
+export interface WeeklySchedule {
+  monday: DayHours;
+  tuesday: DayHours;
+  wednesday: DayHours;
+  thursday: DayHours;
+  friday: DayHours;
+  saturday: DayHours;
+  sunday: DayHours;
+  holidayNote?: string;
+}
+
+export interface LandlordInfo {
+  name: string;
+  phone: string;
+  email?: string;
+  documentId?: string;
+  contactPerson?: string;
+}
+
+export interface LeaseIncident {
+  id: string;
+  date: string;
+  time: string;
+  type:
+    | 'Cierre no autorizado'
+    | 'Retraso en apertura'
+    | 'Cierre anticipado'
+    | 'Corte de energía / agua'
+    | 'Mantenimiento preventivo'
+    | 'Novedad de infraestructura'
+    | 'Inspección de auditoría';
+  description: string;
+  reportedBy: string;
+  resolved: boolean;
+  resolutionNotes?: string;
+}
+
+export interface LeasePoint {
+  id: string;
+  code: string;                // e.g. "ARR-RIO-001"
+  name: string;                // e.g. "Sede Principal Riohacha Centro"
+  propertyType: LeasePropertyType;
+  operatingStatus: LeaseOperatingStatus;
+  manualOverrideStatus?: 'force_open' | 'force_closed' | null;
+  statusNotes?: string;
+
+  // Ubicación
+  address: string;
+  neighborhood: string;
+  municipality: string;        // Riohacha, Maicao, Uribia, etc.
+  department: string;          // La Guajira
+  reference?: string;
+  lat: number;
+  lng: number;
+
+  // Horarios
+  schedule: WeeklySchedule;
+
+  // Contrato y Financiero
+  contractNumber: string;
+  monthlyRent: number;         // en COP
+  adminFee?: number;           // en COP
+  contractStartDate: string;   // YYYY-MM-DD
+  contractEndDate: string;     // YYYY-MM-DD
+  areaSqMeters: number;
+
+  // Propietario / Inmobiliaria
+  landlord: LandlordInfo;
+
+  // Medidores y Servicios
+  electricMeter?: string;
+  waterMeter?: string;
+
+  // Auditoría y Novedades
+  lastAuditDate?: string;
+  lastAuditorName?: string;
+  incidents: LeaseIncident[];
 }

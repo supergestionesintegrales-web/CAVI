@@ -139,9 +139,10 @@ export const WeeklyRoutesMatrix: React.FC<WeeklyRoutesMatrixProps> = ({
               type="button"
               onClick={onOpenGpsModal}
               className="px-3.5 py-2 rounded-xl bg-[#0088ff] hover:bg-[#0070d8] text-white text-xs font-bold border border-[#0088ff]/40 flex items-center gap-1.5 shadow-md shadow-[#0088ff]/20 active:scale-95 transition-all cursor-pointer"
+              title="Abrir visor oficial CAVIMAPS con red territorial y rutas"
             >
               <span className="material-symbols-outlined text-[17px] text-white">public</span>
-              <span>Ver en Mapa Satelital GPS</span>
+              <span>CAVIMAPS</span>
             </button>
           </div>
         </div>
@@ -467,8 +468,8 @@ export const WeeklyRoutesMatrix: React.FC<WeeklyRoutesMatrixProps> = ({
                           <button
                             type="button"
                             onClick={onOpenGpsModal}
-                            className="p-1.5 rounded-lg bg-blue-50 text-[#0088ff] hover:bg-[#0088ff] hover:text-white dark:bg-[#0088ff]/20 dark:text-[#38bdf8] transition-all cursor-pointer border border-blue-200 dark:border-[#0088ff]/40"
-                            title="Ubicar este punto en el mapa satelital GPS"
+                            className="p-1.5 rounded-lg bg-blue-50 text-[#0088ff] hover:bg-[#0070d8] hover:text-white dark:bg-[#0088ff]/20 dark:text-[#38bdf8] transition-all cursor-pointer border border-blue-200 dark:border-[#0088ff]/40"
+                            title="Ubicar este punto en CAVIMAPS"
                           >
                             <span className="material-symbols-outlined text-[13px]">my_location</span>
                           </button>
