@@ -31,7 +31,7 @@ export interface RouteWaypoint {
 interface CaviNativeMapProps {
   initialPoints?: CaviPoint[];
   initialRouteStops?: { id?: string; name: string; lat: number; lng: number; code?: string; municipality?: string; status?: string }[];
-  routeGroups?: Array<{ id: string; label: string; color: string; stops: { id?: string; name: string; lat: number; lng: number; code?: string; municipality?: string; status?: string }[] }>;
+  routeGroups?: Array<{ id: string; label: string; color: string; zone?: string; stops: { id?: string; name: string; lat: number; lng: number; code?: string; municipality?: string; status?: string; zone?: string }[] }>;
   showPointCatalog?: boolean;
   resetRouteOnEmpty?: boolean;
   onPointSelect?: (point: CaviPoint) => void;
@@ -451,7 +451,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
           fillOpacity: 0.95,
           renderer: L.canvas(),
         })
-          .bindTooltip(`${group.label}<br/>Parada ${index + 1}: ${stop.name}`, { direction: 'top' })
+          .bindTooltip(`${group.label}<br/>Parada ${index + 1}: ${stop.name}${stop.zone && group.zone && stop.zone !== group.zone ? `<br/><strong>Excepción de zona:</strong> ${stop.zone}` : ''}`, { direction: 'top' })
           .addTo(routeGroupsLayer);
       });
     });
