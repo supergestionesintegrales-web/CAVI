@@ -709,6 +709,25 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
 
   const currentDestinationStop = routeWaypoints[currentLegIndex + 1];
   const currentOriginStop = routeWaypoints[currentLegIndex];
+
+  // CAVIMAPS remains the default navigator. These actions only hand off
+  // the current destination to an external navigation app when requested.
+  const openExternalNavigation = (provider: 'google' | 'waze') => {
+    if (!currentDestinationStop) return;
+
+    const { lat, lng } = currentDestinationStop;
+    const url =
+      provider === 'google'
+        ? `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`
+        : `https://www.waze.com/ul?ll=${lat}%2C${lng}&navigate=yes`;
+
+    window.open(url, '_blank', 'noopener,noreferrer');
+    showMapToast(
+      provider === 'google'
+        ? 'Abriendo el destino en Google Maps…'
+        : 'Abriendo el destino en Waze…'
+    );
+  };
   const legDistanceRemainingKm = useMemo(() => {
     if (!currentOriginStop || !currentDestinationStop) return 0;
     const fullLeg = calculateDistanceKm(
@@ -1076,6 +1095,29 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
               >
                 <span className="material-symbols-outlined text-[16px]">my_location</span>
               </button>
+
+              {/* External navigation handoff: CAVIMAPS stays the default */}
+              <div className="flex items-center gap-1 rounded-xl bg-[#0b1326] border border-[#222a3d] p-1">
+                <span className="px-1.5 text-[9px] font-bold uppercase tracking-wide text-[#64748b] hidden md:inline">Ir con</span>
+                <button
+                  type="button"
+                  onClick={() => openExternalNavigation('google')}
+                  className="px-2 py-1 rounded-lg bg-[#1e293b] hover:bg-[#334155] text-white text-[10px] font-bold flex items-center gap-1 transition-all cursor-pointer active:scale-95"
+                  title="Abrir este destino en Google Maps"
+                >
+                  <span className="material-symbols-outlined text-[14px]">map</span>
+                  <span>Google</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => openExternalNavigation('waze')}
+                  className="px-2 py-1 rounded-lg bg-[#1e293b] hover:bg-[#334155] text-[#38bdf8] text-[10px] font-bold flex items-center gap-1 transition-all cursor-pointer active:scale-95"
+                  title="Abrir este destino en Waze"
+                >
+                  <span className="material-symbols-outlined text-[14px]">navigation</span>
+                  <span>Waze</span>
+                </button>
+              </div>
 
               {/* Exit Guided Mode */}
               <button
