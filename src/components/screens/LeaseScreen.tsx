@@ -795,7 +795,7 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
                           </div>
                         </div>
 
-                        <div className="hidden sm:grid grid-cols-3 gap-3 shrink-0 text-right min-w-[250px]">
+                        <div className="hidden sm:grid grid-cols-4 gap-2.5 shrink-0 text-right min-w-[330px]">
                           <div>
                             <span className="block text-[8px] uppercase text-[#64748b]">Canon</span>
                             <span className="text-[11px] font-bold font-mono text-[#4edea3]">{formatCOP(pt.monthlyRent)}</span>
@@ -809,6 +809,10 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
                           <div>
                             <span className="block text-[8px] uppercase text-[#64748b]">Última venta</span>
                             <span className="text-[10px] font-semibold text-white">{sales?.lastSaleDate || 'Sin registro'}</span>
+                          </div>
+                          <div>
+                            <span className="block text-[8px] uppercase text-[#64748b]">Días de cuenta</span>
+                            <span className="text-[10px] font-bold text-[#c0c1ff]">{pt.daysOfAccount !== undefined ? pt.daysOfAccount : 'N/D'}</span>
                           </div>
                         </div>
 
