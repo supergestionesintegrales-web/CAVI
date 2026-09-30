@@ -1,13 +1,11 @@
-import { CaviZone } from '../data/zoneAssignments';
+export type CaviZone = 'Norte' | 'Centro' | 'Sur';
 
 export interface CaviPoint {
   id: string;
   name: string;
-  category: string; // 'CORRESPONSAL BBVA' | 'Corresponsal Banco Agrario' | 'Corresponsal Bancamia' | 'GRUPO AVAL' | 'REGIONAL NORTE' | 'REGIONAL SUR' | 'REGIONAL CENTRO'
+  category: string;
   subregion: 'Norte' | 'Centro' | 'Sur' | 'Bancario';
-  /** Operational zone used for route ownership. Every PDV must resolve to one zone. */
   zone?: CaviZone;
-  /** Auditor assigned to the operational zone. */
   auditorId?: string;
   auditorName?: string;
   auditorCode?: string;
