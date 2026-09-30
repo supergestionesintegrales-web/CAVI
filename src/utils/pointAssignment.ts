@@ -241,18 +241,9 @@ export function distributePointsWithAlertPriority(
       return availableZoneAuditors[0];
     }
 
-    // Prefer the designated zone, but allow cross-zone assignments when
-    // that zone has reached its weekly capacity. This avoids blocking valid work.
-    const sorted = [...auditors].sort((a, b) => {
-      const loadDifference =
-        auditorLoads[a.id].assignedSteps.length - auditorLoads[b.id].assignedSteps.length;
-      if (loadDifference !== 0) return loadDifference;
-      // Stable tie-break: prefer an auditor whose designated zone matches the point.
-      const aMatches = a.zone.toLowerCase() === candidateZone.toLowerCase() ? 0 : 1;
-      const bMatches = b.zone.toLowerCase() === candidateZone.toLowerCase() ? 0 : 1;
-      return aMatches - bMatches;
-    });
-    return sorted[0];
+    // Zone ownership is strict: a PDV never crosses into another auditor's zone.
+    // If the designated auditor is at capacity, the point remains unassigned in this pass.
+    return zoneMatches[0];
   };
 
   // Helper to pick the best day for an auditor respecting the 8-10 points/day rule
@@ -360,6 +351,7 @@ export function distributePointsWithAlertPriority(
       status: 'pending',
       auditorId: matchedAuditor.id,
       auditorName: matchedAuditor.name,
+      zone: zone as 'Norte' | 'Centro' | 'Sur',
       notes: `🚨 Prioridad Alerta: ${alertDesc}`,
       daysWithoutVisit: alertDays,
       alertCategory: (candidate.alertCategory as AlertCategory | undefined) || 'sin_visita_2_3_meses',
@@ -457,4 +449,3 @@ export function distributePointsWithAlertPriority(
  * distribuidos según las directrices operativas en los 15 municipios de La Guajira.
  */
 export const MASTER_SAMPLE_CANDIDATE_POINTS: PointCandidate[] = GUAJIRA_73_MONTHLY_POINTS;
-
