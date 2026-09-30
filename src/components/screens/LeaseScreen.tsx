@@ -556,6 +556,7 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
                             {lifecycle.lifecycleStatus === 'active' ? '● ACTIVO' : '● INACTIVO'}
                           </span>
                           {lifecycle.lifecycleStatus === 'inactive' && <span className="px-2 py-0.5 rounded-full text-[9px] font-semibold bg-[#ef4444]/10 text-[#ffb4ab] border border-[#ef4444]/20">{lifecycle.inactivityLabel}</span>}
+                          {pt.salesSummary?.daysWithoutSale !== undefined && pt.salesSummary.daysWithoutSale >= 60 && lifecycle.lifecycleStatus !== 'inactive' && <span className={`px-2 py-0.5 rounded-full text-[9px] font-semibold border ${pt.salesSummary.daysWithoutSale >= 90 ? 'bg-[#ef4444]/10 text-[#ffb4ab] border-[#ef4444]/20' : 'bg-[#ffb95f]/10 text-[#ffb95f] border-[#ffb95f]/20'}`}>SIN VENTAS · {pt.salesSummary.daysWithoutSale} DÍAS</span>}
                         </div>
                       </div>
 
