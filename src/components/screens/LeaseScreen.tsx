@@ -4,6 +4,7 @@ import {
   evaluatePointOpenStatus,
   formatCOP,
   getContractDaysRemaining,
+  getLeaseLifecycleStatus,
 } from '../../data/leasePointsData';
 import { exportLeasePointsToExcel } from '../../utils/leaseExcel';
 import { AddEditLeaseModal } from '../AddEditLeaseModal';
@@ -21,7 +22,8 @@ interface LeaseScreenProps {
     status: LeaseOperatingStatus,
     override: 'force_open' | 'force_closed' | null,
     notes: string,
-    newIncident?: LeaseIncident
+    newIncident?: LeaseIncident,
+    inactivityReason?: LeasePoint['inactivityReason']
   ) => void;
   onResolveIncident?: (pointId: string, incidentId: string, notes: string) => void;
   onShowToast: (title: string, message: string, type?: 'info' | 'success' | 'warning' | 'error') => void;
@@ -61,6 +63,7 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
       point: pt,
       status: evaluatePointOpenStatus(pt, now),
       contract: getContractDaysRemaining(pt.contractEndDate),
+      lifecycle: getLeaseLifecycleStatus(pt, now),
     }));
   }, [leasePoints]);
 
@@ -468,14 +471,18 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredPoints.map(({ point: pt, status, contract }) => {
+              {filteredPoints.map(({ point: pt, status, lifecycle, contract }) => {
                 const isExpanded = !!expandedSchedules[pt.id];
                 const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${pt.lat},${pt.lng}`;
 
                 return (
                   <div
                     key={pt.id}
-                    className="bg-[#131b2e] rounded-2xl border border-[#222a3d] hover:border-[#38bdf8]/40 transition-all shadow-md flex flex-col justify-between overflow-hidden"
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => handleOpenDetails(pt)}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleOpenDetails(pt); }}
+                    className={`bg-[#131b2e] rounded-2xl border transition-all shadow-md flex flex-col justify-between overflow-hidden cursor-pointer hover:-translate-y-0.5 ${lifecycle.lifecycleStatus === 'inactive' ? 'border-[#ef4444]/50 opacity-90' : 'border-[#222a3d] hover:border-[#38bdf8]/40'}`}
                   >
                     {/* Real-time Status Header Bar */}
                     <div
@@ -507,7 +514,7 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
                         </span>
                       </div>
                       <span className="text-[11px] font-semibold opacity-90 truncate max-w-[160px]">
-                        {status.timeContext}
+                        {lifecycle.lifecycleStatus === 'inactive' ? `INACTIVO · ${lifecycle.inactivityLabel}` : status.timeContext}
                       </span>
                     </div>
 
@@ -525,6 +532,12 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
                         <h3 className="text-sm font-bold text-white leading-snug line-clamp-2">
                           {pt.name}
                         </h3>
+                        <div className="mt-2 flex flex-wrap gap-1.5">
+                          <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border ${lifecycle.lifecycleStatus === 'active' ? 'bg-[#10b981]/10 text-[#4edea3] border-[#10b981]/30' : 'bg-[#ef4444]/10 text-[#ffb4ab] border-[#ef4444]/30'}`}>
+                            {lifecycle.lifecycleStatus === 'active' ? '● ACTIVO' : '● INACTIVO'}
+                          </span>
+                          {lifecycle.lifecycleStatus === 'inactive' && <span className="px-2 py-0.5 rounded-full text-[9px] font-semibold bg-[#ef4444]/10 text-[#ffb4ab] border border-[#ef4444]/20">{lifecycle.inactivityLabel}</span>}
+                        </div>
                       </div>
 
                       {/* HORARIOS DESTACADOS */}
@@ -740,8 +753,8 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
         isOpen={isIncidentModalOpen}
         onClose={() => setIsIncidentModalOpen(false)}
         point={incidentPoint}
-        onUpdatePointStatus={(id, status, override, notes, inc) => {
-          onUpdatePointStatus(id, status, override, notes, inc);
+        onUpdatePointStatus={(id, status, override, notes, inc, inactivityReason) => {
+          onUpdatePointStatus(id, status, override, notes, inc, inactivityReason);
           onShowToast('Estado Actualizado', 'Se registró la actualización operativa del punto.', 'info');
         }}
         onResolveIncident={onResolveIncident}
