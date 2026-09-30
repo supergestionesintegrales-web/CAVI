@@ -692,9 +692,11 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
       ) : selectedDay === 'calendario_auditor' ? (
         <ActiveAuditorCalendarView
           steps={steps}
-          auditors={auditors}
-          activeAuditorId={selectedAuditorForCalendar}
-          onSelectAuditor={(audId) => setSelectedAuditorForCalendar(audId)}
+          auditors={isAuxiliar ? auditors.filter((a) => a.id === activeAuditorId) : auditors}
+          activeAuditorId={isAuxiliar ? activeAuditorId : selectedAuditorForCalendar}
+          onSelectAuditor={(audId) => {
+            if (!isAuxiliar) setSelectedAuditorForCalendar(audId);
+          }}
           onToggleStepStatus={onToggleStepStatus}
           onOpenAuditModal={(step) => setAuditModalStep(step)}
           onOpenAddStep={handleOpenAddStep}
