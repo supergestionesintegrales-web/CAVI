@@ -64,7 +64,6 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
   const routePolylineRef = useRef<L.Polyline | null>(null);
   const routeTraceLayerRef = useRef<L.LayerGroup | null>(null);
   const routeGroupsLayerRef = useRef<L.LayerGroup | null>(null);
-  const routeGroupMarkersLayerRef = useRef<L.LayerGroup | null>(null);
   const routeMarkersLayerRef = useRef<L.LayerGroup | null>(null);
   const guideVehicleMarkerRef = useRef<L.Marker | null>(null);
 
