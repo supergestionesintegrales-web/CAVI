@@ -433,6 +433,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
 
     routeMarkers.clearLayers();
     routeGroupsLayer.clearLayers();
+    const stopRenderer = L.canvas();
     routeGroups.filter((group) => group.stops.length >= 2).forEach((group) => {
       const latLngs = group.stops.filter((s) => s.lat && s.lng).map((s) => [s.lat, s.lng] as [number, number]);
       if (latLngs.length >= 2) {
@@ -449,7 +450,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
           weight: 1.5,
           fillColor: group.color,
           fillOpacity: 0.95,
-          renderer: L.canvas(),
+          renderer: stopRenderer,
         })
           .bindTooltip(`${group.label}<br/>Parada ${index + 1}: ${stop.name}${stop.zone && group.zone && stop.zone !== group.zone ? `<br/><strong>Excepción de zona:</strong> ${stop.zone}` : ''}`, { direction: 'top' })
           .addTo(routeGroupsLayer);
