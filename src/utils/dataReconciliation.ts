@@ -19,6 +19,14 @@ const parseNumber = (v: unknown) => {
 const parseDate = (v: unknown) => {
   const value = clean(v);
   if (!value) return '';
+  if (/^\d+(?:\.\d+)?$/.test(value)) {
+    const serial = Number(value);
+    if (serial >= 20000 && serial <= 80000) {
+      const excelEpoch = new Date(Date.UTC(1899, 11, 30));
+      const date = new Date(excelEpoch.getTime() + serial * 86400000);
+      return date.toISOString().slice(0, 10);
+    }
+  }
   if (/^\d{1,2}[/-]\d{1,2}[/-]\d{4}$/.test(value)) {
     const [d,m,y] = value.split(/[/-]/);
     return `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
@@ -137,7 +145,7 @@ export function parseLeasePointsFromMacroFiles(files: Array<{ name: string; shee
 
 export function parseLeaseSalesFromMacroFiles(files: Array<{ name: string; sheets?: Array<{ name:string; columns:string[]; data:(string|number|boolean|null)[][] }> }>, existing: LeasePoint[], now = new Date()): { points: LeasePoint[]; detectedRows: number; warnings: string[] } {
   const byCode = new Map(existing.map(p => [p.code.toLowerCase(), p]));
-  const latestByCode = new Map<string, { date:string; amount:number; count:number; start:string; end:string; file:string }>();
+  const latestByCode = new Map<string, { lastSaleDate:string; lastRowDate:string; amount:number; count:number; start:string; end:string; file:string }>();
   let detectedRows = 0;
   const warnings:string[] = [];
   for (const file of files) {
@@ -156,15 +164,17 @@ export function parseLeaseSalesFromMacroFiles(files: Array<{ name: string; sheet
         const current = latestByCode.get(key);
         const start = current ? (new Date(current.start) < new Date(date) ? current.start : date) : date;
         const end = current ? (new Date(current.end) > new Date(date) ? current.end : date) : date;
-        latestByCode.set(key,{date: current && new Date(current.date) > new Date(date) ? current.date : date,amount:(current?.amount || 0)+amount,count:(current?.count || 0)+1,start,end,file:file.name});
+        const lastSaleDate = amount > 0 && (!current?.lastSaleDate || new Date(date) > new Date(current.lastSaleDate)) ? date : (current?.lastSaleDate || '');
+        latestByCode.set(key,{lastSaleDate,lastRowDate: current && new Date(current.lastRowDate) > new Date(date) ? current.lastRowDate : date,amount:(current?.amount || 0)+amount,count:(current?.count || 0)+1,start,end,file:file.name});
       }
     }
   }
   for (const [key, summary] of latestByCode) {
     const point = byCode.get(key);
     if (!point) continue;
-    const days = Math.max(0, Math.floor((now.getTime()-new Date(summary.date).getTime())/86400000));
-    byCode.set(key,{...point,salesSummary:{lastSaleDate:summary.date,daysWithoutSale:days,totalTransactions:summary.count,totalSalesAmount:summary.amount,salesSourceFile:summary.file,coverageStartDate:summary.start,coverageEndDate:summary.end,status:summary.amount > 0 || summary.count > 0 ? 'with_sales':'no_sales'}});
+    const referenceDate = summary.lastSaleDate || summary.lastRowDate;
+    const days = Math.max(0, Math.floor((now.getTime()-new Date(referenceDate).getTime())/86400000));
+    byCode.set(key,{...point,salesSummary:{lastSaleDate:summary.lastSaleDate || undefined,daysWithoutSale:days,totalTransactions:summary.count,totalSalesAmount:summary.amount,salesSourceFile:summary.file,coverageStartDate:summary.start,coverageEndDate:summary.end,status:summary.lastSaleDate ? 'with_sales' : 'no_sales'}});
   }
   if (detectedRows === 0) warnings.push('No se detectaron movimientos de ventas en los archivos cargados.');
   return {points:Array.from(byCode.values()),detectedRows,warnings};
