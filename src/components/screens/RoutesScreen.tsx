@@ -1,6 +1,6 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { Auditor, RouteStep, FloatingPoint, UserRole } from '../../types';
-import { AddRouteModal } from '../AddRouteModal';
+import { AddRouteModal, ActiveRoutePointOption } from '../AddRouteModal';
 import { AddFloatingPointModal } from '../AddFloatingPointModal';
 import { GpsTerritoryModal } from '../GpsTerritoryModal';
 import { CaviNativeMap } from '../CaviNativeMap';
@@ -178,6 +178,58 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
     return currentDaySteps.length > 0 ? currentDaySteps : steps;
   }, [currentDaySteps, steps]);
 
+  // Catálogo activo para selección de paradas: inventario CAVI + puntos ya cargados en la ruta.
+  const activeRoutePointOptions = useMemo<ActiveRoutePointOption[]>(() => {
+    const options: ActiveRoutePointOption[] = [];
+    const seen = new Set<string>();
+
+    CAVI_POINTS.forEach((point) => {
+      const channel = point.channel || point.category || 'CM';
+      const channelUpper = channel.toUpperCase();
+      const format: 'CM' | 'PF' | 'CDA' =
+        channelUpper.includes('CDA') ? 'CDA' :
+        channelUpper.includes('PF') || channelUpper.includes('FIJO') ? 'PF' :
+        'CM';
+
+      const code = point.codePdv || point.id;
+      const key = code.toLowerCase();
+      if (seen.has(key)) return;
+      seen.add(key);
+      options.push({
+        id: point.id,
+        code,
+        name: point.name,
+        format,
+        channel,
+        address: point.address || point.name,
+        municipality: point.municipality,
+        lat: point.lat,
+        lng: point.lng,
+        zone: point.zone,
+      });
+    });
+
+    steps.forEach((step) => {
+      const key = step.code.toLowerCase();
+      if (seen.has(key)) return;
+      seen.add(key);
+      options.push({
+        id: `route-${step.id}`,
+        code: step.code,
+        name: step.name,
+        format: step.format,
+        channel: step.channel,
+        address: step.address,
+        municipality: step.municipality,
+        lat: step.lat,
+        lng: step.lng,
+        zone: step.zone,
+      });
+    });
+
+    return options.sort((a, b) => a.name.localeCompare(b.name, 'es'));
+  }, [steps]);
+
   // Administrador: vista general = un desplazamiento independiente por auditor.
   // Auxiliar: siempre queda bloqueado a su propia ruta; nunca puede ver la de otro auditor.
   const effectiveAuditorForMap = isAuxiliar ? activeAuditorId : selectedAuditorForMap;
@@ -231,6 +283,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
         }}
         auditors={auditors}
         defaultAuditorId={targetAuditorForAdd}
+        availablePoints={activeRoutePointOptions}
       />
 
       <AddFloatingPointModal
