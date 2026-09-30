@@ -32,6 +32,7 @@ export const LeaseIncidentModal: React.FC<LeaseIncidentModalProps> = ({
   const [incidentDescription, setIncidentDescription] = useState('');
   const [statusNotes, setStatusNotes] = useState(point.statusNotes || '');
   const [showNewIncidentForm, setShowNewIncidentForm] = useState(false);
+  const [inactivityReason, setInactivityReason] = useState<LeasePoint['inactivityReason']>(point.inactivityReason);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,7 +50,7 @@ export const LeaseIncidentModal: React.FC<LeaseIncidentModalProps> = ({
       };
     }
 
-    onUpdatePointStatus(point.id, selectedStatus, override, statusNotes, newIncident);
+    onUpdatePointStatus(point.id, selectedStatus, override, `${inactivityReason ? `[${inactivityReason}] ` : ''}${statusNotes}`, newIncident);
     onClose();
   };
 
@@ -121,6 +122,23 @@ export const LeaseIncidentModal: React.FC<LeaseIncidentModalProps> = ({
               <button
                 type="button"
                 onClick={() => {
+                  setSelectedStatus('contract_ended');
+                  setOverride('force_closed');
+                  setInactivityReason('contract_cancelled');
+                }}
+                className={`p-2.5 rounded-xl border text-center transition-all flex flex-col items-center gap-1 cursor-pointer ${
+                  selectedStatus === 'contract_ended'
+                    ? 'bg-[#ef4444]/20 border-[#ef4444] text-[#ffb4ab] font-bold'
+                    : 'bg-[#131b2e] border-[#222a3d] text-[#94a3b8] hover:text-white'
+                }`}
+              >
+                <span className="material-symbols-outlined text-[20px]">contract</span>
+                <span className="text-[11px]">Contrato cancelado</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
                   setSelectedStatus('maintenance');
                   setOverride('force_closed');
                 }}
@@ -149,6 +167,20 @@ export const LeaseIncidentModal: React.FC<LeaseIncidentModalProps> = ({
               <span className="material-symbols-outlined text-[16px]">restart_alt</span>
               Restablecer cálculo automático de horario (quitar forzado)
             </button>
+          )}
+
+          {selectedStatus === 'contract_ended' && (
+            <div>
+              <label className="block text-xs font-bold text-[#cbd5e1] mb-1">Motivo de inactividad</label>
+              <select value={inactivityReason || 'contract_cancelled'} onChange={(e) => setInactivityReason(e.target.value as LeasePoint['inactivityReason'])}
+                className="w-full px-3 py-2 rounded-xl bg-[#171f33] border border-[#2d3449] text-white text-xs focus:border-[#0088ff] focus:outline-none">
+                <option value="contract_cancelled">Cancelación de contrato</option>
+                <option value="contract_expired">Vencimiento del contrato</option>
+                <option value="lease_terminated">Terminación del arrendamiento</option>
+                <option value="closed_by_administration">Cierre por administración</option>
+                <option value="other">Otra razón</option>
+              </select>
+            </div>
           )}
 
           <div>
