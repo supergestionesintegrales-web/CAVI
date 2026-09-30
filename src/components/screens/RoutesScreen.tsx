@@ -176,13 +176,25 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
     return currentDaySteps.length > 0 ? currentDaySteps : steps;
   }, [currentDaySteps, steps]);
 
+  // Administrador: vista general = un desplazamiento independiente por auditor.
+  // Auxiliar: siempre queda bloqueado a su propia ruta; nunca puede ver la de otro auditor.
+  const effectiveAuditorForMap = isAuxiliar ? activeAuditorId : selectedAuditorForMap;
+
   const mapWaypoints = useMemo(() => {
-    let target = activeRouteStops;
-    if (selectedAuditorForMap !== 'todos') {
-      target = target.filter((s) => s.auditorId === selectedAuditorForMap);
-    }
-    return target.length > 0 ? target : steps;
-  }, [activeRouteStops, selectedAuditorForMap, steps]);
+    if (effectiveAuditorForMap === 'todos') return [];
+    return activeRouteStops.filter((s) => s.auditorId === effectiveAuditorForMap);
+  }, [activeRouteStops, effectiveAuditorForMap]);
+
+  const mapRouteGroups = useMemo(() => {
+    if (effectiveAuditorForMap !== 'todos') return [];
+    const routeColors = ['#0088ff', '#10b981', '#f59e0b'];
+    return auditors.map((auditor, index) => ({
+      id: auditor.id,
+      label: `Ruta · ${auditor.name}`,
+      color: routeColors[index % routeColors.length],
+      stops: activeRouteStops.filter((s) => s.auditorId === auditor.id),
+    })).filter((group) => group.stops.length > 0);
+  }, [activeRouteStops, auditors, effectiveAuditorForMap]);
 
   const routeDistanceKm = useMemo(() => {
     const valid = mapWaypoints.filter((s) => s.lat && s.lng);
@@ -500,9 +512,10 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-xs text-[#94a3b8] font-medium hidden sm:inline">Ruta de Auditor:</span>
               <select
-                value={selectedAuditorForMap}
+                value={effectiveAuditorForMap}
                 onChange={(e) => setSelectedAuditorForMap(e.target.value)}
-                className="bg-[#131b2e] text-white text-xs px-3 py-1.5 rounded-xl border border-[#222a3d] focus:outline-none focus:ring-1 focus:ring-[#0088ff] cursor-pointer"
+                disabled={isAuxiliar}
+                className="bg-[#131b2e] text-white text-xs px-3 py-1.5 rounded-xl border border-[#222a3d] focus:outline-none focus:ring-1 focus:ring-[#0088ff] cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 <option value="todos">Todas las rutas de auditores</option>
                 {auditors.map((a) => (
@@ -628,7 +641,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
           <div className="flex items-center gap-2">
             {selectedAuditorForMap !== 'todos' && (
               <span className="px-2.5 py-1 rounded-lg bg-[#0088ff]/20 text-[#38bdf8] text-xs font-bold flex items-center gap-1">
-                <span>Ruta: {auditors.find(a => a.id === selectedAuditorForMap)?.name}</span>
+                <span>Ruta: {auditors.find(a => a.id === effectiveAuditorForMap)?.name}</span>
                 <button
                   type="button"
                   onClick={() => setSelectedAuditorForMap('todos')}
@@ -700,6 +713,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                 isExpandedLarge={true}
                 onToggleExpandLarge={() => setMapLayoutMode('split')}
                 initialRouteStops={mapWaypoints}
+                routeGroups={mapRouteGroups}
                 onStopArrival={(stop) => {
                   onShowToast(
                     'Parada Alcanzada',
