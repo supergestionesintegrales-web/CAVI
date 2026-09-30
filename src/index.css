@@ -1222,3 +1222,134 @@ html:not([data-theme="light"]):not(.theme-light):not(.light) .day-matrix-badge {
   color-scheme: light;
 }
 
+/* ==========================================================================
+   ROUTES WORKSPACE — LIGHT THEME
+   The routes screen contains intentional dark Tailwind surfaces that cannot
+   be converted by the generic theme rules alone. Scope the conversion here.
+   ========================================================================== */
+
+[data-theme="light"] .routes-tactical-shell,
+.theme-light .routes-tactical-shell,
+.light .routes-tactical-shell {
+  background: linear-gradient(135deg, #f8fafc 0%, #eef4fb 52%, #ffffff 100%) !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.10) !important;
+}
+
+/* Dark surfaces -> light surfaces */
+[data-theme="light"] .routes-tactical-shell [class~="bg-[#101b33]/90"],
+[data-theme="light"] .routes-tactical-shell [class~="bg-[#131b2e]"],
+[data-theme="light"] .routes-tactical-shell [class~="bg-[#0c1322]"],
+[data-theme="light"] .routes-tactical-shell [class~="bg-[#0b1326]"],
+[data-theme="light"] .routes-tactical-shell [class~="bg-[#171f33]"],
+[data-theme="light"] .routes-tactical-shell [class~="bg-[#1e293b]"],
+.theme-light .routes-tactical-shell [class~="bg-[#101b33]/90"],
+.theme-light .routes-tactical-shell [class~="bg-[#131b2e]"],
+.theme-light .routes-tactical-shell [class~="bg-[#0c1322]"],
+.theme-light .routes-tactical-shell [class~="bg-[#0b1326]"],
+.theme-light .routes-tactical-shell [class~="bg-[#171f33]"],
+.theme-light .routes-tactical-shell [class~="bg-[#1e293b]"],
+.light .routes-tactical-shell [class~="bg-[#101b33]/90"],
+.light .routes-tactical-shell [class~="bg-[#131b2e]"],
+.light .routes-tactical-shell [class~="bg-[#0c1322]"],
+.light .routes-tactical-shell [class~="bg-[#0b1326]"],
+.light .routes-tactical-shell [class~="bg-[#171f33]"],
+.light .routes-tactical-shell [class~="bg-[#1e293b]"] {
+  background: #ffffff !important;
+  border-color: #dbe3ee !important;
+  color: #0f172a !important;
+}
+
+/* Dark nested controls become soft gray controls in light mode. */
+[data-theme="light"] .routes-tactical-shell [class~="bg-[#1e293b]"],
+.theme-light .routes-tactical-shell [class~="bg-[#1e293b]"],
+.light .routes-tactical-shell [class~="bg-[#1e293b]"] {
+  background: #e8eef6 !important;
+}
+
+/* Route workspace text palette */
+[data-theme="light"] .routes-tactical-shell [class~="text-white"],
+.theme-light .routes-tactical-shell [class~="text-white"],
+.light .routes-tactical-shell [class~="text-white"] {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .routes-tactical-shell [class~="text-[#cbd5e1]"],
+[data-theme="light"] .routes-tactical-shell [class~="text-[#f8fafc]"],
+[data-theme="light"] .routes-tactical-shell [class~="text-[#94a3b8]"],
+[data-theme="light"] .routes-tactical-shell [class~="text-[#a5b4fc]"],
+.theme-light .routes-tactical-shell [class~="text-[#cbd5e1]"],
+.theme-light .routes-tactical-shell [class~="text-[#f8fafc]"],
+.theme-light .routes-tactical-shell [class~="text-[#94a3b8]"],
+.theme-light .routes-tactical-shell [class~="text-[#a5b4fc]"],
+.light .routes-tactical-shell [class~="text-[#cbd5e1]"],
+.light .routes-tactical-shell [class~="text-[#f8fafc]"],
+.light .routes-tactical-shell [class~="text-[#94a3b8]"],
+.light .routes-tactical-shell [class~="text-[#a5b4fc]"] {
+  color: #475569 !important;
+}
+
+/* Borders and dividers used by the tactical dark palette */
+[data-theme="light"] .routes-tactical-shell [class*="border-[#1e2a44]"],
+[data-theme="light"] .routes-tactical-shell [class*="border-[#222a3d]"],
+[data-theme="light"] .routes-tactical-shell [class*="border-[#1e345b]"],
+[data-theme="light"] .routes-tactical-shell [class*="border-[#3b4760]"],
+.theme-light .routes-tactical-shell [class*="border-[#1e2a44]"],
+.theme-light .routes-tactical-shell [class*="border-[#222a3d]"],
+.theme-light .routes-tactical-shell [class*="border-[#1e345b]"],
+.theme-light .routes-tactical-shell [class*="border-[#3b4760]"],
+.light .routes-tactical-shell [class*="border-[#1e2a44]"],
+.light .routes-tactical-shell [class*="border-[#222a3d]"],
+.light .routes-tactical-shell [class*="border-[#1e345b]"],
+.light .routes-tactical-shell [class*="border-[#3b4760]"] {
+  border-color: #d5deea !important;
+}
+
+/* Preserve white lettering on deliberately colored buttons/badges. */
+[data-theme="light"] .routes-tactical-shell [class*="bg-[#0088ff]"] [class~="text-white"],
+[data-theme="light"] .routes-tactical-shell [class*="bg-[#0088ff]"],
+[data-theme="light"] .routes-tactical-shell [class*="bg-[#dc2626]"] [class~="text-white"],
+[data-theme="light"] .routes-tactical-shell [class*="bg-[#dc2626]"],
+[data-theme="light"] .routes-tactical-shell [class*="bg-[#0284c7]"] [class~="text-white"],
+[data-theme="light"] .routes-tactical-shell [class*="bg-[#0284c7]"],
+[data-theme="light"] .routes-tactical-shell [class*="bg-[#7c3aed]"] [class~="text-white"],
+[data-theme="light"] .routes-tactical-shell [class*="bg-[#7c3aed]"],
+[data-theme="light"] .routes-tactical-shell [class*="bg-[#059669]"] [class~="text-white"],
+[data-theme="light"] .routes-tactical-shell [class*="bg-[#059669]"],
+.theme-light .routes-tactical-shell [class*="bg-[#0088ff]"] [class~="text-white"],
+.theme-light .routes-tactical-shell [class*="bg-[#0088ff]"],
+.theme-light .routes-tactical-shell [class*="bg-[#dc2626]"] [class~="text-white"],
+.theme-light .routes-tactical-shell [class*="bg-[#dc2626]"],
+.theme-light .routes-tactical-shell [class*="bg-[#0284c7]"] [class~="text-white"],
+.theme-light .routes-tactical-shell [class*="bg-[#0284c7]"],
+.theme-light .routes-tactical-shell [class*="bg-[#7c3aed]"] [class~="text-white"],
+.theme-light .routes-tactical-shell [class*="bg-[#7c3aed]"],
+.theme-light .routes-tactical-shell [class*="bg-[#059669]"] [class~="text-white"],
+.theme-light .routes-tactical-shell [class*="bg-[#059669]"],
+.light .routes-tactical-shell [class*="bg-[#0088ff]"] [class~="text-white"],
+.light .routes-tactical-shell [class*="bg-[#0088ff]"],
+.light .routes-tactical-shell [class*="bg-[#dc2626]"] [class~="text-white"],
+.light .routes-tactical-shell [class*="bg-[#dc2626]"],
+.light .routes-tactical-shell [class*="bg-[#0284c7]"] [class~="text-white"],
+.light .routes-tactical-shell [class*="bg-[#0284c7]"],
+.light .routes-tactical-shell [class*="bg-[#7c3aed]"] [class~="text-white"],
+.light .routes-tactical-shell [class*="bg-[#7c3aed]"],
+.light .routes-tactical-shell [class*="bg-[#059669]"] [class~="text-white"],
+.light .routes-tactical-shell [class*="bg-[#059669]"] {
+  color: #ffffff !important;
+}
+
+/* Hero icon remains white on its blue gradient. */
+[data-theme="light"] .routes-tactical-shell .bg-gradient-to-tr [class~="text-white"],
+.theme-light .routes-tactical-shell .bg-gradient-to-tr [class~="text-white"],
+.light .routes-tactical-shell .bg-gradient-to-tr [class~="text-white"] {
+  color: #ffffff !important;
+}
+
+/* The map container itself is intentionally dark/imagery-based. */
+[data-theme="light"] .routes-tactical-shell .routes-map-surface,
+.theme-light .routes-tactical-shell .routes-map-surface,
+.light .routes-tactical-shell .routes-map-surface {
+  color-scheme: dark;
+}
+
