@@ -10,7 +10,8 @@ interface LeaseIncidentModalProps {
     status: LeaseOperatingStatus,
     override: 'force_open' | 'force_closed' | null,
     notes: string,
-    newIncident?: LeaseIncident
+    newIncident?: LeaseIncident,
+    inactivityReason?: LeasePoint['inactivityReason']
   ) => void;
   onResolveIncident?: (pointId: string, incidentId: string, notes: string) => void;
   currentUser?: string;
@@ -50,7 +51,7 @@ export const LeaseIncidentModal: React.FC<LeaseIncidentModalProps> = ({
       };
     }
 
-    onUpdatePointStatus(point.id, selectedStatus, override, `${inactivityReason ? `[${inactivityReason}] ` : ''}${statusNotes}`, newIncident);
+    onUpdatePointStatus(point.id, selectedStatus, override, statusNotes, newIncident, inactivityReason);
     onClose();
   };
 
