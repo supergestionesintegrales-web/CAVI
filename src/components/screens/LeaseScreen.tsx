@@ -178,6 +178,11 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
     info: alerts.filter(a => a.severity === 'info').length,
   }), [alerts]);
 
+  const selectedAlertPoint = useMemo(() => {
+    if (!selectedAlert) return null;
+    return leasePoints.find(p => p.code.toLowerCase() === selectedAlert.code.toLowerCase()) || null;
+  }, [selectedAlert, leasePoints]);
+
   const handleExportExcel = () => {
     try {
       exportLeasePointsToExcel(leasePoints, `Arrendamientos_CAVI_Guajira_${new Date().toISOString().split('T')[0]}.xlsx`);
@@ -508,19 +513,19 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
               <p className="text-xs text-[#e2e8f0] mt-1 leading-relaxed">{selectedAlert.message}</p>
             </div>
 
-            {target && (
+            {selectedAlertPoint && (
               <div className="mt-2 p-3 rounded-xl bg-[#131b2e] border border-[#222a3d]">
                 <div className="flex items-center justify-between gap-2">
                   <div>
                     <span className="text-[9px] uppercase font-bold text-[#64748b]">Punto relacionado</span>
-                    <p className="text-xs font-extrabold text-white mt-0.5">{target.name}</p>
-                    <p className="text-[10px] text-[#94a3b8]">{target.address} · {target.municipality}</p>
+                    <p className="text-xs font-extrabold text-white mt-0.5">{selectedAlertPoint.name}</p>
+                    <p className="text-[10px] text-[#94a3b8]">{selectedAlertPoint.address} · {selectedAlertPoint.municipality}</p>
                   </div>
                   <button
                     type="button"
                     onClick={() => {
                       setSelectedAlert(null);
-                      handleOpenDetails(target);
+                      handleOpenDetails(selectedAlertPoint);
                     }}
                     className="px-3 py-1.5 rounded-lg bg-[#0088ff] hover:bg-[#0070d8] text-white text-[10px] font-bold flex items-center gap-1 cursor-pointer"
                   >
