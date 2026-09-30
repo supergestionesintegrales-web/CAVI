@@ -1,4 +1,5 @@
-import * as XLSX from 'xlsx';
+import * as XLSX from 'xlsx-js-style';
+import { styleWorksheet } from './excelFormatting';
 import { RouteStep, FormatType, Auditor, AlertCategory } from '../types';
 import { distributePointsWithAlertPriority, PointCandidate, guessZoneFromLocation } from './pointAssignment';
 import { parsePointsFromText } from './kmlTxtParser';
@@ -40,6 +41,8 @@ export function downloadRoutesTemplate() {
   const wsData = [headers, ...sampleRows];
   const ws = XLSX.utils.aoa_to_sheet(wsData);
 
+  styleWorksheet(ws, 0, { filter: true, freezeHeader: true });
+
   // Set column widths
   ws['!cols'] = [
     { wch: 14 },
@@ -60,7 +63,7 @@ export function downloadRoutesTemplate() {
 
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Matriz_PDV_GPS');
-  XLSX.writeFile(wb, 'Matriz_Puntos_De_Venta_GPS_LaGuajira.xlsx');
+  XLSX.writeFile(wb, 'Matriz_Puntos_De_Venta_GPS_LaGuajira.xlsx', { cellStyles: true });
 }
 
 /**
