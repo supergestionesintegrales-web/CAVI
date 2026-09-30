@@ -241,16 +241,17 @@ export function distributePointsWithAlertPriority(
       return availableZoneAuditors[0];
     }
 
-    if (zoneMatches.length > 0) {
-      return zoneMatches[0];
-    }
-
-    // 2. Fallback to the auditor with the lowest total load
-    const sorted = [...auditors].sort(
-      (a, b) =>
-        auditorLoads[a.id].assignedSteps.length -
-        auditorLoads[b.id].assignedSteps.length
-    );
+    // Prefer the designated zone, but allow cross-zone assignments when
+    // that zone has reached its weekly capacity. This avoids blocking valid work.
+    const sorted = [...auditors].sort((a, b) => {
+      const loadDifference =
+        auditorLoads[a.id].assignedSteps.length - auditorLoads[b.id].assignedSteps.length;
+      if (loadDifference !== 0) return loadDifference;
+      // Stable tie-break: prefer an auditor whose designated zone matches the point.
+      const aMatches = a.zone.toLowerCase() === candidateZone.toLowerCase() ? 0 : 1;
+      const bMatches = b.zone.toLowerCase() === candidateZone.toLowerCase() ? 0 : 1;
+      return aMatches - bMatches;
+    });
     return sorted[0];
   };
 
