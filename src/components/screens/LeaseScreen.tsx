@@ -599,7 +599,7 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
 
                         <button
                           type="button"
-                          onClick={() => toggleScheduleExpand(pt.id)}
+                          onClick={(e) => { e.stopPropagation(); toggleScheduleExpand(pt.id); }}
                           className="w-full text-center text-[10px] font-bold text-[#0088ff] hover:underline pt-0.5 flex items-center justify-center gap-1 cursor-pointer"
                         >
                           {isExpanded ? 'Ocultar horarios de la semana' : 'Ver todos los horarios semanales'}
@@ -625,6 +625,7 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
                           </div>
                           <a
                             href={mapsUrl}
+                            onClick={(e) => e.stopPropagation()}
                             target="_blank"
                             rel="noreferrer"
                             className="p-1 rounded-lg bg-[#171f33] hover:bg-[#222a3d] text-[#38bdf8] transition-colors shrink-0 cursor-pointer"
@@ -672,6 +673,7 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
                         </div>
                         {pt.landlord.phone && (
                           <a
+                            onClick={(e) => e.stopPropagation()}
                             href={`tel:${pt.landlord.phone}`}
                             className="px-2 py-1 rounded-lg bg-[#10b981]/20 hover:bg-[#10b981]/30 text-[#4edea3] font-bold text-[10px] flex items-center gap-1 shrink-0 cursor-pointer"
                             title={`Llamar a ${pt.landlord.phone}`}
@@ -688,7 +690,7 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
                       <div className="flex items-center gap-1">
                         <button
                           type="button"
-                          onClick={() => handleOpenIncident(pt)}
+                          onClick={(e) => { e.stopPropagation(); handleOpenIncident(pt); }}
                           className="p-1.5 rounded-lg text-[#ffb4ab] hover:bg-[#ffb4ab]/15 transition-colors cursor-pointer"
                           title="Registrar novedad de cierre o cambio de horario"
                         >
@@ -697,7 +699,7 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
                         {userRole === 'administrador' && (
                           <button
                             type="button"
-                            onClick={() => handleOpenEdit(pt)}
+                            onClick={(e) => { e.stopPropagation(); handleOpenEdit(pt); }}
                             className="p-1.5 rounded-lg text-[#94a3b8] hover:text-white hover:bg-[#171f33] transition-colors cursor-pointer"
                             title="Editar datos del punto"
                           >
@@ -707,7 +709,7 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
                         {userRole === 'administrador' && (
                           <button
                             type="button"
-                            onClick={() => handleDelete(pt)}
+                            onClick={(e) => { e.stopPropagation(); handleDelete(pt); }}
                             className="p-1.5 rounded-lg text-[#94a3b8] hover:text-[#ef4444] hover:bg-[#ef4444]/10 transition-colors cursor-pointer"
                             title="Eliminar punto de arrendamiento"
                           >
@@ -718,7 +720,7 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
 
                       <button
                         type="button"
-                        onClick={() => handleOpenDetails(pt)}
+                        onClick={(e) => { e.stopPropagation(); handleOpenDetails(pt); }}
                         className="px-3 py-1.5 rounded-xl bg-[#0088ff] hover:bg-[#0070d8] text-white font-bold text-xs shadow-sm transition-all flex items-center gap-1 cursor-pointer"
                       >
                         <span className="material-symbols-outlined text-[15px]">visibility</span>
