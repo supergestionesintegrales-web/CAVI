@@ -418,7 +418,7 @@ export default function App() {
             manualOverrideStatus: override,
             statusNotes: notes,
             inactivityReason: inactivityReason || (status === 'contract_ended' ? 'contract_cancelled' : undefined),
-            inactivityDate: inactivityReason || status === 'contract_ended' ? new Date().toISOString().split('T')[0] : p.inactivityDate,
+            inactivityDate: (inactivityReason || status === 'contract_ended') ? new Date().toISOString().split('T')[0] : p.inactivityDate,
             lifecycleStatus: (inactivityReason || status === 'contract_ended') ? 'inactive' : 'active',
             incidents: updatedIncidents,
           };
