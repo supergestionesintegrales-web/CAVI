@@ -62,6 +62,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
   const tileLayerRef = useRef<L.TileLayer | null>(null);
   const markersLayerRef = useRef<L.LayerGroup | null>(null);
   const routePolylineRef = useRef<L.Polyline | null>(null);
+  const routeTraceLayerRef = useRef<L.LayerGroup | null>(null);
   const routeGroupsLayerRef = useRef<L.LayerGroup | null>(null);
   const routeGroupMarkersLayerRef = useRef<L.LayerGroup | null>(null);
   const routeMarkersLayerRef = useRef<L.LayerGroup | null>(null);
@@ -275,13 +276,16 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
         weight: 5,
         opacity: 0.9,
         dashArray: '10, 8',
+        interactive: false,
       }).addTo(map);
+      const routeTraceLayer = L.layerGroup().addTo(map);
       const routeMarkersLayer = L.layerGroup().addTo(map);
       const routeGroupsLayer = L.layerGroup().addTo(map);
 
       mapInstanceRef.current = map;
       markersLayerRef.current = markersLayer;
       routePolylineRef.current = routePolyline;
+      routeTraceLayerRef.current = routeTraceLayer;
       routeMarkersLayerRef.current = routeMarkersLayer;
       routeGroupsLayerRef.current = routeGroupsLayer;
 
@@ -425,21 +429,47 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
 
   // 3. Render Route Polyline & Waypoint Badges
   useEffect(() => {
-    if (!mapInstanceRef.current || !routePolylineRef.current || !routeMarkersLayerRef.current || !routeGroupsLayerRef.current) return;
+    if (!mapInstanceRef.current || !routePolylineRef.current || !routeTraceLayerRef.current || !routeMarkersLayerRef.current || !routeGroupsLayerRef.current) return;
     const polyline = routePolylineRef.current;
+    const traceLayer = routeTraceLayerRef.current;
     const routeMarkers = routeMarkersLayerRef.current;
     const routeGroupsLayer = routeGroupsLayerRef.current;
 
     routeMarkers.clearLayers();
+    traceLayer.clearLayers();
     routeGroupsLayer.clearLayers();
-    const stopRenderer = L.canvas();
-    routeGroups.filter((group) => group.stops.length >= 2).forEach((group) => {
-      const latLngs = group.stops.filter((s) => s.lat && s.lng).map((s) => [s.lat, s.lng] as [number, number]);
-      if (latLngs.length >= 2) {
-        L.polyline(latLngs, { color: group.color, weight: 4, opacity: 0.85, smoothFactor: 2, noClip: false, interactive: true })
-          .bindTooltip(group.label, { sticky: true })
-          .addTo(routeGroupsLayer);
+
+    // Route trace: completed legs stay closed in green, the active leg is amber,
+    // and pending legs remain blue/dashed.
+    const drawRouteTrace = (
+      stops: Array<{ lat: number; lng: number; visited?: boolean; status?: string }>,
+      baseColor: string,
+      weight: number,
+      targetLayer: L.LayerGroup
+    ) => {
+      const validStops = stops.filter((s) => Number.isFinite(s.lat) && Number.isFinite(s.lng));
+      for (let i = 0; i < validStops.length - 1; i += 1) {
+        const from = validStops[i];
+        const to = validStops[i + 1];
+        const completed = Boolean(to.visited || to.status === 'completed');
+        const isActive = isGuidedModeActive && currentLegIndex === i && !completed;
+        L.polyline(
+          [[from.lat, from.lng], [to.lat, to.lng]] as [number, number][],
+          {
+            color: completed ? '#10b981' : isActive ? '#f59e0b' : baseColor,
+            weight: completed ? weight + 1 : weight,
+            opacity: completed ? 0.95 : 0.82,
+            dashArray: completed ? undefined : isActive ? '8 5' : '10 8',
+            smoothFactor: 1.5,
+            interactive: false,
+          }
+        ).addTo(targetLayer);
       }
+    };
+
+    routeGroups.forEach((group) => {
+      drawRouteTrace(group.stops, group.color, 4, routeGroupsLayer);
+
       // A colored stop marker makes each auditor's assigned route identifiable.
       group.stops.forEach((stop, index) => {
         if (!Number.isFinite(stop.lat) || !Number.isFinite(stop.lng)) return;
@@ -459,8 +489,10 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
     if (routeWaypoints.length < 2) {
       polyline.setLatLngs([]);
     } else {
+      // Keep the full route visible as a subtle base line.
       const latLngs = routeWaypoints.map((w) => [w.lat, w.lng] as [number, number]);
       polyline.setLatLngs(latLngs);
+      drawRouteTrace(routeWaypoints, '#0088ff', 5, traceLayer);
     }
 
     routeWaypoints.forEach((wp, index) => {
@@ -1303,7 +1335,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
 
         {/* FLOATING POINT TYPES MAP LEGEND */}
         {showLegend && (
-          <div className="absolute top-3 right-3 z-20 bg-[#0b1326]/95 backdrop-blur-md p-2.5 rounded-2xl border border-[#222a3d] shadow-xl text-xs max-w-[210px] hidden md:block select-none animate-in fade-in">
+          <div className="cavi-map-legend absolute top-3 right-3 z-20 bg-[#0b1326]/95 backdrop-blur-md p-2.5 rounded-2xl border border-[#222a3d] shadow-xl text-xs max-w-[210px] hidden md:block select-none animate-in fade-in">
             <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-[#222a3d]">
               <span className="text-[11px] font-bold text-white uppercase tracking-wider flex items-center gap-1">
                 <span className="material-symbols-outlined text-[15px] text-[#38bdf8]">category</span>
@@ -1373,7 +1405,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
           <button
             type="button"
             onClick={() => setShowLegend(true)}
-            className="absolute top-3 right-3 z-20 bg-[#0b1326]/90 backdrop-blur-md px-2.5 py-1.5 rounded-xl border border-[#222a3d] text-xs font-bold text-[#cbd5e1] hover:text-white flex items-center gap-1 shadow-lg cursor-pointer hidden md:flex"
+            className="cavi-map-legend-toggle absolute top-3 right-3 z-20 bg-[#0b1326]/90 backdrop-blur-md px-2.5 py-1.5 rounded-xl border border-[#222a3d] text-xs font-bold text-[#cbd5e1] hover:text-white flex items-center gap-1 shadow-lg cursor-pointer hidden md:flex"
             title="Mostrar leyenda de convenciones"
           >
             <span className="material-symbols-outlined text-[15px] text-[#38bdf8]">category</span>
