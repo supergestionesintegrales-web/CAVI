@@ -1082,3 +1082,143 @@ html:not([data-theme="light"]):not(.theme-light):not(.light) .day-matrix-badge {
   border-color: rgba(0, 136, 255, 0.4) !important;
 }
 
+/* ==========================================================================
+   LIGHT THEME — FINAL CONTRAST PASS
+   Keeps intentional white text on colored controls while fixing white-on-white
+   text inside light cards, panels, tables and form surfaces.
+   ========================================================================== */
+
+[data-theme="light"] #root,
+.theme-light #root,
+.light #root {
+  color: #0f172a;
+}
+
+/* White text is unreadable when it sits on a genuinely light surface. */
+[data-theme="light"] .bg-white .text-white,
+[data-theme="light"] .bg-slate-50 .text-white,
+[data-theme="light"] .bg-slate-100 .text-white,
+[data-theme="light"] .bg-gray-50 .text-white,
+[data-theme="light"] .bg-gray-100 .text-white,
+[data-theme="light"] .bg-[#ffffff] .text-white,
+[data-theme="light"] .bg-[#f8fafc] .text-white,
+[data-theme="light"] .bg-[#f1f5f9] .text-white,
+.theme-light .bg-white .text-white,
+.theme-light .bg-slate-50 .text-white,
+.theme-light .bg-slate-100 .text-white,
+.theme-light .bg-gray-50 .text-white,
+.theme-light .bg-gray-100 .text-white,
+.theme-light .bg-[#ffffff] .text-white,
+.theme-light .bg-[#f8fafc] .text-white,
+.theme-light .bg-[#f1f5f9] .text-white,
+.light .bg-white .text-white,
+.light .bg-slate-50 .text-white,
+.light .bg-slate-100 .text-white,
+.light .bg-gray-50 .text-white,
+.light .bg-gray-100 .text-white,
+.light .bg-[#ffffff] .text-white,
+.light .bg-[#f8fafc] .text-white,
+.light .bg-[#f1f5f9] .text-white {
+  color: #0f172a !important;
+}
+
+/* Common light cards/panels can contain descendants with dark-theme text colors. */
+[data-theme="light"] .bg-white .text-slate-100,
+[data-theme="light"] .bg-white .text-slate-200,
+[data-theme="light"] .bg-white .text-slate-300,
+[data-theme="light"] .bg-white .text-slate-400,
+[data-theme="light"] .bg-slate-50 .text-slate-100,
+[data-theme="light"] .bg-slate-50 .text-slate-200,
+[data-theme="light"] .bg-slate-50 .text-slate-300,
+[data-theme="light"] .bg-[#f8fafc] .text-slate-100,
+[data-theme="light"] .bg-[#f8fafc] .text-slate-200,
+.theme-light .bg-white .text-slate-100,
+.theme-light .bg-white .text-slate-200,
+.theme-light .bg-white .text-slate-300,
+.theme-light .bg-white .text-slate-400,
+.theme-light .bg-slate-50 .text-slate-100,
+.theme-light .bg-slate-50 .text-slate-200,
+.theme-light .bg-slate-50 .text-slate-300,
+.theme-light .bg-[#f8fafc] .text-slate-100,
+.theme-light .bg-[#f8fafc] .text-slate-200,
+.light .bg-white .text-slate-100,
+.light .bg-white .text-slate-200,
+.light .bg-white .text-slate-300,
+.light .bg-white .text-slate-400,
+.light .bg-slate-50 .text-slate-100,
+.light .bg-slate-50 .text-slate-200,
+.light .bg-slate-50 .text-slate-300,
+.light .bg-[#f8fafc] .text-slate-100,
+.light .bg-[#f8fafc] .text-slate-200 {
+  color: #334155 !important;
+}
+
+/* Muted labels must remain readable against white inputs and cards. */
+[data-theme="light"] .bg-white .text-gray-300,
+[data-theme="light"] .bg-white .text-gray-400,
+[data-theme="light"] .bg-white .text-gray-500,
+[data-theme="light"] .bg-slate-50 .text-gray-300,
+[data-theme="light"] .bg-slate-50 .text-gray-400,
+[data-theme="light"] .bg-slate-50 .text-gray-500,
+.theme-light .bg-white .text-gray-300,
+.theme-light .bg-white .text-gray-400,
+.theme-light .bg-white .text-gray-500,
+.theme-light .bg-slate-50 .text-gray-300,
+.theme-light .bg-slate-50 .text-gray-400,
+.theme-light .bg-slate-50 .text-gray-500,
+.light .bg-white .text-gray-300,
+.light .bg-white .text-gray-400,
+.light .bg-white .text-gray-500,
+.light .bg-slate-50 .text-gray-300,
+.light .bg-slate-50 .text-gray-400,
+.light .bg-slate-50 .text-gray-500 {
+  color: #64748b !important;
+}
+
+/* Preserve white text on intentionally colored controls and status surfaces. */
+[data-theme="light"] .bg-blue-600 .text-white,
+[data-theme="light"] .bg-blue-700 .text-white,
+[data-theme="light"] .bg-red-600 .text-white,
+[data-theme="light"] .bg-green-600 .text-white,
+[data-theme="light"] .bg-emerald-600 .text-white,
+[data-theme="light"] .bg-[#0088ff] .text-white,
+[data-theme="light"] .bg-[#dc2626] .text-white,
+[data-theme="light"] .bg-[#0284c7] .text-white,
+[data-theme="light"] .bg-[#7c3aed] .text-white,
+.theme-light .bg-blue-600 .text-white,
+.theme-light .bg-blue-700 .text-white,
+.theme-light .bg-red-600 .text-white,
+.theme-light .bg-green-600 .text-white,
+.theme-light .bg-emerald-600 .text-white,
+.theme-light .bg-[#0088ff] .text-white,
+.theme-light .bg-[#dc2626] .text-white,
+.theme-light .bg-[#0284c7] .text-white,
+.theme-light .bg-[#7c3aed] .text-white,
+.light .bg-blue-600 .text-white,
+.light .bg-blue-700 .text-white,
+.light .bg-red-600 .text-white,
+.light .bg-green-600 .text-white,
+.light .bg-emerald-600 .text-white,
+.light .bg-[#0088ff] .text-white,
+.light .bg-[#dc2626] .text-white,
+.light .bg-[#0284c7] .text-white,
+.light .bg-[#7c3aed] .text-white {
+  color: #ffffff !important;
+}
+
+/* Native controls inherit the active theme instead of browser dark defaults. */
+[data-theme="light"] button,
+[data-theme="light"] input,
+[data-theme="light"] select,
+[data-theme="light"] textarea,
+.theme-light button,
+.theme-light input,
+.theme-light select,
+.theme-light textarea,
+.light button,
+.light input,
+.light select,
+.light textarea {
+  color-scheme: light;
+}
+
