@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { LeasePoint, UserRole, LeaseOperatingStatus, LeaseIncident } from '../../types';
+import type { LeaseDataAlert } from '../../utils/dataReconciliation';
 import {
   evaluatePointOpenStatus,
   formatCOP,
@@ -28,6 +29,7 @@ interface LeaseScreenProps {
   onResolveIncident?: (pointId: string, incidentId: string, notes: string) => void;
   onShowToast: (title: string, message: string, type?: 'info' | 'success' | 'warning' | 'error') => void;
   userRole?: UserRole;
+  alerts?: LeaseDataAlert[];
 }
 
 export const LeaseScreen: React.FC<LeaseScreenProps> = ({
@@ -39,9 +41,10 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
   onResolveIncident,
   onShowToast,
   userRole = 'administrador',
+  alerts = [],
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'open' | 'closed' | 'incidents'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'open' | 'closed' | 'incidents' | 'depurado'>('all');
   const [selectedMunicipality, setSelectedMunicipality] = useState<string>('all');
   const [selectedPropertyType, setSelectedPropertyType] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'cards' | 'map'>('cards');
@@ -78,6 +81,7 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
         p.point.incidents.some((i) => !i.resolved)
     );
     const totalRent = pointsWithStatus.reduce((acc, p) => acc + p.point.monthlyRent, 0);
+    const depuradoCount = pointsWithStatus.filter((p) => p.lifecycle.status === 'inactive').length;
 
     return {
       total,
@@ -85,6 +89,7 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
       closedCount: closedPoints.length,
       incidentCount: incidentPoints.length,
       totalRent,
+      depuradoCount,
       openPct: total > 0 ? Math.round((openPoints.length / total) * 100) : 0,
     };
   }, [pointsWithStatus]);
@@ -95,9 +100,10 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
   }, [leasePoints]);
 
   const filteredPoints = useMemo(() => {
-    return pointsWithStatus.filter(({ point, status }) => {
+    return pointsWithStatus.filter(({ point, status, lifecycle }) => {
       if (statusFilter === 'open' && !status.isOpenNow) return false;
       if (statusFilter === 'closed' && status.isOpenNow) return false;
+      if (statusFilter === 'depurado' && lifecycle.status !== 'inactive') return false;
       if (
         statusFilter === 'incidents' &&
         point.operatingStatus !== 'temporarily_closed' &&
@@ -284,6 +290,9 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
           </div>
         </div>
 
+        {/* Depurado */}
+        <div className="p-3.5 bg-[#131b2e] rounded-2xl border border-[#a855f7]/30 flex flex-col justify-between shadow-sm"><div className="flex items-center justify-between text-[#94a3b8]"><span className="text-[11px] font-semibold uppercase tracking-wider text-[#c084fc]">Depurados</span><span className="material-symbols-outlined text-[18px] text-[#c084fc]">inventory_2</span></div><div className="mt-2 flex items-baseline gap-2"><span className="text-2xl font-extrabold text-[#c084fc] font-mono">{metrics.depuradoCount}</span><span className="text-[11px] text-[#94a3b8]">contratos cerrados</span></div></div>
+
         {/* Total Rent */}
         <div className="col-span-2 lg:col-span-1 p-3.5 bg-[#131b2e] rounded-2xl border border-[#222a3d] flex flex-col justify-between shadow-sm">
           <div className="flex items-center justify-between text-[#94a3b8]">
@@ -300,6 +309,15 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
           </div>
         </div>
       </div>
+
+      {/* ALERTAS DE ARRENDAMIENTOS */}
+      <section className="bg-[#131b2e] rounded-2xl border border-[#ffb95f]/30 overflow-hidden shadow-sm">
+        <div className="px-4 py-3 flex items-center justify-between border-b border-[#222a3d]">
+          <div className="flex items-center gap-2"><span className="material-symbols-outlined text-[#ffb95f]">notifications_active</span><div><h2 className="text-sm font-extrabold text-white">Alertas de Arrendamientos</h2><p className="text-[10px] text-[#94a3b8]">Cambios detectados al actualizar contratos y archivos.</p></div></div>
+          <span className="px-2 py-1 rounded-full bg-[#ffb95f]/15 text-[#ffb95f] text-[10px] font-bold">{alerts.length} alerta{alerts.length === 1 ? '' : 's'}</span>
+        </div>
+        {alerts.length === 0 ? <div className="px-4 py-5 text-xs text-[#94a3b8] flex items-center gap-2"><span className="material-symbols-outlined text-[17px] text-[#4edea3]">check_circle</span>No hay alertas generadas por actualizaciones de arrendamientos.</div> : <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2.5 p-3">{alerts.slice(0,6).map((alert) => <button key={alert.id} type="button" onClick={() => { const target=leasePoints.find(p=>p.code.toLowerCase()===alert.code.toLowerCase()); if(target) handleOpenDetails(target); }} className="text-left p-3 rounded-xl bg-[#171f33] border border-[#2d3449] hover:border-[#0088ff]/50 hover:bg-[#1b2540] transition-all cursor-pointer"><div className="flex items-start gap-2"><span className={`material-symbols-outlined text-[18px] ${alert.severity==='urgent'?'text-[#ff6b6b]':alert.severity==='warning'?'text-[#ffb95f]':'text-[#38bdf8]'}`}>{alert.type==='canon_increased'?'payments':alert.type==='point_closed'?'domain_disabled':alert.type==='point_reopened'?'domain_add':alert.type==='not_visited'?'event_busy':alert.type==='contract_expiring'?'event':'add_business'}</span><div className="min-w-0 flex-1"><p className="text-xs font-bold text-white truncate">{alert.title}</p><p className="text-[10px] text-[#cbd5e1] mt-0.5 line-clamp-2">{alert.message}</p><span className="text-[9px] text-[#64748b] mt-1 block">{alert.pointName} · {new Date(alert.createdAt).toLocaleDateString('es-CO')}</span></div></div></button>)}</div>}
+      </section>
 
       {/* FILTER & SEARCH CONTROLS */}
       <div className="p-3.5 bg-[#131b2e] rounded-2xl border border-[#222a3d] space-y-3">
@@ -391,6 +409,7 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
               <span className="w-2 h-2 rounded-full bg-[#ef4444]"></span>
               Cerrados ({metrics.closedCount})
             </button>
+            <button type="button" onClick={() => setStatusFilter('depurado')} className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer ${statusFilter === 'depurado' ? 'bg-[#a855f7]/20 text-[#c084fc] font-bold border border-[#a855f7]/40' : 'text-[#94a3b8] hover:text-[#c084fc] hover:bg-[#171f33]'}`}><span className="w-2 h-2 rounded-full bg-[#a855f7]"></span>Depurado ({metrics.depuradoCount})</button>
             <button
               type="button"
               onClick={() => setStatusFilter('incidents')}
