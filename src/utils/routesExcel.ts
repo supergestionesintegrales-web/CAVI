@@ -1,6 +1,6 @@
 import * as XLSX from 'xlsx';
 import { RouteStep, FormatType, Auditor, AlertCategory } from '../types';
-import { distributePointsWithAlertPriority, PointCandidate } from './pointAssignment';
+import { distributePointsWithAlertPriority, PointCandidate, guessZoneFromLocation } from './pointAssignment';
 import { parsePointsFromText } from './kmlTxtParser';
 
 /**
@@ -232,13 +232,15 @@ export async function parseRoutesFile(file: File, auditors: Auditor[]): Promise<
       alertCategory = daysWithoutVisit >= 90 ? 'critico_mas_3_meses' : 'sin_visita_2_3_meses';
     }
 
-    // 9. Assigned Auditor
-    const auditorRaw = getVal(['auditor', 'auditorasignado', 'responsable', 'asesor', 'zona']);
-    let matchedAuditor = auditors.find((a) =>
-      a.name.toLowerCase().includes(auditorRaw.toLowerCase()) ||
-      a.zone.toLowerCase() === auditorRaw.toLowerCase() ||
-      a.code.toLowerCase() === auditorRaw.toLowerCase()
-    );
+    // 9. Operational Zone and Assigned Auditor
+    // Zone is authoritative for ownership; an auditor supplied in the file cannot
+    // override the PDV's zone.
+    const zoneRaw = getVal(['zona', 'zone', 'region', 'subregion']);
+    const resolvedZone = zoneRaw
+      ? (['norte', 'centro', 'sur'].find((z) => zoneRaw.toLowerCase().includes(z)) as 'Norte' | 'Centro' | 'Sur' | undefined)
+      : undefined;
+    const zone = resolvedZone || guessZoneFromLocation(municipality || address || '');
+    const matchedAuditor = auditors.find((a) => a.zone === zone);
 
     // 10. Day of week (Lunes a Viernes)
     const dayRaw = getVal(['dia', 'diasemana', 'dia_semana', 'day', 'jornada']).toLowerCase();
@@ -268,6 +270,7 @@ export async function parseRoutesFile(file: File, auditors: Auditor[]): Promise<
       alertDescription: alertDesc || (daysWithoutVisit && daysWithoutVisit >= 60 ? `${daysWithoutVisit} días sin visita presencial` : undefined),
       auditorId: matchedAuditor?.id,
       auditorName: matchedAuditor?.name,
+      zone,
     });
   });
 
@@ -301,6 +304,7 @@ export async function parseRoutesFile(file: File, auditors: Auditor[]): Promise<
       status: 'pending',
       auditorId: aud.id,
       auditorName: aud.name,
+      zone: c.zone,
       notes: c.alertDescription ? `🚨 Prioridad Alerta: ${c.alertDescription}` : undefined,
       daysWithoutVisit: c.daysWithoutVisit,
       alertCategory: (c.alertCategory as AlertCategory | undefined) || (c.daysWithoutVisit && c.daysWithoutVisit >= 60 ? 'sin_visita_2_3_meses' : undefined),
