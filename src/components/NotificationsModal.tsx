@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import type { LeaseDataAlert } from '../utils/dataReconciliation';
 
 interface NotificationItem {
   id: string;
@@ -14,39 +15,17 @@ interface NotificationsModalProps {
   isOpen: boolean;
   onClose: () => void;
   onMarkAllRead: () => void;
+  alerts?: LeaseDataAlert[];
 }
 
 export const NotificationsModal: React.FC<NotificationsModalProps> = ({
   isOpen,
   onClose,
   onMarkAllRead,
+  alerts = [],
 }) => {
-  const notifications: NotificationItem[] = [
-    {
-      id: 'n-1',
-      time: '09:15 AM',
-      title: 'Cambio de horario en CDA Norte',
-      message: 'Cierre por inventario imprevisto. CAVI reordenó la ruta de Samuel Ramos automáticamente.',
-      type: 'cavi',
-      unread: true,
-    },
-    {
-      id: 'n-2',
-      time: '08:00 AM',
-      title: 'Congestión en Autopista Norte',
-      message: 'Tramo Calle 134 a 170 saturado. Desvío asistido por Cra 19 ahorra 18 min de traslado.',
-      type: 'info',
-      unread: true,
-    },
-    {
-      id: 'n-3',
-      time: 'Ayer 17:30',
-      title: 'Alerta de SLA Urgente',
-      message: 'Punto CM-102 Compumueble Tintal supera 81 días sin auditoría física documentada.',
-      type: 'urgent',
-      unread: true,
-    },
-  ];
+  const notifications: NotificationItem[] = alerts.map((a) => ({ id:a.id, time:new Date(a.createdAt).toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'}), title:a.title, message:a.message, type:a.severity === 'urgent' ? 'urgent' : a.severity === 'warning' ? 'info' : 'cavi', unread:true }));
+
 
   if (!isOpen) return null;
 
@@ -74,7 +53,7 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
           </div>
 
           <div className="py-3 space-y-2.5 max-h-80 overflow-y-auto pr-1">
-            {notifications.map((n) => (
+            {notifications.length === 0 ? <div className="text-xs text-[#bbcabf] text-center py-8">No hay alertas generadas por actualizaciones de datos.</div> : notifications.map((n) => (
               <div
                 key={n.id}
                 data-notification-card="true"
