@@ -473,7 +473,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
 
       routeMarkers.addLayer(marker);
     });
-  }, [routeWaypoints, isGuidedModeActive, currentLegIndex, allAvailablePoints]);
+  }, [routeWaypoints, routeGroups, isGuidedModeActive, currentLegIndex, allAvailablePoints]);
 
   // 4. Guided Displacement Simulation Engine
   useEffect(() => {
