@@ -1,4 +1,5 @@
-import * as XLSX from 'xlsx';
+import * as XLSX from 'xlsx-js-style';
+import { styleSummaryWorksheet, styleWorksheet, styleCurrencyColumns } from './excelFormatting';
 import { LeasePoint } from '../types';
 import { evaluatePointOpenStatus, formatCOP, getContractDaysRemaining, getLeaseLifecycleStatus } from '../data/leasePointsData';
 
@@ -108,6 +109,9 @@ export function exportLeasePointsToExcel(points: LeasePoint[], fileName: string 
   const wsData = [headers, ...rows];
   const ws = XLSX.utils.aoa_to_sheet(wsData);
 
+  styleWorksheet(ws, 0, { filter: true, freezeHeader: true });
+  styleCurrencyColumns(ws, [17, 18]);
+
   ws['!cols'] = [
     { wch: 15 },
     { wch: 35 },
@@ -162,8 +166,9 @@ export function exportLeasePointsToExcel(points: LeasePoint[], fileName: string 
   ];
 
   const wsSummary = XLSX.utils.aoa_to_sheet([summaryHeaders, ...summaryRows]);
+  styleSummaryWorksheet(wsSummary);
   wsSummary['!cols'] = [{ wch: 35 }, { wch: 30 }];
   XLSX.utils.book_append_sheet(wb, wsSummary, 'Resumen_Ejecutivo');
 
-  XLSX.writeFile(wb, fileName);
+  XLSX.writeFile(wb, fileName, { cellStyles: true });
 }
