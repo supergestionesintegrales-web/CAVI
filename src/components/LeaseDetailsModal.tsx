@@ -217,7 +217,7 @@ export const LeaseDetailsModal: React.FC<LeaseDetailsModalProps> = ({
               Ficha del Contrato de Arrendamiento
             </span>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div className="p-2.5 bg-[#171f33] rounded-lg border border-[#2d3449]">
                 <span className="text-[10px] text-[#94a3b8] block uppercase">Canon Mensual</span>
                 <span className="text-sm font-bold text-[#4edea3] font-mono">
@@ -233,6 +233,10 @@ export const LeaseDetailsModal: React.FC<LeaseDetailsModalProps> = ({
               <div className="p-2.5 bg-[#171f33] rounded-lg border border-[#2d3449]">
                 <span className="text-[10px] text-[#94a3b8] block uppercase">Área Inmueble</span>
                 <span className="text-sm font-bold text-white font-mono">{point.areaSqMeters} m²</span>
+              </div>
+              <div className="p-2.5 bg-[#171f33] rounded-lg border border-[#2d3449]">
+                <span className="text-[10px] text-[#94a3b8] block uppercase">Días de Cuenta</span>
+                <span className="text-sm font-bold text-[#c0c1ff] font-mono">{point.daysOfAccount !== undefined ? point.daysOfAccount : 'N/D'}</span>
               </div>
             </div>
 
