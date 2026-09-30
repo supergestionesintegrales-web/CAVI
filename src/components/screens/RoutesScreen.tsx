@@ -719,7 +719,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                 onToggleExpandLarge={() => setMapLayoutMode('split')}
                 initialRouteStops={mapWaypoints}
                 routeGroups={mapRouteGroups}
-                showPointCatalog={false}
+                showPointCatalog={true}
                 resetRouteOnEmpty
                 onStopArrival={(stop) => {
                   onShowToast(
