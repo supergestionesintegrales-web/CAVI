@@ -1286,6 +1286,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                 isExpandedLarge={false}
                 onToggleExpandLarge={() => setMapLayoutMode('panoramic_large')}
                 initialRouteStops={mapWaypoints}
+                routeGroups={mapRouteGroups}
                 onStopArrival={(stop) => {
                   onShowToast(
                     'Parada Alcanzada',
