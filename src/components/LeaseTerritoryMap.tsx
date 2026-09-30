@@ -19,9 +19,6 @@ export const LeaseTerritoryMap: React.FC<LeaseTerritoryMapProps> = ({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showPointList, setShowPointList] = useState(true);
 
-  const googleMyMapsUrl = 'https://www.google.com/maps/d/embed?mid=1NKLGdlcLM282BzWjh7CnaPJtdn6x42w&ehbc=2E312F';
-  const googleMyMapsViewerUrl = 'https://www.google.com/maps/d/viewer?mid=1NKLGdlcLM282BzWjh7CnaPJtdn6x42w';
-
   // Normalize coordinates for radar view:
   const minLat = 10.4;
   const maxLat = 12.2;
@@ -112,18 +109,6 @@ export const LeaseTerritoryMap: React.FC<LeaseTerritoryMapProps> = ({
             <span className="material-symbols-outlined text-[16px]">view_sidebar</span>
             <span className="hidden sm:inline">Puntos ({points.length})</span>
           </button>
-
-          {/* External Viewer Link */}
-          <a
-            href={googleMyMapsViewerUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl bg-[#131b2e] hover:bg-[#171f33] text-[#dae2fd] hover:text-white border border-[#222a3d] text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer"
-            title="Abrir visor completo en CAVIMAPS"
-          >
-            <span className="material-symbols-outlined text-[16px] text-[#38bdf8]">open_in_new</span>
-            <span className="hidden md:inline">CAVIMAPS Web</span>
-          </a>
 
           {/* Fullscreen Toggle */}
           <button

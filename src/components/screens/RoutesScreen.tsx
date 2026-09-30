@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { Auditor, RouteStep, FloatingPoint, UserRole } from '../../types';
 import { AddRouteModal } from '../AddRouteModal';
 import { AddFloatingPointModal } from '../AddFloatingPointModal';
@@ -7,7 +7,10 @@ import { CaviNativeMap } from '../CaviNativeMap';
 import { WeeklyRoutesMatrix } from '../WeeklyRoutesMatrix';
 import { MonthlyRoutesView } from '../MonthlyRoutesView';
 import { AuditVisitModal } from '../AuditVisitModal';
+import { ActiveAuditorCalendarView } from '../ActiveAuditorCalendarView';
 import { parseRoutesFile, downloadRoutesTemplate } from '../../utils/routesExcel';
+import { calculateTotalRouteDistanceKm, formatDistance, estimateTravelTime } from '../../utils/geoUtils';
+import { CAVI_POINTS } from '../../data/caviPointsData';
 
 interface RoutesScreenProps {
   auditors: Auditor[];
@@ -43,6 +46,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
   auditors,
   steps,
   floatingPoints,
+  activeRouteSourceFile = 'Rutas_LaGuajira_Departamental.xlsx',
   onAssignFloatingPoint,
   onAutoAssignAll,
   onShowToast,
@@ -87,6 +91,11 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
   const [isAddFpOpen, setIsAddFpOpen] = useState(false);
   const [isGpsModalOpen, setIsGpsModalOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Map layout & sizing states
+  const [mapLayoutMode, setMapLayoutMode] = useState<'panoramic_large' | 'split'>('panoramic_large');
+  const [selectedAuditorForMap, setSelectedAuditorForMap] = useState<string>('todos');
+  const [selectedAuditorForCalendar, setSelectedAuditorForCalendar] = useState<string>(activeAuditorId || 'aud-1');
 
   // Filter auditors by zone
   const filteredAuditors = auditors.filter((aud) => {
@@ -159,13 +168,40 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
     0
   );
 
+  const currentDaySteps = useMemo(() => {
+    return steps.filter((s) => isStepForDay(s, selectedDay));
+  }, [steps, selectedDay]);
+
+  const activeRouteStops = useMemo(() => {
+    return currentDaySteps.length > 0 ? currentDaySteps : steps;
+  }, [currentDaySteps, steps]);
+
+  const mapWaypoints = useMemo(() => {
+    let target = activeRouteStops;
+    if (selectedAuditorForMap !== 'todos') {
+      target = target.filter((s) => s.auditorId === selectedAuditorForMap);
+    }
+    return target.length > 0 ? target : steps;
+  }, [activeRouteStops, selectedAuditorForMap, steps]);
+
+  const routeDistanceKm = useMemo(() => {
+    const valid = mapWaypoints.filter((s) => s.lat && s.lng);
+    return calculateTotalRouteDistanceKm(valid);
+  }, [mapWaypoints]);
+
+  const routeTime = useMemo(() => {
+    return estimateTravelTime(routeDistanceKm);
+  }, [routeDistanceKm]);
+
+  const progressPercent = totalStepsCount > 0 ? Math.round((completedStepsCount / totalStepsCount) * 100) : 0;
+
   return (
     <div className="flex flex-col w-full space-y-4 md:space-y-5">
-      {/* Hidden File Input for Excel/CSV Import */}
+      {/* Hidden File Input for Excel/CSV/TXT/KML Import */}
       <input
         ref={fileInputRef}
         type="file"
-        accept=".xlsx, .xls, .csv"
+        accept=".xlsx, .xls, .csv, .txt, .kml, .xml"
         className="hidden"
         onChange={handleFileUpload}
       />
@@ -205,242 +241,417 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
         />
       )}
 
-      {/* Role Notice Banner for Auxiliar */}
-      {isAuxiliar && (
-        <div className="p-3 rounded-xl bg-[#171f33] border border-[#3131c0]/50 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-sm">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#3131c0]/20 flex items-center justify-center text-[#c0c1ff] shrink-0">
-              <span className="material-symbols-outlined text-[18px]">engineering</span>
-            </div>
-            <div>
-              <p className="text-xs font-bold text-[#c0c1ff]">
-                Modo Auxiliar · Sesión: {currentAuditor.name} ({currentAuditor.code})
-              </p>
-              <p className="text-[11px] text-[#cbd5e1]">
-                Vista de itinerario de campo. Las funciones de asignación y despacho masivo están reservadas al Administrador.
-              </p>
-            </div>
-          </div>
-          <span className="px-2 py-0.5 rounded bg-[#060e20] text-[#c0c1ff] text-[10px] font-mono border border-[#3131c0]/30 self-start sm:self-auto shrink-0">
-            Zona {currentAuditor.zone}
-          </span>
-        </div>
-      )}
+      {/* ========================================================================= */}
+      {/* 🚀 GRAND TACTICAL HERO BANNER: RUTAS Y NAVEGACIÓN DEPARTAMENTAL */}
+      {/* ========================================================================= */}
+      <div className="relative w-full rounded-3xl p-5 sm:p-6 md:p-8 overflow-hidden bg-gradient-to-br from-[#070e1f] via-[#0f1d3b] to-[#070e1f] border border-[#1e345b] shadow-2xl">
+        {/* Glowing atmospheric background radial accents */}
+        <div className="pointer-events-none absolute -top-24 -right-24 w-96 h-96 bg-[#0088ff]/15 rounded-full blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-24 -left-24 w-96 h-96 bg-[#38bdf8]/10 rounded-full blur-3xl" />
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.03]"
+          style={{ backgroundImage: 'radial-gradient(#38bdf8 1px, transparent 1px)', backgroundSize: '24px 24px' }}
+        />
 
-      {/* HEADER SECTION: UNIFIED TITLE & DAY SELECTOR */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-[#131b2e] p-3.5 sm:p-4 md:p-5 rounded-2xl border border-[#222a3d] shadow-sm overflow-hidden">
-        <div className="flex items-center gap-3 min-w-0 flex-1">
-          <div className="w-10 h-10 rounded-xl bg-[#171f33] flex items-center justify-center text-[#0088ff] shadow-inner border border-[#222a3d] shrink-0">
-            <span className="material-symbols-outlined text-[24px]">alt_route</span>
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="font-headline font-bold text-base sm:text-lg text-[#dae2fd] tracking-tight">
-                {isAuxiliar ? 'Mi Hoja de Ruta y Cronograma' : 'Rutas y Cronograma'}
-              </h1>
-              {floatingPoints.length > 0 && !isAuxiliar && (
-                <button
-                  type="button"
-                  onClick={onAutoAssignAll}
-                  className="px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border border-amber-500/40 text-[11px] font-bold inline-flex items-center gap-1.5 cursor-pointer transition-colors shadow-xs"
-                  title="Cargar puntos: priorizar alertas y completar cargue a cada auditor"
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
-                  <span>{floatingPoints.length} puntos por cargar (priorizar alertas)</span>
-                </button>
+        <div className="relative z-10 flex flex-col gap-5 sm:gap-6">
+          {/* Top Status & System Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-2.5 pb-3 border-b border-[#1e2a44]/80">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0088ff]/15 border border-[#0088ff]/30 text-[#38bdf8] text-[11px] font-bold tracking-wide">
+                <span className="w-2 h-2 rounded-full bg-[#38bdf8] animate-ping" />
+                <span className="w-1.5 h-1.5 rounded-full bg-[#38bdf8] -ml-2.5" />
+                SISTEMA TÁCTICO DE RUTAS Y NAVEGACIÓN CAVI
+              </span>
+              <span className="px-2.5 py-0.5 rounded-full bg-[#131b2e] text-[#cbd5e1] border border-[#222a3d] text-[10px] font-medium">
+                La Guajira · 15 Municipios
+              </span>
+              {activeRouteSourceFile && (
+                <span className="px-2.5 py-0.5 rounded-full bg-[#131b2e] text-[#93c5fd] border border-[#222a3d] text-[10px] font-mono hidden md:inline">
+                  {activeRouteSourceFile}
+                </span>
               )}
             </div>
-            <p className="text-[11px] text-[#bbcabf] mt-0.5 leading-tight">
-              {isAuxiliar
-                ? 'Itinerario de visitas en campo para La Guajira'
-                : totalStepsCount > 0
-                ? `${totalStepsCount} paradas cargadas · ${completedStepsCount} completadas · Asignación de puntos críticos y cronograma unificado`
-                : 'Planificación operativa unificada: asigna puntos críticos (2-3 meses sin visita) a los auditores.'}
-            </p>
-          </div>
-        </div>
 
-        {/* DAY SELECTOR PILLS */}
-        <div className="flex items-center gap-1 bg-[#0b1326] p-1 rounded-xl border border-[#222a3d] self-start lg:self-center max-w-full overflow-x-auto scrollbar-none shrink-0">
-          {[
-            { key: 'lunes', label: 'Lun' },
-            { key: 'martes', label: 'Mar' },
-            { key: 'miércoles', label: 'Mié' },
-            { key: 'jueves', label: 'Jue' },
-            { key: 'viernes', label: 'Vie' },
-            { key: 'semana', label: 'Semana' },
-            { key: 'mes', label: 'Mes' },
-          ].map((item) => {
-            const isSelected = selectedDay === item.key;
-            return (
+            <div className="flex items-center gap-2">
+              <span className="px-2.5 py-1 rounded-lg bg-[#0c1322] border border-[#222a3d] text-[11px] font-mono text-[#a5b4fc] flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-[15px]">
+                  {isAuxiliar ? 'engineering' : 'admin_panel_settings'}
+                </span>
+                <span>{isAuxiliar ? `Auxiliar: ${currentAuditor.name}` : 'Modo Administrador'}</span>
+              </span>
+            </div>
+          </div>
+
+          {/* Hero Headline & Primary Expand Button */}
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+            <div className="flex items-start gap-4 min-w-0">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-[#0088ff] to-[#38bdf8] flex items-center justify-center text-white shadow-xl shadow-[#0088ff]/30 shrink-0">
+                <span className="material-symbols-outlined text-[32px] sm:text-[38px]">alt_route</span>
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <h1 className="font-headline font-extrabold text-xl sm:text-2xl md:text-3xl text-white tracking-tight leading-tight">
+                    {isAuxiliar ? 'Mi Hoja de Ruta Táctica y Campo' : 'Centro de Trazado de Rutas y Despacho'}
+                  </h1>
+                </div>
+                <p className="text-xs sm:text-sm text-[#94a3b8] mt-1 max-w-3xl leading-relaxed">
+                  Monitoreo georreferenciado de <strong>595+ puntos de venta</strong> (CDA, Puntos Físicos, Centros de Manejo y Bancarios), trazado de rutas GPS, auditoría en terreno y desplazamiento guiado.
+                </p>
+              </div>
+            </div>
+
+            {/* PRIMARY HERO ACTION: AMPLIAR MAPA EN GRANDE */}
+            <div className="flex items-center gap-2.5 flex-wrap shrink-0">
               <button
-                key={item.key}
                 type="button"
-                onClick={() => {
-                  setSelectedDay(item.key);
-                  if (item.key === 'semana') {
-                    onShowToast('Vista Alterna: Semana', 'Visualizando matriz operativa semanal completa.', 'info');
-                  } else if (item.key === 'mes') {
-                    onShowToast('Vista Mensual de Rutas', 'Visualizando matriz y calendario mensual para La Guajira.', 'info');
-                  }
-                }}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 ${
-                  isSelected
-                    ? 'bg-[#0088ff] text-[#ffffff] shadow-sm shadow-[#0088ff]/30'
-                    : 'text-[#bbcabf] hover:text-[#dae2fd]'
+                onClick={() => setMapLayoutMode(mapLayoutMode === 'panoramic_large' ? 'split' : 'panoramic_large')}
+                className={`px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-2 shadow-lg transition-all cursor-pointer ${
+                  mapLayoutMode === 'panoramic_large'
+                    ? 'bg-[#0088ff] hover:bg-[#0070d8] text-white shadow-[#0088ff]/40 ring-2 ring-[#38bdf8]/60'
+                    : 'bg-[#1e293b] hover:bg-[#2d3a58] text-[#38bdf8] border border-[#0088ff]/50'
                 }`}
+                title="Ampliar o compactar el mapa de rutas"
               >
-                {item.key === 'semana' && (
-                  <span className="material-symbols-outlined text-[15px]">view_week</span>
-                )}
-                {item.key === 'mes' && (
-                  <span className="material-symbols-outlined text-[15px]">calendar_month</span>
-                )}
-                <span>{item.label}</span>
+                <span className="material-symbols-outlined text-[20px]">
+                  {mapLayoutMode === 'panoramic_large' ? 'close_fullscreen' : 'open_in_full'}
+                </span>
+                <span>
+                  {mapLayoutMode === 'panoramic_large' ? '✓ Mapa en Grande (Activo)' : 'Ampliar Mapa en Grande'}
+                </span>
               </button>
-            );
-          })}
+
+              <button
+                type="button"
+                onClick={() => setIsGpsModalOpen(true)}
+                className="px-3.5 py-2.5 rounded-xl bg-[#131b2e] hover:bg-[#1e293b] text-[#cbd5e1] hover:text-white border border-[#222a3d] font-bold text-xs sm:text-sm flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
+                title="Ver territorio departamental en pantalla completa"
+              >
+                <span className="material-symbols-outlined text-[19px] text-[#38bdf8]">fullscreen</span>
+                <span className="hidden sm:inline">Pantalla Completa</span>
+              </button>
+            </div>
+          </div>
+
+          {/* 4 Hero Tactical Stats Cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
+            {/* 1. Puntos de Venta */}
+            <div className="bg-[#101b33]/90 backdrop-blur-sm border border-[#1e2a44] p-3 sm:p-3.5 rounded-2xl flex flex-col justify-between shadow-sm">
+              <div className="flex items-center justify-between text-[#38bdf8]">
+                <span className="text-[11px] font-bold tracking-wide uppercase text-[#94a3b8]">Red Departamental</span>
+                <span className="material-symbols-outlined text-[18px]">storefront</span>
+              </div>
+              <div className="mt-1">
+                <span className="text-lg sm:text-xl font-extrabold text-white font-mono">
+                  {CAVI_POINTS.length} PDV
+                </span>
+                <p className="text-[10px] text-[#cbd5e1] mt-0.5 truncate">
+                  196 CDA · 168 PF · 92 CM · 139 Banco
+                </p>
+              </div>
+            </div>
+
+            {/* 2. Paradas en Ruta Activa */}
+            <div className="bg-[#101b33]/90 backdrop-blur-sm border border-[#1e2a44] p-3 sm:p-3.5 rounded-2xl flex flex-col justify-between shadow-sm">
+              <div className="flex items-center justify-between text-[#0088ff]">
+                <span className="text-[11px] font-bold tracking-wide uppercase text-[#94a3b8]">Paradas en Ruta</span>
+                <span className="material-symbols-outlined text-[18px]">alt_route</span>
+              </div>
+              <div className="mt-1">
+                <span className="text-lg sm:text-xl font-extrabold text-white font-mono">
+                  {mapWaypoints.length} Paradas
+                </span>
+                <p className="text-[10px] text-[#38bdf8] mt-0.5 truncate font-medium">
+                  {selectedDay.toUpperCase()} · {selectedZone === 'Todas' ? 'La Guajira' : `Zona ${selectedZone}`}
+                </p>
+              </div>
+            </div>
+
+            {/* 3. Control de Auditoría */}
+            <div className="bg-[#101b33]/90 backdrop-blur-sm border border-[#1e2a44] p-3 sm:p-3.5 rounded-2xl flex flex-col justify-between shadow-sm">
+              <div className="flex items-center justify-between text-emerald-400">
+                <span className="text-[11px] font-bold tracking-wide uppercase text-[#94a3b8]">Avance de Visitas</span>
+                <span className="material-symbols-outlined text-[18px]">fact_check</span>
+              </div>
+              <div className="mt-1">
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-lg sm:text-xl font-extrabold text-emerald-400 font-mono">
+                    {completedStepsCount}
+                  </span>
+                  <span className="text-xs text-[#94a3b8] font-mono">/ {totalStepsCount}</span>
+                  <span className="text-[10px] font-bold text-[#4edea3] ml-auto">
+                    {progressPercent}%
+                  </span>
+                </div>
+                {/* Multi-color progress bar */}
+                <div className="w-full bg-[#1e293b] h-1.5 rounded-full overflow-hidden flex mt-1.5">
+                  <div style={{ width: `${totalStepsCount > 0 ? (completedStepsCount / totalStepsCount) * 100 : 0}%` }} className="bg-emerald-400 h-full" title="Auditados" />
+                  <div style={{ width: `${totalStepsCount > 0 ? (notAuditedStepsCount / totalStepsCount) * 100 : 0}%` }} className="bg-rose-500 h-full" title="No Auditados" />
+                  <div style={{ width: `${totalStepsCount > 0 ? (revisitStepsCount / totalStepsCount) * 100 : 0}%` }} className="bg-purple-500 h-full" title="Re-visita" />
+                  <div style={{ width: `${totalStepsCount > 0 ? (pendingStepsCount / totalStepsCount) * 100 : 0}%` }} className="bg-slate-500 h-full" title="Pendientes" />
+                </div>
+              </div>
+            </div>
+
+            {/* 4. Recorrido & Tiempos */}
+            <div className="bg-[#101b33]/90 backdrop-blur-sm border border-[#1e2a44] p-3 sm:p-3.5 rounded-2xl flex flex-col justify-between shadow-sm">
+              <div className="flex items-center justify-between text-[#f59e0b]">
+                <span className="text-[11px] font-bold tracking-wide uppercase text-[#94a3b8]">Desplazamiento Est.</span>
+                <span className="material-symbols-outlined text-[18px]">speed</span>
+              </div>
+              <div className="mt-1">
+                <span className="text-lg sm:text-xl font-extrabold text-[#fcd34d] font-mono">
+                  {formatDistance(routeDistanceKm)}
+                </span>
+                <p className="text-[10px] text-[#cbd5e1] mt-0.5 truncate">
+                  Est. {routeTime} · {filteredAuditors.length} auditores
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Operational Action Controls & Data Management */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-[#1e2a44]/80">
+            {/* Real Data Actions */}
+            {!isAuxiliar && (
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedDay('calendario_auditor');
+                    onShowToast('Calendario del Auditor Activo', 'Selector de rango de fechas y programación sobre nuestro mapa nativo.', 'info');
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#0088ff] to-[#0284c7] hover:from-[#0070d8] hover:to-[#0369a1] text-white text-xs font-bold flex items-center gap-1.5 shadow-md shadow-[#0088ff]/30 active:scale-95 transition-all cursor-pointer"
+                  title="Abrir calendario del auditor con selector de rango de fechas"
+                >
+                  <span className="material-symbols-outlined text-[16px]">calendar_month</span>
+                  <span>Calendario Auditor (Rango de Fechas)</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleOpenAddStep()}
+                  className="px-3 py-1.5 rounded-xl bg-[#0088ff] hover:bg-[#0070d8] text-white text-xs font-bold flex items-center gap-1.5 shadow-md shadow-[#0088ff]/30 active:scale-95 transition-all cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-[16px]">add_location_alt</span>
+                  <span>+ Nueva Parada</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="px-3 py-1.5 rounded-xl bg-[#1e293b] hover:bg-[#2d3a58] text-[#f8fafc] text-xs font-bold border border-[#3b4760] flex items-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer"
+                  title="Cargar matriz con dirección, nombre, canal y geolocalización GPS (.xlsx, .csv, .txt, .kml)"
+                >
+                  <span className="material-symbols-outlined text-[16px] text-[#38bdf8]">upload_file</span>
+                  <span>Cargar Matriz PDV (GPS)</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIsAddFpOpen(true)}
+                  className="px-2.5 py-1.5 rounded-xl bg-[#1e293b] hover:bg-[#2d3a58] text-[#fcd34d] text-xs font-bold border border-[#f59e0b]/40 flex items-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer"
+                  title="Agregar Punto Flotante"
+                >
+                  <span className="material-symbols-outlined text-[16px]">push_pin</span>
+                  <span>+ Flotante</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={downloadRoutesTemplate}
+                  className="px-2.5 py-1.5 rounded-xl bg-[#131b2e] hover:bg-[#1e293b] text-[#cbd5e1] hover:text-white text-xs font-medium border border-[#222a3d] flex items-center gap-1 transition-all cursor-pointer"
+                  title="Descargar Plantilla Excel con columnas de GPS y Canales"
+                >
+                  <span className="material-symbols-outlined text-[15px] text-[#0088ff]">download</span>
+                  <span className="hidden md:inline">Plantilla Matriz GPS</span>
+                </button>
+
+                {floatingPoints.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={onAutoAssignAll}
+                    className="px-2.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border border-amber-500/40 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors shadow-xs"
+                    title="Cargar puntos: priorizar alertas y completar cargue a cada auditor"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
+                    <span>Cargar {floatingPoints.length} Puntos de Alerta</span>
+                  </button>
+                )}
+
+                {totalStepsCount > 0 && onClearRouteSteps && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (window.confirm('¿Seguro que deseas limpiar todas las paradas de ruta?')) {
+                        onClearRouteSteps();
+                      }
+                    }}
+                    className="px-2.5 py-1.5 rounded-xl bg-[#131b2e] hover:bg-[#7f1d1d]/40 text-[#fca5a5] text-xs font-medium border border-[#7f1d1d]/60 flex items-center gap-1 transition-all cursor-pointer"
+                    title="Limpiar todas las paradas"
+                  >
+                    <span className="material-symbols-outlined text-[15px]">delete_sweep</span>
+                    <span className="hidden sm:inline">Limpiar</span>
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* Quick Auditor Focus Filter for Route Mapping */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs text-[#94a3b8] font-medium hidden sm:inline">Ruta de Auditor:</span>
+              <select
+                value={selectedAuditorForMap}
+                onChange={(e) => setSelectedAuditorForMap(e.target.value)}
+                className="bg-[#131b2e] text-white text-xs px-3 py-1.5 rounded-xl border border-[#222a3d] focus:outline-none focus:ring-1 focus:ring-[#0088ff] cursor-pointer"
+              >
+                <option value="todos">Todas las rutas de auditores</option>
+                {auditors.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.name} (Zona {a.zone})
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Integrated Day & Zone Segmented Selectors */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2 border-t border-[#1e2a44]/80">
+            {/* Day Selector Tabs */}
+            <div className="flex items-center gap-1 bg-[#0b1326] p-1 rounded-xl border border-[#222a3d] max-w-full overflow-x-auto scrollbar-none">
+              {[
+                { key: 'lunes', label: 'Lun' },
+                { key: 'martes', label: 'Mar' },
+                { key: 'miércoles', label: 'Mié' },
+                { key: 'jueves', label: 'Jue' },
+                { key: 'viernes', label: 'Vie' },
+                { key: 'semana', label: 'Semana' },
+                { key: 'mes', label: 'Mes' },
+                { key: 'calendario_auditor', label: 'Calendario Auditor' },
+              ].map((item) => {
+                const isSelected = selectedDay === item.key;
+                return (
+                  <button
+                    key={item.key}
+                    type="button"
+                    onClick={() => {
+                      setSelectedDay(item.key);
+                      if (item.key === 'semana') {
+                        onShowToast('Vista Alterna: Semana', 'Visualizando matriz operativa semanal completa.', 'info');
+                      } else if (item.key === 'mes') {
+                        onShowToast('Vista Mensual de Rutas', 'Visualizando matriz y calendario mensual para La Guajira.', 'info');
+                      } else if (item.key === 'calendario_auditor') {
+                        onShowToast('Calendario Auditor Activo', 'Filtrando paradas con selector de rango de fechas.', 'info');
+                      }
+                    }}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 ${
+                      isSelected
+                        ? 'bg-[#0088ff] text-white shadow-sm shadow-[#0088ff]/40'
+                        : 'text-[#bbcabf] hover:text-[#dae2fd]'
+                    }`}
+                  >
+                    {item.key === 'semana' && (
+                      <span className="material-symbols-outlined text-[15px]">view_week</span>
+                    )}
+                    {item.key === 'mes' && (
+                      <span className="material-symbols-outlined text-[15px]">calendar_month</span>
+                    )}
+                    {item.key === 'calendario_auditor' && (
+                      <span className="material-symbols-outlined text-[15px]">date_range</span>
+                    )}
+                    <span>{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Zone Selector */}
+            <div className="flex items-center gap-1 bg-[#0b1326] p-1 rounded-xl border border-[#222a3d] shrink-0">
+              {(['Todas', 'Norte', 'Centro', 'Sur'] as const).map((zone) => (
+                <button
+                  key={zone}
+                  type="button"
+                  onClick={() => setSelectedZone(zone)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                    selectedZone === zone
+                      ? 'bg-[#0088ff] text-white font-bold shadow-md shadow-[#0088ff]/30'
+                      : 'text-[#cbd5e1] hover:text-white'
+                  }`}
+                >
+                  {zone}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* ADMIN REAL DATA TOOLBAR */}
-      {!isAuxiliar && (
-        <div className="bg-[#171f33] border border-[#222a3d] rounded-2xl p-3 sm:p-4 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#0088ff]/20 text-[#0088ff] flex items-center justify-center shrink-0">
-              <span className="material-symbols-outlined text-[20px]">database</span>
-            </div>
-            <div>
-              <p className="text-xs font-bold text-[#f8fafc]">
-                Gestión de Información Real
-              </p>
-              <p className="text-[11px] text-[#cbd5e1]">
-                Ingresa paradas de campo manualmente o carga tu archivo consolidado XLSX / CSV
-              </p>
+      {/* ========================================================================= */}
+      {/* 🧭 VIEW MODE SWITCHER BAR (Mapa en Grande vs Vista Dividida vs Pantalla Completa) */}
+      {/* ========================================================================= */}
+      {selectedDay !== 'mes' && selectedDay !== 'semana' && selectedDay !== 'calendario_auditor' && (
+        <div className="flex items-center justify-between flex-wrap gap-2.5 bg-[#131b2e] px-4 py-2.5 rounded-2xl border border-[#222a3d] shadow-sm">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-white flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-[18px] text-[#38bdf8]">view_compact</span>
+              <span>Modo de Visualización:</span>
+            </span>
+
+            <div className="flex items-center gap-1 bg-[#0b1326] p-1 rounded-xl border border-[#222a3d]">
+              <button
+                type="button"
+                onClick={() => setMapLayoutMode('panoramic_large')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  mapLayoutMode === 'panoramic_large'
+                    ? 'bg-[#0088ff] text-white shadow-sm shadow-[#0088ff]/30'
+                    : 'text-[#cbd5e1] hover:text-white'
+                }`}
+              >
+                <span className="material-symbols-outlined text-[16px]">map</span>
+                <span>Mapa en Grande (Panorámico)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setMapLayoutMode('split')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  mapLayoutMode === 'split'
+                    ? 'bg-[#0088ff] text-white shadow-sm shadow-[#0088ff]/30'
+                    : 'text-[#cbd5e1] hover:text-white'
+                }`}
+              >
+                <span className="material-symbols-outlined text-[16px]">view_sidebar</span>
+                <span>Vista Dividida</span>
+              </button>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap">
-            <button
-              type="button"
-              onClick={() => handleOpenAddStep()}
-              className="px-3 py-1.5 rounded-xl bg-[#0088ff] hover:bg-[#0070d8] text-white text-xs font-bold flex items-center gap-1.5 shadow-md shadow-[#0088ff]/30 active:scale-95 transition-all cursor-pointer"
-            >
-              <span className="material-symbols-outlined text-[16px]">add_location_alt</span>
-              <span>+ Nueva Parada Real</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="px-3 py-1.5 rounded-xl bg-[#1e293b] hover:bg-[#2d3a58] text-[#f8fafc] text-xs font-bold border border-[#3b4760] flex items-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer"
-              title="Cargar matriz con dirección, nombre, canal y geolocalización GPS"
-            >
-              <span className="material-symbols-outlined text-[16px] text-[#38bdf8]">upload_file</span>
-              <span>Cargar Matriz PDV (GPS)</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setIsAddFpOpen(true)}
-              className="px-2.5 py-1.5 rounded-xl bg-[#1e293b] hover:bg-[#2d3a58] text-[#fcd34d] text-xs font-bold border border-[#f59e0b]/40 flex items-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer"
-              title="Agregar Punto Flotante"
-            >
-              <span className="material-symbols-outlined text-[16px]">push_pin</span>
-              <span>+ Flotante</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={downloadRoutesTemplate}
-              className="px-2.5 py-1.5 rounded-xl bg-[#131b2e] hover:bg-[#1e293b] text-[#cbd5e1] hover:text-white text-xs font-medium border border-[#222a3d] flex items-center gap-1 transition-all cursor-pointer"
-              title="Descargar Plantilla Excel con columnas de GPS y Canales"
-            >
-              <span className="material-symbols-outlined text-[15px] text-[#0088ff]">download</span>
-              <span className="hidden md:inline">Plantilla Matriz GPS</span>
-            </button>
-
-            {totalStepsCount > 0 && onClearRouteSteps && (
-              <button
-                type="button"
-                onClick={() => {
-                  if (window.confirm('¿Seguro que deseas limpiar todas las paradas de ruta?')) {
-                    onClearRouteSteps();
-                  }
-                }}
-                className="px-2.5 py-1.5 rounded-xl bg-[#131b2e] hover:bg-[#7f1d1d]/40 text-[#fca5a5] text-xs font-medium border border-[#7f1d1d]/60 flex items-center gap-1 transition-all cursor-pointer"
-                title="Limpiar todas las paradas"
-              >
-                <span className="material-symbols-outlined text-[15px]">delete_sweep</span>
-                <span className="hidden sm:inline">Limpiar</span>
-              </button>
+          <div className="flex items-center gap-2">
+            {selectedAuditorForMap !== 'todos' && (
+              <span className="px-2.5 py-1 rounded-lg bg-[#0088ff]/20 text-[#38bdf8] text-xs font-bold flex items-center gap-1">
+                <span>Ruta: {auditors.find(a => a.id === selectedAuditorForMap)?.name}</span>
+                <button
+                  type="button"
+                  onClick={() => setSelectedAuditorForMap('todos')}
+                  className="hover:text-white cursor-pointer ml-1"
+                  title="Quitar filtro"
+                >
+                  ✕
+                </button>
+              </span>
             )}
+
+            <button
+              type="button"
+              onClick={() => setIsGpsModalOpen(true)}
+              className="px-3 py-1.5 rounded-xl bg-[#1e293b] hover:bg-[#2d3a58] text-[#38bdf8] text-xs font-bold border border-[#3b4760] flex items-center gap-1.5 transition-colors cursor-pointer"
+              title="Abrir mapa de pantalla completa"
+            >
+              <span className="material-symbols-outlined text-[16px]">fullscreen</span>
+              <span>Pantalla Completa</span>
+            </button>
           </div>
         </div>
       )}
-
-      {/* Zone Filters & Status Pill */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-2.5 items-center">
-        {/* Zone Filter Segmented Bar */}
-        <div className="md:col-span-5 grid grid-cols-4 gap-1 bg-[#131b2e] p-1 rounded-xl border border-[#222a3d]">
-          {(['Todas', 'Norte', 'Centro', 'Sur'] as const).map((zone) => (
-            <button
-              key={zone}
-              type="button"
-              onClick={() => setSelectedZone(zone)}
-              className={`py-1.5 text-center rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                selectedZone === zone
-                  ? 'bg-[#0088ff] text-white font-bold shadow-md shadow-[#0088ff]/30'
-                  : 'text-[#cbd5e1] hover:text-white'
-              }`}
-            >
-              {zone}
-            </button>
-          ))}
-        </div>
-
-        {/* Global Progress Summary with Audit Control */}
-        <div className="md:col-span-7 bg-[#171f33] rounded-xl p-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-sm border border-[#222a3d]">
-          <div className="flex items-center gap-2 min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-[#38bdf8]/20 flex items-center justify-center text-[#38bdf8] shrink-0">
-              <span className="material-symbols-outlined text-[17px]">fact_check</span>
-            </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-[11px] text-[#38bdf8] font-bold">Control de Auditoría y Visitas</span>
-                <span className="px-1.5 py-0.2 rounded bg-blue-100 dark:bg-[#0088ff]/20 text-[#0088ff] dark:text-[#38bdf8] text-[10px] font-mono font-bold">
-                  {totalVisitsPerformed} visitas realizadas
-                </span>
-              </div>
-              <div className="flex items-center gap-1.5 mt-0.5 text-[11px] flex-wrap">
-                <span className="text-emerald-400 font-semibold flex items-center gap-0.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
-                  {completedStepsCount} auditados
-                </span>
-                <span className="text-slate-400">·</span>
-                <span className="text-red-400 font-semibold flex items-center gap-0.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-red-400 inline-block" />
-                  {notAuditedStepsCount} no auditados
-                </span>
-                <span className="text-slate-400">·</span>
-                <span className="text-purple-400 font-semibold flex items-center gap-0.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400 inline-block" />
-                  {revisitStepsCount} re-visitas
-                </span>
-                <span className="text-slate-400">·</span>
-                <span className="text-slate-300 font-medium">
-                  {pendingStepsCount} pendientes
-                </span>
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center gap-1.5 shrink-0 self-end sm:self-center">
-            <span className="font-mono text-xs text-[#0088ff] bg-[#131b2e] px-2.5 py-1 rounded-lg border border-[#0088ff]/30 font-bold">
-              {totalStepsCount > 0 ? `${Math.round((completedStepsCount / totalStepsCount) * 100)}% Auditado` : 'Listo'}
-            </span>
-          </div>
-        </div>
-      </div>
 
       {/* VISTA MENSUAL, SEMANAL O DIARIA */}
       {selectedDay === 'mes' ? (
@@ -465,11 +676,45 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
           onDownloadTemplate={downloadRoutesTemplate}
           onShowToast={onShowToast}
         />
+      ) : selectedDay === 'calendario_auditor' ? (
+        <ActiveAuditorCalendarView
+          steps={steps}
+          auditors={auditors}
+          activeAuditorId={selectedAuditorForCalendar}
+          onSelectAuditor={(audId) => setSelectedAuditorForCalendar(audId)}
+          onToggleStepStatus={onToggleStepStatus}
+          onOpenAuditModal={(step) => setAuditModalStep(step)}
+          onOpenAddStep={handleOpenAddStep}
+          onOpenGpsModal={() => setIsGpsModalOpen(true)}
+          onShowToast={onShowToast}
+          isAuxiliar={isAuxiliar}
+        />
       ) : (
-        /* RESPONSIVE LAYOUT GRID */
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-          {/* LEFT COLUMN: Auditor Cards & Itineraries */}
-          <div className="lg:col-span-7 xl:col-span-7 space-y-4">
+        /* RESPONSIVE LAYOUT (PANORAMIC LARGE MAP OR SPLIT) */
+        <div className="flex flex-col w-full space-y-6">
+          {/* 1. PANORAMIC LARGE MAP (WHEN MODE IS PANORAMIC_LARGE) */}
+          {mapLayoutMode === 'panoramic_large' && (
+            <div className="w-full bg-[#060e20] rounded-2xl overflow-hidden border border-[#222a3d] shadow-2xl relative">
+              <CaviNativeMap
+                height="680px"
+                isExpandedLarge={true}
+                onToggleExpandLarge={() => setMapLayoutMode('split')}
+                initialRouteStops={mapWaypoints}
+                onStopArrival={(stop) => {
+                  onShowToast(
+                    'Parada Alcanzada',
+                    `Llegada registrada en ${stop.name} (${stop.municipality || 'La Guajira'}).`,
+                    'success'
+                  );
+                }}
+              />
+            </div>
+          )}
+
+          {/* 2. ITINERARIES & DISPATCH SECTION */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+            {/* LEFT COLUMN: Auditor Cards & Itineraries */}
+            <div className="lg:col-span-7 xl:col-span-7 space-y-4">
             <div className="flex items-center justify-between pt-1">
               <h2 className="font-headline font-bold text-sm text-[#f8fafc] flex items-center gap-2">
                 <span>Auditores de Campo</span>
@@ -606,6 +851,48 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                               {notAuditedCount} no audit.
                             </span>
                           )}
+                        </div>
+                        <div className="flex items-center gap-1 justify-end mt-1.5 flex-wrap">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedAuditorForCalendar(aud.id);
+                              setSelectedDay('calendario_auditor');
+                              onShowToast(
+                                'Calendario del Auditor Activo',
+                                `Abriendo calendario y cronograma de ${aud.name} con selector de rango de fechas.`,
+                                'info'
+                              );
+                            }}
+                            className="px-2 py-0.5 rounded-lg text-[10px] font-bold border border-[#0088ff]/40 bg-[#0088ff]/15 hover:bg-[#0088ff]/30 text-[#38bdf8] hover:text-white transition-all cursor-pointer flex items-center gap-1"
+                            title="Ver calendario y cronograma de este auditor con selector de rango de fechas"
+                          >
+                            <span className="material-symbols-outlined text-[13px]">date_range</span>
+                            <span>Calendario</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedAuditorForMap(selectedAuditorForMap === aud.id ? 'todos' : aud.id);
+                              onShowToast(
+                                'Filtro de Mapa',
+                                selectedAuditorForMap === aud.id
+                                  ? 'Mostrando todas las rutas departamentales'
+                                  : `Trazando ruta exclusiva de ${aud.name}`,
+                                'info'
+                              );
+                            }}
+                            className={`px-2 py-0.5 rounded-lg text-[10px] font-bold border transition-all cursor-pointer flex items-center gap-1 ${
+                              selectedAuditorForMap === aud.id
+                                ? 'bg-[#0088ff] text-white border-[#38bdf8] shadow-xs'
+                                : 'bg-[#131b2e] text-[#cbd5e1] hover:text-white border-[#222a3d]'
+                            }`}
+                            title="Trazar ruta de este auditor en el mapa"
+                          >
+                            <span className="material-symbols-outlined text-[13px]">alt_route</span>
+                            <span>{selectedAuditorForMap === aud.id ? 'Ruta en Mapa ✓' : 'Ver Ruta'}</span>
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -968,20 +1255,26 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
             })}
         </div>
 
-        {/* RIGHT COLUMN: Interactive Territory Map & Floating Dispatch Pool */}
+        {/* RIGHT COLUMN: Interactive Territory Map (in Split Mode) & Dispatch Management */}
         <div className="lg:col-span-5 xl:col-span-5 space-y-4 lg:sticky lg:top-22">
-          {/* Native CAVIMAPS Engine with Route Tracing & Guided Displacement */}
-          <CaviNativeMap
-            height="480px"
-            initialRouteStops={steps}
-            onStopArrival={(stop) => {
-              onShowToast(
-                'Parada Alcanzada',
-                `Llegada registrada en ${stop.name} (${stop.municipality || 'La Guajira'}).`,
-                'success'
-              );
-            }}
-          />
+          {/* Native CAVIMAPS Engine with Route Tracing & Guided Displacement (Split Mode) */}
+          {mapLayoutMode === 'split' && (
+            <div className="w-full bg-[#060e20] rounded-2xl overflow-hidden border border-[#222a3d] shadow-2xl relative">
+              <CaviNativeMap
+                height="520px"
+                isExpandedLarge={false}
+                onToggleExpandLarge={() => setMapLayoutMode('panoramic_large')}
+                initialRouteStops={mapWaypoints}
+                onStopArrival={(stop) => {
+                  onShowToast(
+                    'Parada Alcanzada',
+                    `Llegada registrada en ${stop.name} (${stop.municipality || 'La Guajira'}).`,
+                    'success'
+                  );
+                }}
+              />
+            </div>
+          )}
 
           {/* RIGHT COLUMN: SMART ROUTE PLANNER OR AUXILIAR FIELD PANEL */}
           {isAuxiliar ? (
@@ -1195,7 +1488,8 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
           )}
         </div>
       </div>
-      )}
+    </div>
+    )}
 
       {/* Audit Visit Outcome Modal */}
       <AuditVisitModal

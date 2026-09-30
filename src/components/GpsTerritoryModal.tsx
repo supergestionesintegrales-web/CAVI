@@ -130,7 +130,7 @@ export const GpsTerritoryModal: React.FC<GpsTerritoryModalProps> = ({
   const [filterChannel, setFilterChannel] = useState<string>('todos');
   const [filterStatus, setFilterStatus] = useState<'todos' | 'completed' | 'in_progress' | 'pending' | 'floating'>('todos');
   const [searchQuery, setSearchQuery] = useState('');
-  const [mapStyle, setMapStyle] = useState<'google_mymaps' | 'satellite' | 'tactical' | 'clean'>('google_mymaps');
+  const [mapStyle, setMapStyle] = useState<'cavimaps' | 'satellite' | 'tactical' | 'clean'>('cavimaps');
   const [showRoutesLines, setShowRoutesLines] = useState(true);
   const [zoomLevel, setZoomLevel] = useState<number>(1);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -361,7 +361,7 @@ export const GpsTerritoryModal: React.FC<GpsTerritoryModalProps> = ({
             <input
               ref={fileInputRef}
               type="file"
-              accept=".xlsx, .xls, .csv"
+              accept=".xlsx, .xls, .csv, .txt, .kml, .xml"
               className="hidden"
               onChange={handleFileUpload}
             />
@@ -486,9 +486,9 @@ export const GpsTerritoryModal: React.FC<GpsTerritoryModalProps> = ({
             <div className="flex items-center gap-1 bg-[#0b1326] p-1 rounded-xl border border-[#222a3d]">
               <button
                 type="button"
-                onClick={() => setMapStyle('google_mymaps')}
+                onClick={() => setMapStyle('cavimaps')}
                 className={`px-2 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
-                  mapStyle === 'google_mymaps' ? 'bg-[#0088ff] text-white shadow-sm shadow-[#0088ff]/30' : 'text-[#cbd5e1] hover:text-white'
+                  mapStyle === 'cavimaps' ? 'bg-[#0088ff] text-white shadow-sm shadow-[#0088ff]/30' : 'text-[#cbd5e1] hover:text-white'
                 }`}
               >
                 CAVIMAPS
@@ -512,17 +512,6 @@ export const GpsTerritoryModal: React.FC<GpsTerritoryModalProps> = ({
                 Táctico
               </button>
             </div>
-
-            <a
-              href="https://www.google.com/maps/d/viewer?mid=1NKLGdlcLM282BzWjh7CnaPJtdn6x42w"
-              target="_blank"
-              rel="noreferrer"
-              className="px-2.5 py-1.5 rounded-xl bg-[#0b1326] hover:bg-[#1e293b] text-[#cbd5e1] hover:text-white border border-[#222a3d] text-xs font-bold flex items-center gap-1 transition-all cursor-pointer"
-              title="Abrir mapa oficial en pestaña independiente (CAVIMAPS Web)"
-            >
-              <span className="material-symbols-outlined text-[14px]">open_in_new</span>
-              <span className="hidden sm:inline">CAVIMAPS Web</span>
-            </a>
           </div>
         </div>
 
@@ -532,7 +521,7 @@ export const GpsTerritoryModal: React.FC<GpsTerritoryModalProps> = ({
           {/* LEFT: EXPANDED INTERACTIVE GPS CANVAS */}
           <div className="flex-1 h-full min-h-[360px] relative overflow-hidden bg-[#060e20] flex items-center justify-center select-none">
             
-            {mapStyle === 'google_mymaps' ? (
+            {mapStyle === 'cavimaps' ? (
               /* NATIVE CAVIMAPS ENGINE WITH ROUTE TRACING & GUIDED NAVIGATION */
               <div className="w-full h-full relative bg-[#060e20]">
                 <CaviNativeMap

@@ -115,16 +115,6 @@ export const LeaseDetailsModal: React.FC<LeaseDetailsModalProps> = ({
               </span>
               <div className="flex items-center gap-1.5 flex-wrap">
                 <a
-                  href="https://www.google.com/maps/d/viewer?mid=1NKLGdlcLM282BzWjh7CnaPJtdn6x42w"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="px-2.5 py-1 rounded-lg bg-[#10b981]/15 hover:bg-[#10b981]/25 text-[#4edea3] font-bold text-[11px] flex items-center gap-1 transition-colors border border-[#10b981]/30 cursor-pointer"
-                  title="Abrir mapa oficial departamental en CAVIMAPS"
-                >
-                  <span className="material-symbols-outlined text-[14px]">public</span>
-                  CAVIMAPS Oficial
-                </a>
-                <a
                   href={mapsUrl}
                   target="_blank"
                   rel="noreferrer"

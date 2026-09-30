@@ -1,6 +1,7 @@
 import * as XLSX from 'xlsx';
 import { RouteStep, FormatType, Auditor, AlertCategory } from '../types';
 import { distributePointsWithAlertPriority, PointCandidate } from './pointAssignment';
+import { parsePointsFromText } from './kmlTxtParser';
 
 /**
  * Downloads a clean, formatted Excel template for uploading real route stops.
@@ -73,6 +74,40 @@ export function downloadPdvsMatrixTemplate() {
  * Parses an uploaded Excel or CSV file and extracts RouteStep objects with Geolocation, Name, Channel, and Address.
  */
 export async function parseRoutesFile(file: File, auditors: Auditor[]): Promise<RouteStep[]> {
+  const isTxtOrKml =
+    file.name.toLowerCase().endsWith('.txt') ||
+    file.name.toLowerCase().endsWith('.kml') ||
+    file.name.toLowerCase().endsWith('.xml');
+
+  if (isTxtOrKml) {
+    const text = await file.text();
+    const { points } = parsePointsFromText(text, file.name);
+    if (points.length === 0) return [];
+
+    const candidates: PointCandidate[] = points.map((p, idx) => {
+      let format: FormatType = 'CM';
+      if (p.channel === 'CDA') format = 'CDA';
+      else if (p.channel === 'PF') format = 'PF';
+
+      return {
+        code: p.codePdv || `PDV-${idx + 1}`,
+        name: p.name,
+        channel: p.channel || 'Tradicional',
+        format,
+        address: p.address || p.name,
+        municipality: p.municipality,
+        lat: p.lat,
+        lng: p.lng,
+        hasGps: true,
+        daysWithoutVisit: 0,
+        notes: `Punto cargado desde ${file.name}`,
+      };
+    });
+
+    const { assignedSteps } = distributePointsWithAlertPriority(candidates, auditors);
+    return assignedSteps;
+  }
+
   const data = await file.arrayBuffer();
   const workbook = XLSX.read(data, { type: 'array' });
   const sheetName = workbook.SheetNames[0];
