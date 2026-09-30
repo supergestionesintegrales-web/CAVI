@@ -96,6 +96,9 @@ export function guessZoneFromLocation(location: string): 'Norte' | 'Centro' | 'S
     loc.includes('maicao') ||
     loc.includes('albania') ||
     loc.includes('hatonuevo') ||
+    loc.includes('barrancas') ||
+    loc.includes('distraccion') ||
+    loc.includes('distracción') ||
     loc.includes('centro')
   ) {
     return 'Centro';
@@ -104,9 +107,6 @@ export function guessZoneFromLocation(location: string): 'Norte' | 'Centro' | 'S
     loc.includes('san juan') ||
     loc.includes('fonseca') ||
     loc.includes('villanueva') ||
-    loc.includes('barrancas') ||
-    loc.includes('distraccion') ||
-    loc.includes('distracción') ||
     loc.includes('el molino') ||
     loc.includes('la jagua') ||
     loc.includes('urumita') ||
