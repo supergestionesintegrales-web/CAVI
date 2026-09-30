@@ -32,6 +32,8 @@ interface CaviNativeMapProps {
   initialPoints?: CaviPoint[];
   initialRouteStops?: { id?: string; name: string; lat: number; lng: number; code?: string; municipality?: string; status?: string }[];
   routeGroups?: Array<{ id: string; label: string; color: string; stops: { id?: string; name: string; lat: number; lng: number; code?: string; municipality?: string; status?: string }[] }>;
+  showPointCatalog?: boolean;
+  resetRouteOnEmpty?: boolean;
   onPointSelect?: (point: CaviPoint) => void;
   onStopArrival?: (stop: RouteWaypoint) => void;
   className?: string;
@@ -45,6 +47,8 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
   initialPoints = CAVI_POINTS,
   initialRouteStops = [],
   routeGroups = [],
+  showPointCatalog = true,
+  resetRouteOnEmpty = false,
   onPointSelect,
   onStopArrival,
   className = '',
@@ -136,9 +140,10 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
 
   // Sync when the parent changes the active route.
   useEffect(() => {
-    if (initialRouteStops && initialRouteStops.length > 0) {
+    // Route assignment changes must not inherit a previous simulation/navigation state.
+    if (initialRouteStops.length > 0) {
       const validStops = initialRouteStops
-        .filter((s) => s.lat && s.lng)
+        .filter((s) => Number.isFinite(s.lat) && Number.isFinite(s.lng))
         .map((s, idx) => ({
           id: s.id || `stop-${idx}`,
           name: s.name,
@@ -148,17 +153,19 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
           municipality: s.municipality,
           visited: s.status === 'completed',
         }));
-      if (validStops.length > 0) {
-        setRouteWaypoints(validStops);
-      }
-    }
-  }, [initialRouteStops]);
-
-  useEffect(() => {
-    if (initialRouteStops.length === 0 && routeGroups.length > 0) {
+      setRouteWaypoints(validStops);
+      setIsGuidedModeActive(false);
+      setIsSimulationPlaying(false);
+      setCurrentLegIndex(0);
+      setLegProgress(0);
+    } else if (routeGroups.length > 0 || resetRouteOnEmpty) {
       setRouteWaypoints([]);
+      setIsGuidedModeActive(false);
+      setIsSimulationPlaying(false);
+      setCurrentLegIndex(0);
+      setLegProgress(0);
     }
-  }, [initialRouteStops, routeGroups]);
+  }, [initialRouteStops, routeGroups, resetRouteOnEmpty]);
 
   // Persist custom points
   const handleSaveCustomPoints = (newPoints: CaviPoint[], mode: 'append' | 'replace') => {
@@ -201,6 +208,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
 
   // Filtered points
   const filteredPoints = useMemo(() => {
+    if (!showPointCatalog) return [];
     return allAvailablePoints.filter((p) => {
       if (filterRegion !== 'Todas' && p.subregion !== filterRegion) return false;
       if (filterChannel !== 'todos') {
@@ -218,7 +226,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
       }
       return true;
     });
-  }, [allAvailablePoints, filterRegion, filterChannel, selectedMunicipality, searchQuery]);
+  }, [allAvailablePoints, filterRegion, filterChannel, selectedMunicipality, searchQuery, showPointCatalog]);
 
   // CARTO Basemaps API Key integration (removes watermark)
   const cartoApiKey = (import.meta as any).env?.VITE_CARTO_API_KEY || 'cb1_456j_1_b12ca51a8d315e590b3384b4';
@@ -428,10 +436,24 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
     routeGroups.filter((group) => group.stops.length >= 2).forEach((group) => {
       const latLngs = group.stops.filter((s) => s.lat && s.lng).map((s) => [s.lat, s.lng] as [number, number]);
       if (latLngs.length >= 2) {
-        L.polyline(latLngs, { color: group.color, weight: 5, opacity: 0.9, dashArray: '8, 6' })
+        L.polyline(latLngs, { color: group.color, weight: 4, opacity: 0.85, smoothFactor: 2, noClip: false, interactive: true })
           .bindTooltip(group.label, { sticky: true })
           .addTo(routeGroupsLayer);
       }
+      // A colored stop marker makes each auditor's assigned route identifiable.
+      group.stops.forEach((stop, index) => {
+        if (!Number.isFinite(stop.lat) || !Number.isFinite(stop.lng)) return;
+        L.circleMarker([stop.lat, stop.lng], {
+          radius: 6,
+          color: '#ffffff',
+          weight: 1.5,
+          fillColor: group.color,
+          fillOpacity: 0.95,
+          renderer: L.canvas(),
+        })
+          .bindTooltip(`${group.label}<br/>Parada ${index + 1}: ${stop.name}`, { direction: 'top' })
+          .addTo(routeGroupsLayer);
+      });
     });
 
     if (routeWaypoints.length < 2) {
