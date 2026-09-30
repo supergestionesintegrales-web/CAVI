@@ -113,6 +113,7 @@ export function parseLeasePointsFromMacroFiles(files: Array<{ name: string; shee
           electricMeter: clean(get(row,['Medidor de Energía','Medidor Energia'])) || base.electricMeter,
           waterMeter: clean(get(row,['Medidor de Agua'])) || base.waterMeter,
           lastAuditDate: parseDate(get(row,['Última Auditoría Inmueble','Ultima Auditoria','Última Auditoría'])) || base.lastAuditDate,
+          daysOfAccount: parseNumber(get(row,['Días de Cuenta','Dias de Cuenta','Dias Cuenta','Días Cuenta','Días de cuenta'])) || base.daysOfAccount,
           lastAuditorName: clean(get(row,['Auditor Responsable','Auditor'])) || base.lastAuditorName,
           landlord: {
             ...base.landlord,
