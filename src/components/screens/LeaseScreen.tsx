@@ -500,10 +500,12 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
                   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${pt.lat},${pt.lng}`;
 
                   return (
-                    <button
+                    <div
                       key={pt.id}
-                      type="button"
+                      role="button"
+                      tabIndex={0}
                       onClick={() => handleOpenDetails(pt)}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleOpenDetails(pt); }}
                       className={`group w-full text-left bg-[#131b2e] rounded-xl border transition-all shadow-sm hover:border-[#0088ff]/50 hover:bg-[#151f35] cursor-pointer overflow-hidden ${
                         lifecycle.status === 'inactive'
                           ? 'border-[#a855f7]/40'
@@ -603,7 +605,7 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
                           GPS
                         </a>
                       </div>
-                    </button>
+                    </div>
                   );
                 })}
               </div>
