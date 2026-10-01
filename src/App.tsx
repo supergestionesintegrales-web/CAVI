@@ -159,7 +159,7 @@ export default function App() {
     });
   }, [auditors, routeSteps]);
 
-  const handleAddRouteStep = (stepData: Omit<RouteStep, 'id'>) => {
+  const handleAddRouteStep = (stepData: Omit<RouteStep, 'id'>) => {\n    if (userRole !== 'administrador') { showToast('Solo lectura', 'Solo el administrador puede modificar la información.', 'alert'); return; }
     const newStep: RouteStep = {
       ...stepData,
       id: `step-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
@@ -168,7 +168,7 @@ export default function App() {
     showToast('Parada Agregada', `${newStep.code} (${newStep.name}) asignada con éxito.`, 'success');
   };
 
-  const handleDeleteRouteStep = (id: string) => {
+  const handleDeleteRouteStep = (id: string) => {\n    if (userRole !== 'administrador') { showToast('Solo lectura', 'Solo el administrador puede modificar la información.', 'alert'); return; }
     setRouteSteps((prev) => prev.filter((s) => s.id !== id));
     showToast('Parada Eliminada', 'Se removió la parada de la hoja de ruta.', 'info');
   };
@@ -330,7 +330,7 @@ export default function App() {
     showToast('Rutas Limpiadas', 'Se eliminaron las paradas para ingresar información nueva.', 'info');
   };
 
-  const handleAddFloatingPoint = (fpData: Omit<FloatingPoint, 'id'>) => {
+  const handleAddFloatingPoint = (fpData: Omit<FloatingPoint, 'id'>) => {\n    if (userRole !== 'administrador') { showToast('Solo lectura', 'Solo el administrador puede modificar la información.', 'alert'); return; }
     const newFp: FloatingPoint = {
       ...fpData,
       id: `fp-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
@@ -339,7 +339,7 @@ export default function App() {
     showToast('Punto Creado', `${newFp.code} (${newFp.name}) listo en la bandeja de flotantes.`, 'success');
   };
 
-  const handleDeleteFloatingPoint = (id: string) => {
+  const handleDeleteFloatingPoint = (id: string) => {\n    if (userRole !== 'administrador') { showToast('Solo lectura', 'Solo el administrador puede modificar la información.', 'alert'); return; }
     setFloatingPoints((prev) => prev.filter((fp) => fp.id !== id));
   };
 
@@ -400,7 +400,7 @@ export default function App() {
   };
 
   // Lease management handlers
-  const handleAddLeasePoint = (point: LeasePoint) => {
+  const handleAddLeasePoint = (point: LeasePoint) => {\n    if (userRole !== 'administrador') { showToast('Solo lectura', 'Solo el administrador puede modificar la información.', 'alert'); return; }
     setLeasePoints((prev) => {
       const existing = prev.find((p) => p.code.toLowerCase() === point.code.toLowerCase());
       if (!existing) return [point, ...prev];
@@ -408,11 +408,11 @@ export default function App() {
     });
   };
 
-  const handleUpdateLeasePoint = (point: LeasePoint) => {
+  const handleUpdateLeasePoint = (point: LeasePoint) => {\n    if (userRole !== 'administrador') { showToast('Solo lectura', 'Solo el administrador puede modificar la información.', 'alert'); return; }
     setLeasePoints((prev) => prev.map((p) => (p.id === point.id ? point : p)));
   };
 
-  const handleDeleteLeasePoint = (pointId: string) => {
+  const handleDeleteLeasePoint = (pointId: string) => {\n    if (userRole !== 'administrador') { showToast('Solo lectura', 'Solo el administrador puede modificar la información.', 'alert'); return; }
     setLeasePoints((prev) => prev.filter((p) => p.id !== pointId));
   };
 
@@ -424,6 +424,7 @@ export default function App() {
     newIncident?: LeaseIncident,
     inactivityReason?: LeasePoint['inactivityReason']
   ) => {
+    if (userRole !== 'administrador') { showToast('Solo lectura', 'Solo el administrador puede modificar la información.', 'alert'); return; }
     setLeasePoints((prev) =>
       prev.map((p) => {
         if (p.id === pointId) {
@@ -464,7 +465,7 @@ export default function App() {
   };
 
   // Reconciliación automática: cada archivo cargado actualiza el repositorio, no lo reemplaza.
-  const handleAddFiles = (newFiles: MacroFile[]) => {
+  const handleAddFiles = (newFiles: MacroFile[]) => {\n    if (userRole !== 'administrador') { showToast('Solo lectura', 'Solo el administrador puede cargar o actualizar archivos.', 'alert'); return; }
     setMacroFiles((prev) => {
       const byKey = new Map<string, MacroFile>(prev.map((f) => [f.path.toLowerCase(), f]));
       newFiles.forEach((incoming) => {
@@ -687,7 +688,7 @@ export default function App() {
   };
 
   // Macro files handling
-  const handleAddMacroFiles = (newFiles: MacroFile[]) => handleAddFiles(newFiles);
+  const handleAddMacroFiles = (newFiles: MacroFile[]) => { if (userRole !== 'administrador') { showToast('Solo lectura', 'Solo el administrador puede cargar o actualizar archivos.', 'alert'); return; } handleAddFiles(newFiles); };
 
   const handleInjectRoutesFromMacro = (file: MacroFile) => {
     setActiveRouteSourceFile(file.name);
