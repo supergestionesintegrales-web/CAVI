@@ -419,7 +419,7 @@ export default function App() {
     const nextTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(nextTheme);
     showToast(
-      nextTheme === 'light' ? '☀️ Modo Claro Activado' : '🌙 Modo Oscuro Activado',
+      nextTheme === 'light' ? 'Modo Claro Activado' : 'Modo Oscuro Activado',
       nextTheme === 'light'
         ? 'Interfaz diurna optimizada: fondos blancos/claros y tipografía de alto contraste.'
         : 'Modo nocturno táctico reactivado para trabajo en campo.',
