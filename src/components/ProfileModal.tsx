@@ -19,8 +19,6 @@ interface ProfileModalProps {
 export const ProfileModal: React.FC<ProfileModalProps> = ({
   isOpen,
   onClose,
-  theme = 'dark',
-  onToggleTheme,
   onShowToast,
   userRole = 'administrador',
   onSelectRole,
@@ -273,26 +271,6 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
               </button>
             </div>
 
-            {/* App Theme Selector */}
-            {onToggleTheme && (
-              <div className="flex items-center justify-between text-xs pt-2 border-t border-[#222a3d]">
-                <div className="flex items-center gap-1.5">
-                  <span className={`material-symbols-outlined text-[17px] ${
-                    theme === 'dark' ? 'text-[#ffb95f]' : 'text-[#3131c0]'
-                  }`}>
-                    {theme === 'dark' ? 'dark_mode' : 'light_mode'}
-                  </span>
-                  <span className="text-[#dae2fd] font-medium">Tema Visual (Color)</span>
-                </div>
-                <button
-                  onClick={onToggleTheme}
-                  className="px-2.5 py-1 rounded-lg bg-[#222a3d] hover:bg-[#2d3449] text-xs font-semibold text-[#dae2fd] flex items-center gap-1.5 transition-all border border-[#2d3449] cursor-pointer"
-                >
-                  <span>{theme === 'dark' ? 'Oscuro' : 'Blanco'}</span>
-                  <span className="material-symbols-outlined text-[14px]">swap_horiz</span>
-                </button>
-              </div>
-            )}
           </div>
 
           <button
