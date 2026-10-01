@@ -780,6 +780,18 @@ export default function App() {
   // Macro files handling
   const handleAddMacroFiles = (newFiles: MacroFile[]) => { if (userRole !== 'administrador') { showToast('Solo lectura', 'Solo el administrador puede cargar o actualizar archivos.', 'alert'); return; } handleAddFiles(newFiles); };
 
+  const handleDeleteMacroFiles = (fileIds: string[]) => {
+    if (userRole !== 'administrador') {
+      showToast('Solo lectura', 'Solo el administrador puede eliminar archivos.', 'alert');
+      return;
+    }
+    const ids = new Set(fileIds);
+    setMacroFiles((prev) => prev.filter((file) => !ids.has(file.id)));
+    if (activeRouteSourceFile && fileIds.some((id) => macroFiles.find((file) => file.id === id)?.name === activeRouteSourceFile)) {
+      setActiveRouteSourceFile('');
+    }
+  };
+
   const handleInjectRoutesFromMacro = (file: MacroFile) => {
     if (userRole !== 'administrador') { showToast('Solo lectura', 'Solo el administrador puede modificar la información.', 'alert'); return; }
     setActiveRouteSourceFile(file.name);
@@ -885,6 +897,7 @@ export default function App() {
           <MacroFoldersScreen
             files={macroFiles}
             onAddFiles={handleAddMacroFiles}
+            onDeleteFiles={handleDeleteMacroFiles}
             onInjectRoutes={handleInjectRoutesFromMacro}
             activeRouteSourceFile={activeRouteSourceFile}
             onOpenScanner={() => setIsScannerOpen(true)}
