@@ -1,21 +1,24 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { CriticalPoint } from '../types';
+import { CriticalPoint, Auditor } from '../types';
 import { CRITICAL_POINTS_LIST } from '../data/mockData';
 
 interface CriticalPointsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAssignPoint: (code: string, auditor: string) => void;
+  onAssignPoint: (code: string, auditorId: string) => void;
+  auditors: Auditor[];
 }
 
 export const CriticalPointsModal: React.FC<CriticalPointsModalProps> = ({
   isOpen,
   onClose,
   onAssignPoint,
+  auditors,
 }) => {
   const [filterFormat, setFilterFormat] = useState<'ALL' | 'CM' | 'PF' | 'CDA'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedAuditorId, setSelectedAuditorId] = useState(auditors[0]?.id || '');
 
   if (!isOpen) return null;
 
@@ -90,6 +93,19 @@ export const CriticalPointsModal: React.FC<CriticalPointsModalProps> = ({
             </div>
           </div>
 
+          <div className="mb-3">
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-[#bbcabf] mb-1.5">Auditor</label>
+            <select
+              value={selectedAuditorId}
+              onChange={(e) => setSelectedAuditorId(e.target.value)}
+              className="w-full px-3 py-2 rounded-xl bg-[#060e20] text-[#dae2fd] border border-[#222a3d] text-xs font-semibold focus:outline-none focus:border-[#0088ff]"
+            >
+              {auditors.map((auditor) => (
+                <option key={auditor.id} value={auditor.id}>{auditor.name}</option>
+              ))}
+            </select>
+          </div>
+
           {/* List of critical points */}
           <div className="flex-1 overflow-y-auto space-y-2 pr-1 py-1">
             {filteredPoints.length === 0 ? (
@@ -144,7 +160,7 @@ export const CriticalPointsModal: React.FC<CriticalPointsModalProps> = ({
                     </span>
                     <button
                       onClick={() => {
-                        onAssignPoint(point.code, 'Samuel Ramos Quintero');
+                        onAssignPoint(point.code, selectedAuditorId);
                         onClose();
                       }}
                       className="px-2.5 py-1 rounded-lg bg-[#222a3d] hover:bg-[#0088ff] hover:text-white text-[#38bdf8] font-semibold text-[11px] transition-all flex items-center gap-1 active:scale-95 cursor-pointer"
