@@ -386,8 +386,6 @@ export default function App() {
   }, [userRole, activeTab]);
 
   // CAVI opera exclusivamente en modo claro.
-  const theme = 'light' as const;
-
   useEffect(() => {
     try {
       document.documentElement.setAttribute('data-theme', 'light');
@@ -831,7 +829,7 @@ export default function App() {
   return (
     <div className="cavi-app-shell min-h-screen bg-[#f8fafc] dark:bg-[#0b1326] text-slate-900 dark:text-[#dae2fd] flex flex-col selection:bg-[#0088ff]/30 selection:text-[#0088ff]">
       {/* Global Floating Toast */}
-      <Toast toasts={toasts} onDismiss={handleDismissToast} theme={theme} />
+      <Toast toasts={toasts} onDismiss={handleDismissToast} />
 
       {/* Global Fixed Header (Responsive Mobile + Desktop Navigation) */}
       <Header
@@ -923,7 +921,7 @@ export default function App() {
         )}
 
         {activeTab === 'alertas' && (
-          <AlertsScreen alerts={dataAlerts} leasePoints={leasePoints} theme={theme} />
+          <AlertsScreen alerts={dataAlerts} leasePoints={leasePoints} />
         )}
       </main>
 
