@@ -6,7 +6,6 @@ import { formatCOP } from '../../data/leasePointsData';
 interface AlertsScreenProps {
   alerts: LeaseDataAlert[];
   leasePoints: LeasePoint[];
-  theme?: 'dark' | 'light';
 }
 
 const TYPE_LABELS: Record<LeaseDataAlert['type'], string> = {
@@ -29,8 +28,8 @@ const TYPE_ICONS: Record<LeaseDataAlert['type'], string> = {
   sales_inactivity: 'trending_down',
 };
 
-export const AlertsScreen: React.FC<AlertsScreenProps> = ({ alerts, leasePoints, theme = 'dark' }) => {
-  const light = theme === 'light';
+export const AlertsScreen: React.FC<AlertsScreenProps> = ({ alerts, leasePoints }) => {
+  const light = true;
   const [severity, setSeverity] = useState<'all' | 'urgent' | 'warning' | 'info'>('all');
   const [type, setType] = useState<'all' | LeaseDataAlert['type']>('all');
   const [search, setSearch] = useState('');
