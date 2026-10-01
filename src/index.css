@@ -60,14 +60,27 @@
 }
 
 @layer base {
-  html, body {
-    width: 100vw;
+  html {
+    width: 100%;
+    min-height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+  }
+  body {
+    width: 100%;
+    min-height: 100%;
     margin: 0;
     padding: 0;
     background-color: #0b1326;
     color: #dae2fd;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    overscroll-behavior: none;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: auto;
   }
   .pb-safe {
     padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -94,13 +107,24 @@
   -webkit-font-smoothing: antialiased;
 }
 
-/* Hide scrollbar */
+/* Visible, modern custom scrollbar for smooth vertical scrolling */
 ::-webkit-scrollbar {
-  display: none;
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(11, 19, 38, 0.6);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.35);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 136, 255, 0.65);
 }
 * {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 116, 139, 0.35) transparent;
 }
 
 .font-headline {
@@ -1399,20 +1423,28 @@ html:not([data-theme="light"]):not(.theme-light):not(.light) .day-matrix-badge {
 html {
   width: 100%;
   min-width: 0;
+  min-height: 100%;
   overflow-x: hidden;
+  overflow-y: auto;
+  scroll-behavior: smooth;
 }
 
 body {
   width: 100%;
   min-width: 0;
+  min-height: 100%;
   overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 #root {
   width: 100%;
   min-width: 0;
   max-width: 100%;
+  min-height: 100%;
   overflow-x: clip;
+  overflow-y: visible;
 }
 
 .cavi-app-shell,

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Auditor } from '../../types';
+import { Auditor, UserRole } from '../../types';
 
 interface DashboardScreenProps {
   auditors: Auditor[];
@@ -12,6 +12,7 @@ interface DashboardScreenProps {
   onOpenCriticalPoints: () => void;
   onShowToast: (title: string, message: string, type?: 'success' | 'info' | 'alert') => void;
   initialViewMode?: 'consolidado' | 'operativo' | 'kpis';
+  userRole?: UserRole;
 }
 
 export const DashboardScreen: React.FC<DashboardScreenProps> = ({
@@ -25,7 +26,9 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
   onOpenCriticalPoints,
   onShowToast,
   initialViewMode = 'consolidado',
+  userRole = 'administrador',
 }) => {
+  const isAdmin = userRole === 'administrador';
   const [viewMode, setViewMode] = useState<'consolidado' | 'operativo' | 'kpis'>(initialViewMode);
   const [alertDismissed, setAlertDismissed] = useState(false);
   const [activeFilter, setActiveFilter] = useState<'all' | 'progress' | 'completed' | 'alert'>('all');
@@ -98,6 +101,21 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
 
   return (
     <div className="flex flex-col w-full space-y-4 md:space-y-5">
+      {/* Role Notice Banner for Non-Admin */}
+      {!isAdmin && (
+        <div className="p-3 rounded-xl bg-[#0f1d2e] border border-[#0088ff]/30 flex items-center justify-between gap-3 shadow-xs">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-[18px] text-[#0088ff]">visibility</span>
+            <span className="text-xs font-semibold text-[#dae2fd]">
+              Modo Solo Vista ({userRole === 'auxiliar' ? 'Auxiliar / Auditor' : userRole}): La única persona autorizada para cargar información o editar es el Administrador.
+            </span>
+          </div>
+          <span className="px-2 py-0.5 rounded-full bg-[#0088ff]/15 text-[#38bdf8] text-[10px] font-bold border border-[#0088ff]/30 shrink-0">
+            Solo Consulta
+          </span>
+        </div>
+      )}
+
       {/* HEADER SECTION: UNIFIED TITLE & SUB-VIEW SWITCHER */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-[#131b2e] p-3.5 sm:p-4 md:p-5 rounded-2xl border border-[#222a3d] shadow-sm overflow-hidden">
         <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -542,32 +560,39 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
 
               {/* ACTION BUTTONS */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 relative z-10">
-                <button
-                  onClick={handleApplyCavi}
-                  disabled={isApplyingCavi || caviApplied}
-                  className={`w-full h-11 flex items-center justify-center gap-2 rounded-xl font-bold text-xs shadow-md active:opacity-90 transition-all cursor-pointer ${
-                    caviApplied
-                      ? 'bg-[#171f33] text-[#0088ff] border border-[#0088ff]/40'
-                      : 'bg-[#0088ff] text-white hover:bg-[#0070d8]'
-                  }`}
-                >
-                  {isApplyingCavi ? (
-                    <>
-                      <span className="material-symbols-outlined text-[18px] animate-spin">sync</span>
-                      <span>Optimizando rutas...</span>
-                    </>
-                  ) : caviApplied ? (
-                    <>
-                      <span className="material-symbols-outlined text-[18px]">done_all</span>
-                      <span>Rutas de Hoy Optimizadas</span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="material-symbols-outlined text-[18px]">check_circle</span>
-                      <span>Aplicar a Rutas de Hoy</span>
-                    </>
-                  )}
-                </button>
+                {isAdmin ? (
+                  <button
+                    onClick={handleApplyCavi}
+                    disabled={isApplyingCavi || caviApplied}
+                    className={`w-full h-11 flex items-center justify-center gap-2 rounded-xl font-bold text-xs shadow-md active:opacity-90 transition-all cursor-pointer ${
+                      caviApplied
+                        ? 'bg-[#171f33] text-[#0088ff] border border-[#0088ff]/40'
+                        : 'bg-[#0088ff] text-white hover:bg-[#0070d8]'
+                    }`}
+                  >
+                    {isApplyingCavi ? (
+                      <>
+                        <span className="material-symbols-outlined text-[18px] animate-spin">sync</span>
+                        <span>Optimizando rutas...</span>
+                      </>
+                    ) : caviApplied ? (
+                      <>
+                        <span className="material-symbols-outlined text-[18px]">done_all</span>
+                        <span>Rutas de Hoy Optimizadas</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="material-symbols-outlined text-[18px]">check_circle</span>
+                        <span>Aplicar a Rutas de Hoy</span>
+                      </>
+                    )}
+                  </button>
+                ) : (
+                  <div className="w-full h-11 flex items-center justify-center gap-2 rounded-xl font-bold text-xs bg-[#171f33] text-[#bbcabf] border border-[#222a3d] select-none">
+                    <span className="material-symbols-outlined text-[16px] text-[#0088ff]">visibility</span>
+                    <span>Modo Vista · Optimización Admin</span>
+                  </div>
+                )}
 
                 <button
                   onClick={onOpenCriticalPoints}

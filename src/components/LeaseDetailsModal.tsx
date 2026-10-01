@@ -13,6 +13,7 @@ interface LeaseDetailsModalProps {
   point: LeasePoint | null;
   onEdit: (point: LeasePoint) => void;
   onOpenIncident: (point: LeasePoint) => void;
+  userRole?: string;
 }
 
 export const LeaseDetailsModal: React.FC<LeaseDetailsModalProps> = ({
@@ -21,7 +22,9 @@ export const LeaseDetailsModal: React.FC<LeaseDetailsModalProps> = ({
   point,
   onEdit,
   onOpenIncident,
+  userRole = 'administrador',
 }) => {
+  const isAdmin = userRole === 'administrador';
   if (!isOpen || !point) return null;
 
   const status = evaluatePointOpenStatus(point);
@@ -323,11 +326,11 @@ export const LeaseDetailsModal: React.FC<LeaseDetailsModalProps> = ({
             </span>
             <div className="flex flex-wrap items-center gap-2">
               <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${
-                lifecycle.status === 'inactive'
+                lifecycle.lifecycleStatus === 'inactive'
                   ? 'bg-[#a855f7]/10 text-[#c084fc] border-[#a855f7]/30'
                   : 'bg-[#10b981]/10 text-[#4edea3] border-[#10b981]/30'
               }`}>
-                {lifecycle.status === 'inactive' ? 'DEPURADO / INACTIVO' : 'ACTIVO'}
+                {lifecycle.lifecycleStatus === 'inactive' ? 'DEPURADO / INACTIVO' : 'ACTIVO'}
               </span>
               {lifecycle.inactivityLabel && (
                 <span className="text-[10px] text-[#ffb4ab]">Motivo: {lifecycle.inactivityLabel}</span>
@@ -401,24 +404,33 @@ export const LeaseDetailsModal: React.FC<LeaseDetailsModalProps> = ({
 
         {/* Footer Actions */}
         <div className="p-4 border-t border-[#222a3d] bg-[#131b2e] flex items-center justify-between gap-2">
-          <button
-            type="button"
-            onClick={() => onOpenIncident(point)}
-            className="px-3.5 py-2 rounded-xl text-xs font-bold text-[#ffb4ab] bg-[#ffb4ab]/10 hover:bg-[#ffb4ab]/20 border border-[#ffb4ab]/30 transition-all flex items-center gap-1.5 cursor-pointer"
-          >
-            <span className="material-symbols-outlined text-[18px]">warning</span>
-            Novedad de Cierre / Horario
-          </button>
-
-          <div className="flex items-center gap-2">
+          {isAdmin ? (
             <button
               type="button"
-              onClick={() => onEdit(point)}
-              className="px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-[#171f33] hover:bg-[#222a3d] border border-[#2d3449] transition-all flex items-center gap-1.5 cursor-pointer"
+              onClick={() => onOpenIncident(point)}
+              className="px-3.5 py-2 rounded-xl text-xs font-bold text-[#ffb4ab] bg-[#ffb4ab]/10 hover:bg-[#ffb4ab]/20 border border-[#ffb4ab]/30 transition-all flex items-center gap-1.5 cursor-pointer"
             >
-              <span className="material-symbols-outlined text-[18px]">edit</span>
-              Editar Inmueble
+              <span className="material-symbols-outlined text-[18px]">warning</span>
+              Novedad de Cierre / Horario
             </button>
+          ) : (
+            <span className="text-[11px] text-[#94a3b8] font-medium flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-[16px] text-[#0088ff]">visibility</span>
+              Modo Solo Vista (Edición solo Admin)
+            </span>
+          )}
+
+          <div className="flex items-center gap-2">
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={() => onEdit(point)}
+                className="px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-[#171f33] hover:bg-[#222a3d] border border-[#2d3449] transition-all flex items-center gap-1.5 cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-[18px]">edit</span>
+                Editar Inmueble
+              </button>
+            )}
             <button
               type="button"
               onClick={onClose}

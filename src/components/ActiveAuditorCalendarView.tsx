@@ -23,6 +23,7 @@ interface ActiveAuditorCalendarViewProps {
   onOpenGpsModal: () => void;
   onShowToast: (title: string, message: string, type?: 'info' | 'success' | 'alert') => void;
   isAuxiliar?: boolean;
+  userRole?: string;
 }
 
 export const ActiveAuditorCalendarView: React.FC<ActiveAuditorCalendarViewProps> = ({
@@ -36,7 +37,9 @@ export const ActiveAuditorCalendarView: React.FC<ActiveAuditorCalendarViewProps>
   onOpenGpsModal,
   onShowToast,
   isAuxiliar = false,
+  userRole,
 }) => {
+  const isAdmin = userRole ? userRole === 'administrador' : !isAuxiliar;
   const referenceDate = useMemo(() => new Date(), []);
   const presets = useMemo(() => getDatePresets(referenceDate), [referenceDate]);
 
@@ -236,7 +239,7 @@ export const ActiveAuditorCalendarView: React.FC<ActiveAuditorCalendarViewProps>
               })}
             </div>
 
-            {onOpenAddStep && !isAuxiliar && (
+            {onOpenAddStep && isAdmin && (
               <button
                 type="button"
                 onClick={() => onOpenAddStep(activeAuditor.id)}
@@ -557,7 +560,7 @@ export const ActiveAuditorCalendarView: React.FC<ActiveAuditorCalendarViewProps>
               >
                 Ver Todo el Ciclo
               </button>
-              {onOpenAddStep && !isAuxiliar && (
+              {onOpenAddStep && isAdmin && (
                 <button
                   type="button"
                   onClick={() => onOpenAddStep(activeAuditor.id)}
@@ -715,32 +718,48 @@ export const ActiveAuditorCalendarView: React.FC<ActiveAuditorCalendarViewProps>
                             </span>
 
                             <div className="flex items-center gap-1.5">
-                              {onOpenAuditModal && (
-                                <button
-                                  type="button"
-                                  onClick={() => onOpenAuditModal(step)}
-                                  className="px-2 py-1 rounded-lg bg-[#0088ff] hover:bg-[#0070d8] text-white text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer shadow-xs active:scale-95"
-                                >
-                                  <span className="material-symbols-outlined text-[13px]">rate_review</span>
-                                  <span>Auditar</span>
-                                </button>
-                              )}
+                              {isAdmin ? (
+                                <>
+                                  {onOpenAuditModal && (
+                                    <button
+                                      type="button"
+                                      onClick={() => onOpenAuditModal(step)}
+                                      className="px-2 py-1 rounded-lg bg-[#0088ff] hover:bg-[#0070d8] text-white text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer shadow-xs active:scale-95"
+                                    >
+                                      <span className="material-symbols-outlined text-[13px]">rate_review</span>
+                                      <span>Auditar</span>
+                                    </button>
+                                  )}
 
-                              {onToggleStepStatus && (
-                                <button
-                                  type="button"
-                                  onClick={() => onToggleStepStatus(step.id)}
-                                  className={`px-2 py-1 rounded-lg text-[10px] font-bold border transition-colors cursor-pointer ${
+                                  {onToggleStepStatus && (
+                                    <button
+                                      type="button"
+                                      onClick={() => onToggleStepStatus(step.id)}
+                                      className={`px-2 py-1 rounded-lg text-[10px] font-bold border transition-colors cursor-pointer ${
+                                        isCompleted
+                                          ? 'bg-[#064e3b] text-[#6ee7b7] border-[#10b981]/40'
+                                          : isNotAudited
+                                          ? 'bg-red-950/50 text-red-300 border-red-900'
+                                          : 'bg-[#1e293b] text-[#93c5fd] border-[#334155]'
+                                      }`}
+                                      title="Ciclar estado"
+                                    >
+                                      {isCompleted ? '✓ OK' : isNotAudited ? '✕ No' : 'Pendiente'}
+                                    </button>
+                                  )}
+                                </>
+                              ) : (
+                                <span
+                                  className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border ${
                                     isCompleted
                                       ? 'bg-[#064e3b] text-[#6ee7b7] border-[#10b981]/40'
                                       : isNotAudited
                                       ? 'bg-red-950/50 text-red-300 border-red-900'
                                       : 'bg-[#1e293b] text-[#93c5fd] border-[#334155]'
                                   }`}
-                                  title="Ciclar estado"
                                 >
-                                  {isCompleted ? '✓ OK' : isNotAudited ? '✕ No' : 'Pendiente'}
-                                </button>
+                                  {isCompleted ? 'Auditado ✓' : isNotAudited ? 'No Auditado' : 'Pendiente'}
+                                </span>
                               )}
                             </div>
                           </div>

@@ -71,19 +71,11 @@ export const MacroFoldersScreen: React.FC<MacroFoldersScreenProps> = ({
   routeSteps = [],
   auditors = [],
 }) => {
+  const isAdmin = userRole === 'administrador';
   const isAuxiliar = userRole === 'auxiliar';
 
-  // Upper Slider Active Section (Default: 'tema-vial' for Auxiliar, 'macros' for Admin)
-  const [activeConfigSection, setActiveConfigSection] = useState<ConfigSectionId>(
-    isAuxiliar ? 'tema-vial' : 'macros'
-  );
-
-  // Sync activeConfigSection if user switches roles
-  useEffect(() => {
-    if (isAuxiliar && activeConfigSection === 'macros') {
-      setActiveConfigSection('tema-vial');
-    }
-  }, [isAuxiliar, activeConfigSection]);
+  // Upper Slider Active Section (Default: 'macros')
+  const [activeConfigSection, setActiveConfigSection] = useState<ConfigSectionId>('macros');
 
   // Filter & Search states for files
   const [selectedMacroFolder, setSelectedMacroFolder] = useState<string>('all');
@@ -492,7 +484,7 @@ FORMATOS COMPATIBLES:
     }
   };
 
-  const showMacros = !isAuxiliar && (activeConfigSection === 'macros' || activeConfigSection === 'todas');
+  const showMacros = activeConfigSection === 'macros' || activeConfigSection === 'todas';
   const showTemaVial = activeConfigSection === 'tema-vial' || activeConfigSection === 'todas';
   const showOperacionesReportes =
     activeConfigSection === 'reportes-operaciones' ||
@@ -503,24 +495,24 @@ FORMATOS COMPATIBLES:
 
   return (
     <div className="flex flex-col w-full space-y-4 md:space-y-5">
-      {/* Role Notice Banner for Auxiliar in Configuration */}
-      {isAuxiliar && (
-        <div className="p-3 rounded-xl bg-[#171f33] border border-[#3131c0]/50 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-sm">
+      {/* Role Notice Banner for Non-Admin */}
+      {!isAdmin && (
+        <div className="p-3 rounded-xl bg-[#0f1d2e] border border-[#0088ff]/30 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-sm">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#3131c0]/20 flex items-center justify-center text-[#c0c1ff] shrink-0">
-              <span className="material-symbols-outlined text-[18px]">verified_user</span>
+            <div className="w-8 h-8 rounded-lg bg-[#0088ff]/20 flex items-center justify-center text-[#38bdf8] shrink-0">
+              <span className="material-symbols-outlined text-[18px]">visibility</span>
             </div>
             <div>
-              <p className="text-xs font-bold text-[#c0c1ff]">
-                Configuración Operativa (Rol Auxiliar)
+              <p className="text-xs font-bold text-[#dae2fd]">
+                Modo Solo Vista ({userRole === 'auxiliar' ? 'Auxiliar / Auditor' : userRole})
               </p>
               <p className="text-[11px] text-[#bbcabf]">
-                Permisos activos: Cambio de Color (Tema Vial), Red Comercial La Guajira y Sensor de Campo.
+                La única persona autorizada para cargar información, editar o actualizar es el Administrador. Visualizando archivos macro, telemetría y configuración.
               </p>
             </div>
           </div>
-          <span className="px-2.5 py-0.5 rounded-full bg-[#060e20] text-[#c0c1ff] text-[10px] font-semibold border border-[#3131c0]/30 self-start sm:self-auto shrink-0">
-            Auditores de Campo (3 Activos)
+          <span className="px-2.5 py-0.5 rounded-full bg-[#060e20] text-[#38bdf8] text-[10px] font-semibold border border-[#0088ff]/30 self-start sm:self-auto shrink-0">
+            Solo Consulta
           </span>
         </div>
       )}
@@ -727,29 +719,39 @@ FORMATOS COMPATIBLES:
 
               {/* ACTION BUTTONS: FOLDER UPLOAD + STANDALONE FILES UPLOAD + GUIDE */}
               <div className="flex items-center gap-2 flex-wrap self-start lg:self-center shrink-0">
-                {/* 1. Upload Folder Button */}
-                <button
-                  type="button"
-                  onClick={() => folderInputRef.current?.click()}
-                  disabled={isProcessing}
-                  className="px-3.5 py-2 rounded-xl bg-[#4edea3] hover:bg-[#6ffbbe] text-[#003824] text-xs font-bold flex items-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer disabled:opacity-60"
-                  title="Subir una carpeta completa organizada con subcarpetas"
-                >
-                  <span className="material-symbols-outlined text-[18px]">drive_folder_upload</span>
-                  <span>{isProcessing ? 'Procesando...' : 'Subir Carpeta'}</span>
-                </button>
+                {!isAdmin && (
+                  <span className="px-3 py-1.5 rounded-xl bg-[#0f1d2e] text-[#38bdf8] border border-[#0088ff]/30 text-xs font-bold flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[16px]">visibility</span>
+                    <span>Modo Solo Vista (Carga solo Admin)</span>
+                  </span>
+                )}
+                {isAdmin && (
+                  <>
+                    {/* 1. Upload Folder Button */}
+                    <button
+                      type="button"
+                      onClick={() => folderInputRef.current?.click()}
+                      disabled={isProcessing}
+                      className="px-3.5 py-2 rounded-xl bg-[#4edea3] hover:bg-[#6ffbbe] text-[#003824] text-xs font-bold flex items-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer disabled:opacity-60"
+                      title="Subir una carpeta completa organizada con subcarpetas"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">drive_folder_upload</span>
+                      <span>{isProcessing ? 'Procesando...' : 'Subir Carpeta'}</span>
+                    </button>
 
-                {/* 2. Upload Standalone Files Button */}
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isProcessing}
-                  className="px-3.5 py-2 rounded-xl bg-[#3131c0] hover:bg-[#4343d8] text-white text-xs font-bold flex items-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer disabled:opacity-60"
-                  title="Subir uno o varios archivos sueltos (.xlsx, .csv, .pptx, .pbix, .docx, .pdf)"
-                >
-                  <span className="material-symbols-outlined text-[18px]">upload_file</span>
-                  <span>Subir Archivos Sueltos</span>
-                </button>
+                    {/* 2. Upload Standalone Files Button */}
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isProcessing}
+                      className="px-3.5 py-2 rounded-xl bg-[#3131c0] hover:bg-[#4343d8] text-white text-xs font-bold flex items-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer disabled:opacity-60"
+                      title="Subir uno o varios archivos sueltos (.xlsx, .csv, .pptx, .pbix, .docx, .pdf)"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">upload_file</span>
+                      <span>Subir Archivos Sueltos</span>
+                    </button>
+                  </>
+                )}
 
                 {/* 3. Structure Guide Button */}
                 <button
@@ -819,57 +821,79 @@ FORMATOS COMPATIBLES:
             }}
             onDragLeave={() => setIsDraggingOver(false)}
             onDrop={handleDrop}
-            className={`p-6 rounded-2xl border-2 border-dashed transition-all text-center flex flex-col items-center justify-center gap-3 ${
-              isDraggingOver
-                ? 'border-[#4edea3] bg-[#4edea3]/10 scale-[1.01]'
-                : 'border-[#2d3449] bg-[#131b2e]/60 hover:border-[#4edea3]/60 hover:bg-[#131b2e]'
-            }`}
-          >
-            <div className="w-14 h-14 rounded-2xl bg-[#171f33] border border-[#222a3d] flex items-center justify-center text-[#4edea3] shadow-inner">
-              <span className="material-symbols-outlined text-[32px]">
-                {isDraggingOver ? 'file_download' : 'cloud_upload'}
-              </span>
-            </div>
+          {/* DUAL DRAG & DROP ZONE (CARPETAS O ARCHIVOS SUELTOS) - SOLO ADMIN */}
+          {isAdmin ? (
+            <div
+              onDragOver={(e) => {
+                e.preventDefault();
+                setIsDraggingOver(true);
+              }}
+              onDragLeave={() => setIsDraggingOver(false)}
+              onDrop={handleDrop}
+              className={`p-6 rounded-2xl border-2 border-dashed transition-all text-center flex flex-col items-center justify-center gap-3 ${
+                isDraggingOver
+                  ? 'border-[#4edea3] bg-[#4edea3]/10 scale-[1.01]'
+                  : 'border-[#2d3449] bg-[#131b2e]/60 hover:border-[#4edea3]/60 hover:bg-[#131b2e]'
+              }`}
+            >
+              <div className="w-14 h-14 rounded-2xl bg-[#171f33] border border-[#222a3d] flex items-center justify-center text-[#4edea3] shadow-inner">
+                <span className="material-symbols-outlined text-[32px]">
+                  {isDraggingOver ? 'file_download' : 'cloud_upload'}
+                </span>
+              </div>
 
-            <div>
-              <p className="text-sm sm:text-base font-bold text-[#dae2fd]">
-                Arrastra tu Carpeta o Archivos Sueltos aquí
+              <div>
+                <p className="text-sm sm:text-base font-bold text-[#dae2fd]">
+                  Arrastra tu Carpeta o Archivos Sueltos aquí
+                </p>
+                <p className="text-xs text-[#bbcabf] mt-1 max-w-md mx-auto">
+                  Soporta carpetas estructuradas o archivos individuales. CAVI procesará y mostrará el avance en la barra de carga.
+                </p>
+              </div>
+
+              {/* Quick Action Buttons inside dropzone */}
+              <div className="flex items-center gap-2 flex-wrap justify-center mt-1">
+                <button
+                  type="button"
+                  onClick={() => folderInputRef.current?.click()}
+                  className="px-3.5 py-1.5 rounded-xl bg-[#171f33] hover:bg-[#222a3d] border border-[#4edea3]/40 text-[#4edea3] text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
+                >
+                  <span className="material-symbols-outlined text-[16px]">folder_open</span>
+                  <span>Seleccionar Carpeta</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="px-3.5 py-1.5 rounded-xl bg-[#171f33] hover:bg-[#222a3d] border border-[#3131c0]/50 text-[#c0c1ff] text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
+                >
+                  <span className="material-symbols-outlined text-[16px]">post_add</span>
+                  <span>Seleccionar Archivos Sueltos</span>
+                </button>
+              </div>
+
+              {/* Format Pills */}
+              <div className="flex items-center gap-1.5 flex-wrap justify-center mt-1">
+                <span className="px-2 py-0.5 rounded bg-[#003824] text-[#4edea3] text-[10px] font-bold border border-[#4edea3]/30">Excel .xlsx / .csv</span>
+                <span className="px-2 py-0.5 rounded bg-[#523200] text-[#ffb95f] text-[10px] font-bold border border-[#ffb95f]/30">PowerPoint .pptx</span>
+                <span className="px-2 py-0.5 rounded bg-[#472a00] text-[#ffb95f] text-[10px] font-bold border border-[#ffb95f]/30">Power BI .pbix</span>
+                <span className="px-2 py-0.5 rounded bg-[#1000a9]/30 text-[#c0c1ff] text-[10px] font-bold border border-[#c0c1ff]/30">Word .docx</span>
+                <span className="px-2 py-0.5 rounded bg-[#690005]/40 text-[#ffb4ab] text-[10px] font-bold border border-[#ffb4ab]/30">PDF .pdf</span>
+              </div>
+            </div>
+          ) : (
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#0f1d2e] border border-[#0088ff]/30 text-center flex flex-col items-center justify-center gap-2">
+              <div className="w-11 h-11 rounded-xl bg-[#0088ff]/15 flex items-center justify-center text-[#38bdf8]">
+                <span className="material-symbols-outlined text-[24px]">visibility</span>
+              </div>
+              <p className="text-sm font-bold text-[#dae2fd]">
+                Consulta de Archivos Macro y Documentación Operativa
               </p>
-              <p className="text-xs text-[#bbcabf] mt-1 max-w-md mx-auto">
-                Soporta carpetas estructuradas o archivos individuales. CAVI procesará y mostrará el avance en la barra de carga.
+              <p className="text-xs text-[#94a3b8] max-w-lg">
+                La única persona autorizada para cargar o actualizar archivos es el Administrador. Puedes consultar, buscar, filtrar y abrir en el visor oficial cualquiera de los {files.length} archivos indexados.
               </p>
             </div>
-
-            {/* Quick Action Buttons inside dropzone */}
-            <div className="flex items-center gap-2 flex-wrap justify-center mt-1">
-              <button
-                type="button"
-                onClick={() => folderInputRef.current?.click()}
-                className="px-3.5 py-1.5 rounded-xl bg-[#171f33] hover:bg-[#222a3d] border border-[#4edea3]/40 text-[#4edea3] text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
-              >
-                <span className="material-symbols-outlined text-[16px]">folder_open</span>
-                <span>Seleccionar Carpeta</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="px-3.5 py-1.5 rounded-xl bg-[#171f33] hover:bg-[#222a3d] border border-[#3131c0]/50 text-[#c0c1ff] text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
-              >
-                <span className="material-symbols-outlined text-[16px]">post_add</span>
-                <span>Seleccionar Archivos Sueltos</span>
-              </button>
-            </div>
-
-            {/* Format Pills */}
-            <div className="flex items-center gap-1.5 flex-wrap justify-center mt-1">
-              <span className="px-2 py-0.5 rounded bg-[#003824] text-[#4edea3] text-[10px] font-bold border border-[#4edea3]/30">Excel .xlsx / .csv</span>
-              <span className="px-2 py-0.5 rounded bg-[#523200] text-[#ffb95f] text-[10px] font-bold border border-[#ffb95f]/30">PowerPoint .pptx</span>
-              <span className="px-2 py-0.5 rounded bg-[#472a00] text-[#ffb95f] text-[10px] font-bold border border-[#ffb95f]/30">Power BI .pbix</span>
-              <span className="px-2 py-0.5 rounded bg-[#1000a9]/30 text-[#c0c1ff] text-[10px] font-bold border border-[#c0c1ff]/30">Word .docx</span>
-              <span className="px-2 py-0.5 rounded bg-[#690005]/40 text-[#ffb4ab] text-[10px] font-bold border border-[#ffb4ab]/30">PDF .pdf</span>
-            </div>
-          </div>
+          )}
 
           {/* MACRO FOLDERS SELECTOR TABS */}
           <div className="space-y-2">
@@ -1145,7 +1169,7 @@ FORMATOS COMPATIBLES:
                         </span>
 
                         <div className="flex items-center gap-1.5">
-                          {file.type === 'excel' && (
+                          {isAdmin && file.type === 'excel' && (
                             <button
                               type="button"
                               onClick={() => {

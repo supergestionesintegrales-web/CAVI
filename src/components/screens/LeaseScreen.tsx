@@ -77,7 +77,7 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
         p.point.incidents.some((i) => !i.resolved)
     );
     const totalRent = pointsWithStatus.reduce((acc, p) => acc + p.point.monthlyRent, 0);
-    const depuradoCount = pointsWithStatus.filter((p) => p.lifecycle.status === 'inactive').length;
+    const depuradoCount = pointsWithStatus.filter((p) => p.lifecycle.lifecycleStatus === 'inactive').length;
 
     return {
       total,
@@ -99,7 +99,7 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
     return pointsWithStatus.filter(({ point, status, lifecycle }) => {
       if (statusFilter === 'open' && !status.isOpenNow) return false;
       if (statusFilter === 'closed' && status.isOpenNow) return false;
-      if (statusFilter === 'depurado' && lifecycle.status !== 'inactive') return false;
+      if (statusFilter === 'depurado' && lifecycle.lifecycleStatus !== 'inactive') return false;
       if (
         statusFilter === 'incidents' &&
         point.operatingStatus !== 'temporarily_closed' &&
@@ -202,7 +202,7 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
             Exportar Excel
           </button>
 
-          {userRole === 'administrador' && (
+          {userRole === 'administrador' ? (
             <button
               onClick={handleOpenAdd}
               type="button"
@@ -211,6 +211,11 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
               <span className="material-symbols-outlined text-[18px]">add_business</span>
               Nuevo Punto
             </button>
+          ) : (
+            <span className="px-3 py-1.5 rounded-xl bg-[#0f1d2e] text-[#38bdf8] border border-[#0088ff]/30 text-xs font-bold flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-[16px]">visibility</span>
+              Modo Solo Vista
+            </span>
           )}
         </div>
       </div>
@@ -470,21 +475,26 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
               </button>
             </div>
           ) : (
-            <div className="space-y-2.5">
-              <div className="flex items-center justify-between px-1">
+            <div className="space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 px-1">
                 <div>
-                  <h2 className="text-sm font-extrabold text-white">Puntos de arrendamiento</h2>
-                  <p className="text-[10px] text-[#64748b]">Lista compacta · presiona cualquier punto para abrir la ficha completa.</p>
+                  <h2 className="text-sm font-extrabold text-white flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[#0088ff] text-[18px]">grid_view</span>
+                    Puntos de Arrendamiento · Mosaico (4 Columnas)
+                  </h2>
+                  <p className="text-[11px] text-[#94a3b8]">Vista táctica en cuadrícula de 4 columnas con estado operativo, canon, contrato y geolocalización.</p>
                 </div>
-                <span className="text-[10px] font-bold text-[#94a3b8]">
+                <span className="text-xs font-bold px-2.5 py-1 rounded-lg bg-[#171f33] border border-[#222a3d] text-[#38bdf8]">
                   {filteredPoints.length} de {pointsWithStatus.length} puntos
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-2.5">
+              {/* CUADRÍCULA MOSAICO DE 4 COLUMNAS */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-3.5 items-stretch">
                 {filteredPoints.map(({ point: pt, status, lifecycle, contract }) => {
+                  const isInactive = lifecycle.lifecycleStatus === 'inactive';
                   const sales = pt.salesSummary;
-                  const hasSalesAlert = sales?.daysWithoutSale !== undefined && sales.daysWithoutSale >= 60 && lifecycle.status !== 'inactive';
+                  const hasSalesAlert = sales?.daysWithoutSale !== undefined && sales.daysWithoutSale >= 60 && !isInactive;
                   const hasIncident = pt.operatingStatus === 'temporarily_closed' || pt.operatingStatus === 'maintenance' || pt.incidents.some((i) => !i.resolved);
                   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${pt.lat},${pt.lng}`;
 
@@ -495,108 +505,138 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
                       tabIndex={0}
                       onClick={() => handleOpenDetails(pt)}
                       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleOpenDetails(pt); }}
-                      className={`group w-full text-left bg-[#131b2e] rounded-xl border transition-all shadow-sm hover:border-[#0088ff]/50 hover:bg-[#151f35] cursor-pointer overflow-hidden ${
-                        lifecycle.status === 'inactive'
-                          ? 'border-[#a855f7]/40'
+                      className={`group flex flex-col justify-between bg-[#131b2e] rounded-2xl border transition-all duration-200 shadow-sm hover:shadow-xl hover:border-[#0088ff]/60 hover:-translate-y-0.5 cursor-pointer overflow-hidden p-3.5 relative ${
+                        isInactive
+                          ? 'border-[#a855f7]/40 bg-gradient-to-b from-[#131b2e] to-[#181326]'
                           : hasIncident
-                          ? 'border-[#ffb95f]/30'
-                          : 'border-[#222a3d]'
+                          ? 'border-[#ffb95f]/40 bg-gradient-to-b from-[#131b2e] to-[#201a14]'
+                          : 'border-[#222a3d] hover:bg-[#162038]'
                       }`}
                     >
-                      <div className="px-3.5 py-3 grid grid-cols-1 lg:grid-cols-[minmax(250px,1fr)_minmax(360px,1.35fr)_auto] gap-4 items-center">
-                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                          lifecycle.status === 'inactive'
-                            ? 'bg-[#a855f7]/15 text-[#c084fc]'
-                            : status.isOpenNow
-                            ? 'bg-[#10b981]/15 text-[#4edea3]'
-                            : hasIncident
-                            ? 'bg-[#ffb95f]/15 text-[#ffb95f]'
-                            : 'bg-[#ef4444]/15 text-[#ffb4ab]'
-                        }`}>
-                          <span className="material-symbols-outlined text-[19px]">
-                            {lifecycle.status === 'inactive' ? 'inventory_2' : status.isOpenNow ? 'storefront' : 'storefront'}
-                          </span>
-                        </div>
-
-                        <div className="min-w-0 w-full">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-[#0b1326] text-[#38bdf8] border border-[#2d3449]">
+                      {/* Cabecera de la tarjeta: Código + Estado Operativo */}
+                      <div>
+                        <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-[#222a3d]">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
+                              isInactive
+                                ? 'bg-[#a855f7]/15 text-[#c084fc] border border-[#a855f7]/30'
+                                : status.isOpenNow
+                                ? 'bg-[#10b981]/15 text-[#4edea3] border border-[#10b981]/30'
+                                : hasIncident
+                                ? 'bg-[#ffb95f]/15 text-[#ffb95f] border border-[#ffb95f]/30'
+                                : 'bg-[#ef4444]/15 text-[#ffb4ab] border border-[#ef4444]/30'
+                            }`}>
+                              <span className="material-symbols-outlined text-[18px]">
+                                {isInactive ? 'inventory_2' : status.isOpenNow ? 'storefront' : 'lock'}
+                              </span>
+                            </div>
+                            <span className="text-[11px] font-mono font-bold px-1.5 py-0.5 rounded bg-[#0b1326] text-[#38bdf8] border border-[#2d3449]">
                               {pt.code}
                             </span>
-                            <span className="text-[10px] font-semibold text-[#94a3b8]">{pt.propertyType}</span>
-                            <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-bold border ${
-                              lifecycle.status === 'inactive'
-                                ? 'bg-[#a855f7]/10 text-[#c084fc] border-[#a855f7]/30'
-                                : 'bg-[#10b981]/10 text-[#4edea3] border-[#10b981]/30'
-                            }`}>
-                              {lifecycle.status === 'inactive' ? 'DEPURADO' : 'ACTIVO'}
-                            </span>
-                            {hasIncident && lifecycle.status !== 'inactive' && (
-                              <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-[#ffb95f]/10 text-[#ffb95f] border border-[#ffb95f]/25">
-                                NOVEDAD
+                          </div>
+
+                          <div className="shrink-0 flex items-center">
+                            {isInactive ? (
+                              <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-[#a855f7]/15 text-[#c084fc] border border-[#a855f7]/30">
+                                DEPURADO
                               </span>
-                            )}
-                            {hasSalesAlert && (
-                              <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-bold border ${
-                                sales!.daysWithoutSale! >= 90
-                                  ? 'bg-[#ef4444]/10 text-[#ffb4ab] border-[#ef4444]/25'
-                                  : 'bg-[#ffb95f]/10 text-[#ffb95f] border-[#ffb95f]/25'
+                            ) : (
+                              <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold flex items-center gap-1 border ${
+                                status.isOpenNow
+                                  ? 'bg-[#10b981]/15 text-[#4edea3] border-[#10b981]/30'
+                                  : 'bg-[#ef4444]/15 text-[#ffb4ab] border-[#ef4444]/30'
                               }`}>
-                                SIN VENTAS · {sales!.daysWithoutSale} DÍAS
+                                <span className={`w-1.5 h-1.5 rounded-full ${status.isOpenNow ? 'bg-[#10b981] animate-pulse' : 'bg-[#ef4444]'}`}></span>
+                                {status.isOpenNow ? 'ABIERTO' : 'CERRADO'}
                               </span>
                             )}
                           </div>
-                          <div className="mt-1 flex items-start gap-2">
-                            <h3 className="text-xs sm:text-[13px] font-extrabold text-white leading-snug break-words">{pt.name}</h3>
-                            <span className="text-[10px] text-[#64748b] shrink-0">· {status.statusBadgeText}</span>
-                          </div>
-                          <div className="mt-1 flex items-start gap-1.5 text-[10px] text-[#94a3b8]">
-                            <span className="material-symbols-outlined text-[13px] text-[#38bdf8]">location_on</span>
-                            <span className="break-words leading-relaxed">{pt.address} · {pt.neighborhood} · {pt.municipality}</span>
-                          </div>
                         </div>
 
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-2 w-full">
+                        {/* Etiquetas contextuales */}
+                        <div className="flex flex-wrap items-center gap-1 mt-2.5">
+                          <span className="text-[9px] font-semibold px-2 py-0.5 rounded-md bg-[#171f33] text-[#94a3b8] border border-[#222a3d]">
+                            {pt.propertyType}
+                          </span>
+                          {hasIncident && !isInactive && (
+                            <span className="px-1.5 py-0.5 rounded-md text-[9px] font-bold bg-[#ffb95f]/15 text-[#ffb95f] border border-[#ffb95f]/30 flex items-center gap-0.5">
+                              <span className="material-symbols-outlined text-[11px]">warning</span>
+                              NOVEDAD
+                            </span>
+                          )}
+                          {hasSalesAlert && (
+                            <span className="px-1.5 py-0.5 rounded-md text-[9px] font-bold bg-[#ef4444]/15 text-[#ffb4ab] border border-[#ef4444]/30">
+                              {sales!.daysWithoutSale}D SIN VENTAS
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Nombre y Dirección */}
+                        <div className="mt-2.5">
+                          <h3 className="text-xs sm:text-[13px] font-extrabold text-white leading-snug group-hover:text-[#38bdf8] transition-colors line-clamp-2">
+                            {pt.name}
+                          </h3>
+                          <div className="mt-1 flex items-start gap-1 text-[10px] text-[#94a3b8] leading-tight">
+                            <span className="material-symbols-outlined text-[13px] text-[#38bdf8] shrink-0 mt-0.5">location_on</span>
+                            <span className="line-clamp-2">{pt.address} · <strong className="text-white font-medium">{pt.municipality}</strong></span>
+                          </div>
+                          {pt.reference && (
+                            <p className="text-[9px] text-[#64748b] italic mt-1 line-clamp-1">Ref: {pt.reference}</p>
+                          )}
+                        </div>
+
+                        {/* Cuadrícula de Métricas Clave */}
+                        <div className="mt-3 grid grid-cols-2 gap-2 p-2 rounded-xl bg-[#0b1326]/75 border border-[#222a3d]/90 text-[10px]">
                           <div>
-                            <span className="block text-[8px] uppercase text-[#64748b]">Canon</span>
-                            <span className="text-[11px] font-bold font-mono text-[#4edea3] break-words">{formatCOP(pt.monthlyRent)}</span>
+                            <span className="block text-[8px] uppercase tracking-wider text-[#64748b] font-semibold">Canon Mensual</span>
+                            <span className="text-[11px] font-bold font-mono text-[#4edea3] truncate block">{formatCOP(pt.monthlyRent)}</span>
                           </div>
                           <div>
-                            <span className="block text-[8px] uppercase text-[#64748b]">Vigencia</span>
-                            <span className={`text-[10px] font-bold leading-snug break-words ${
+                            <span className="block text-[8px] uppercase tracking-wider text-[#64748b] font-semibold">Vigencia</span>
+                            <span className={`text-[10px] font-bold truncate block ${
                               contract.status === 'valid' ? 'text-[#4edea3]' : contract.status === 'expiring_soon' ? 'text-[#ffb95f]' : 'text-[#ffb4ab]'
-                            }`}>{contract.label}</span>
+                            }`}>
+                              {contract.label}
+                            </span>
                           </div>
                           <div>
-                            <span className="block text-[8px] uppercase text-[#64748b]">Última venta</span>
-                            <span className="text-[10px] font-semibold text-white leading-snug break-words">{sales?.lastSaleDate || 'Sin registro'}</span>
+                            <span className="block text-[8px] uppercase tracking-wider text-[#64748b] font-semibold">Horario Hoy</span>
+                            <span className="text-[9px] text-white font-medium truncate block">
+                              {status.todayHours?.isOpen ? `${status.todayHours.open} - ${status.todayHours.close}` : 'Cerrado'}
+                            </span>
                           </div>
                           <div>
-                            <span className="block text-[8px] uppercase text-[#64748b]">Días de cuenta</span>
-                            <span className="text-[10px] font-bold text-[#c0c1ff]">{pt.daysOfAccount !== undefined ? pt.daysOfAccount : 'N/D'}</span>
+                            <span className="block text-[8px] uppercase tracking-wider text-[#64748b] font-semibold">Días Cuenta</span>
+                            <span className="text-[10px] font-bold font-mono text-[#c0c1ff]">
+                              {pt.daysOfAccount !== undefined ? pt.daysOfAccount : 'N/D'}
+                            </span>
                           </div>
                         </div>
-
-                        <span className="material-symbols-outlined text-[20px] text-[#64748b] group-hover:text-[#38bdf8] shrink-0">chevron_right</span>
                       </div>
 
-                      <div className="px-3.5 py-2.5 bg-[#0b1326] border-t border-[#222a3d] grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[9px] text-[#64748b] min-w-0">
-                          <span className="break-words">{pt.landlord.name}</span>
-                          <span>·</span>
-                          <span className="break-words">Contrato {pt.contractNumber || 'N/D'}</span>
-                          {pt.reference && <><span>·</span><span className="break-words">{pt.reference}</span></>}
+                      {/* Pie de tarjeta: Arrendador, GPS y enlace Ficha */}
+                      <div className="mt-3 pt-2.5 border-t border-[#222a3d] flex items-center justify-between text-[10px]">
+                        <div className="min-w-0 pr-1">
+                          <span className="text-[9px] text-[#64748b] block truncate" title={pt.landlord.name}>
+                            {pt.landlord.name ? `Prop: ${pt.landlord.name}` : `Contrato ${pt.contractNumber || 'N/D'}`}
+                          </span>
                         </div>
-                        <a
-                          href={mapsUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                          className="text-[9px] font-bold text-[#38bdf8] hover:text-white flex items-center gap-1 shrink-0"
-                        >
-                          <span className="material-symbols-outlined text-[13px]">navigation</span>
-                          GPS
-                        </a>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <a
+                            href={mapsUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            title="Navegar en Google Maps"
+                            className="p-1 rounded-lg bg-[#171f33] hover:bg-[#222a3d] text-[#38bdf8] border border-[#222a3d] transition-colors flex items-center justify-center cursor-pointer"
+                          >
+                            <span className="material-symbols-outlined text-[14px]">near_me</span>
+                          </a>
+                          <span className="text-[10px] font-bold text-[#0088ff] group-hover:text-[#38bdf8] flex items-center gap-0.5">
+                            Ficha
+                            <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+                          </span>
+                        </div>
                       </div>
                     </div>
                   );
@@ -639,6 +679,7 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
         isOpen={isDetailsModalOpen}
         onClose={() => setIsDetailsModalOpen(false)}
         point={detailsPoint}
+        userRole={userRole}
         onEdit={(pt) => {
           setIsDetailsModalOpen(false);
           handleOpenEdit(pt);

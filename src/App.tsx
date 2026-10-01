@@ -314,7 +314,7 @@ export default function App() {
 
   const handleImportRouteSteps = (imported: RouteStep[]) => {
     setRouteSteps((prev) => {
-      const map = new Map(prev.map((s) => [s.code.toLowerCase(), s]));
+      const map = new Map<string, RouteStep>(prev.map((s) => [s.code.toLowerCase(), s]));
       imported.forEach((incoming) => {
         const existing = map.get(incoming.code.toLowerCase());
         map.set(incoming.code.toLowerCase(), { ...(existing || incoming), ...incoming, id: existing?.id || incoming.id, visitHistory: incoming.visitHistory?.length ? incoming.visitHistory : existing?.visitHistory });
@@ -466,7 +466,7 @@ export default function App() {
   // Reconciliación automática: cada archivo cargado actualiza el repositorio, no lo reemplaza.
   const handleAddFiles = (newFiles: MacroFile[]) => {
     setMacroFiles((prev) => {
-      const byKey = new Map(prev.map((f) => [f.path.toLowerCase(), f]));
+      const byKey = new Map<string, MacroFile>(prev.map((f) => [f.path.toLowerCase(), f]));
       newFiles.forEach((incoming) => {
         const existing = byKey.get(incoming.path.toLowerCase());
         byKey.set(incoming.path.toLowerCase(), existing ? { ...existing, ...incoming, id: existing.id, rawFile: incoming.rawFile || existing.rawFile, sheets: incoming.sheets?.length ? incoming.sheets : existing.sheets, extractedMeta: { ...existing.extractedMeta, ...incoming.extractedMeta } } : incoming);
@@ -749,22 +749,22 @@ export default function App() {
       />
 
       {/* Main Screen Content with Padding for Header and Mobile Bottom Nav */}
-      <main className="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-18 md:pt-22 pb-24 md:pb-12 transition-all">
-        {userRole === 'administrador' &&
-          (activeTab === 'dashboard-cavi' || (activeTab as string) === 'resultados-kpis') && (
-            <DashboardScreen
-              auditors={liveAuditors}
-              macroFilesCount={macroFiles.length}
-              onGoToMacros={() => setActiveTab('archivos-macros')}
-              onGoToLease={() => setActiveTab('arrendamientos')}
-              leasePointsCount={leasePoints.length}
-              leaseOpenCount={openLeaseCount}
-              onOpenScanner={() => setIsScannerOpen(true)}
-              onOpenCriticalPoints={() => setIsCriticalPointsOpen(true)}
-              onShowToast={showToast}
-              initialViewMode={activeTab === 'resultados-kpis' ? 'kpis' : 'consolidado'}
-            />
-          )}
+      <main className="flex-1 w-full max-w-7xl 2xl:max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 pt-20 md:pt-24 pb-28 md:pb-16 transition-all">
+        {(activeTab === 'dashboard-cavi' || (activeTab as string) === 'resultados-kpis') && (
+          <DashboardScreen
+            auditors={liveAuditors}
+            macroFilesCount={macroFiles.length}
+            onGoToMacros={() => setActiveTab('archivos-macros')}
+            onGoToLease={() => setActiveTab('arrendamientos')}
+            leasePointsCount={leasePoints.length}
+            leaseOpenCount={openLeaseCount}
+            onOpenScanner={() => setIsScannerOpen(true)}
+            onOpenCriticalPoints={() => setIsCriticalPointsOpen(true)}
+            onShowToast={showToast}
+            initialViewMode={activeTab === 'resultados-kpis' ? 'kpis' : 'consolidado'}
+            userRole={userRole}
+          />
+        )}
 
         {(activeTab === 'asignacion-rutas' || activeTab === 'cronograma') && (
           <RoutesScreen

@@ -12,6 +12,7 @@ interface WeeklyRoutesMatrixProps {
   onUploadMatrix: () => void;
   onDownloadTemplate: () => void;
   onShowToast: (title: string, message: string, type?: 'info' | 'success' | 'alert') => void;
+  userRole?: string;
 }
 
 const DAYS_OF_WEEK: Array<{ key: 'lunes' | 'martes' | 'miércoles' | 'jueves' | 'viernes'; label: string; fullLabel: string }> = [
@@ -33,7 +34,9 @@ export const WeeklyRoutesMatrix: React.FC<WeeklyRoutesMatrixProps> = ({
   onUploadMatrix,
   onDownloadTemplate,
   onShowToast,
+  userRole = 'administrador',
 }) => {
+  const isAdmin = userRole === 'administrador';
   const [filterChannel, setFilterChannel] = useState<string>('todos');
   const [filterAuditor, setFilterAuditor] = useState<string>('todos');
   const [searchQuery, setSearchQuery] = useState('');
@@ -117,14 +120,21 @@ export const WeeklyRoutesMatrix: React.FC<WeeklyRoutesMatrixProps> = ({
           </div>
 
           <div className="flex items-center gap-2 flex-wrap shrink-0">
-            <button
-              type="button"
-              onClick={onUploadMatrix}
-              className="px-3.5 py-2 rounded-xl bg-[#0088ff] hover:bg-[#0070d8] text-white text-xs font-bold flex items-center gap-1.5 shadow-md shadow-[#0088ff]/30 active:scale-95 transition-all cursor-pointer"
-            >
-              <span className="material-symbols-outlined text-[17px]">upload_file</span>
-              <span>Cargar Matriz PDV (GPS)</span>
-            </button>
+            {isAdmin ? (
+              <button
+                type="button"
+                onClick={onUploadMatrix}
+                className="px-3.5 py-2 rounded-xl bg-[#0088ff] hover:bg-[#0070d8] text-white text-xs font-bold flex items-center gap-1.5 shadow-md shadow-[#0088ff]/30 active:scale-95 transition-all cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-[17px]">upload_file</span>
+                <span>Cargar Matriz PDV (GPS)</span>
+              </button>
+            ) : (
+              <span className="px-3 py-1.5 rounded-xl bg-blue-50 dark:bg-[#0f1d2e] text-[#0088ff] dark:text-[#38bdf8] border border-blue-200 dark:border-[#0088ff]/30 text-xs font-bold flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-[16px]">visibility</span>
+                <span>Modo Solo Vista</span>
+              </span>
+            )}
 
             <button
               type="button"
@@ -280,7 +290,7 @@ export const WeeklyRoutesMatrix: React.FC<WeeklyRoutesMatrixProps> = ({
                   <div className="p-5 text-center flex flex-col items-center justify-center gap-1.5 text-xs text-slate-500 dark:text-[#94a3b8]">
                     <span className="material-symbols-outlined text-[24px] text-slate-400 dark:text-[#475569]">event_busy</span>
                     <span>Sin paradas este día</span>
-                    {onOpenAddStep && (
+                    {isAdmin && onOpenAddStep && (
                       <button
                         type="button"
                         onClick={() => onOpenAddStep(undefined, day.key)}
@@ -410,59 +420,93 @@ export const WeeklyRoutesMatrix: React.FC<WeeklyRoutesMatrixProps> = ({
                           </span>
                         </div>
 
-                        {/* Action buttons: Audit status, Visit counter, and GPS */}
+                        {/* Action buttons: Audit status (Admin) vs Read-only status (Non-Admin) */}
                         <div className="flex items-center gap-1.5 mt-2">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              if (onOpenAuditModal) {
-                                onOpenAuditModal(step);
-                              } else if (onToggleStepStatus) {
-                                onToggleStepStatus(step.id);
-                              }
-                            }}
-                            className={`flex-1 py-1.5 px-2 rounded-lg text-[10px] font-bold transition-all cursor-pointer flex items-center justify-center gap-1 shadow-xs ${
-                              isCompleted
-                                ? 'bg-emerald-100 text-emerald-900 border border-emerald-300 dark:bg-[#064e3b] dark:text-[#6ee7b7] dark:border-emerald-600/50'
-                                : isNotAudited
-                                ? 'bg-red-100 text-red-900 border border-red-300 dark:bg-red-950/80 dark:text-red-300 dark:border-red-600/50'
-                                : isRevisit
-                                ? 'bg-purple-100 text-purple-900 border border-purple-300 dark:bg-purple-950/80 dark:text-purple-300 dark:border-purple-600/50'
-                                : isCurrent
-                                ? 'bg-amber-100 text-amber-900 border border-amber-300 dark:bg-[#f59e0b] dark:text-black font-bold'
-                                : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 dark:bg-[#1e293b] dark:text-white dark:hover:bg-[#2d3a58] dark:border-[#334155]'
-                            }`}
-                            title="Marcar resultado: Auditado, No auditado, Re-visita o registrar número de visitas"
-                          >
-                            <span className="material-symbols-outlined text-[13px]">
-                              {isCompleted ? 'check_circle' : isNotAudited ? 'cancel' : isRevisit ? 'replay' : 'assignment'}
-                            </span>
-                            <span>
-                              {isCompleted
-                                ? 'Auditado'
-                                : isNotAudited
-                                ? 'No Auditado'
-                                : isRevisit
-                                ? 'Re-visita'
-                                : isCurrent
-                                ? 'En Curso'
-                                : 'Auditar'}
-                            </span>
-                          </button>
+                          {isAdmin ? (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (onOpenAuditModal) {
+                                    onOpenAuditModal(step);
+                                  } else if (onToggleStepStatus) {
+                                    onToggleStepStatus(step.id);
+                                  }
+                                }}
+                                className={`flex-1 py-1.5 px-2 rounded-lg text-[10px] font-bold transition-all cursor-pointer flex items-center justify-center gap-1 shadow-xs ${
+                                  isCompleted
+                                    ? 'bg-emerald-100 text-emerald-900 border border-emerald-300 dark:bg-[#064e3b] dark:text-[#6ee7b7] dark:border-emerald-600/50'
+                                    : isNotAudited
+                                    ? 'bg-red-100 text-red-900 border border-red-300 dark:bg-red-950/80 dark:text-red-300 dark:border-red-600/50'
+                                    : isRevisit
+                                    ? 'bg-purple-100 text-purple-900 border border-purple-300 dark:bg-purple-950/80 dark:text-purple-300 dark:border-purple-600/50'
+                                    : isCurrent
+                                    ? 'bg-amber-100 text-amber-900 border border-amber-300 dark:bg-[#f59e0b] dark:text-black font-bold'
+                                    : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 dark:bg-[#1e293b] dark:text-white dark:hover:bg-[#2d3a58] dark:border-[#334155]'
+                                }`}
+                                title="Marcar resultado: Auditado, No auditado, Re-visita o registrar número de visitas"
+                              >
+                                <span className="material-symbols-outlined text-[13px]">
+                                  {isCompleted ? 'check_circle' : isNotAudited ? 'cancel' : isRevisit ? 'replay' : 'assignment'}
+                                </span>
+                                <span>
+                                  {isCompleted
+                                    ? 'Auditado'
+                                    : isNotAudited
+                                    ? 'No Auditado'
+                                    : isRevisit
+                                    ? 'Re-visita'
+                                    : isCurrent
+                                    ? 'En Curso'
+                                    : 'Auditar'}
+                                </span>
+                              </button>
 
-                          {/* Quick Fast Toggle button if modal is enabled */}
-                          {onToggleStepStatus && onOpenAuditModal && (
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onToggleStepStatus(step.id);
-                              }}
-                              className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-[#1e293b] dark:text-[#cbd5e1] dark:hover:text-white transition-all cursor-pointer border border-slate-300 dark:border-[#334155]"
-                              title="Cambio rápido de estado (Completado / No auditado / Re-visita)"
+                              {/* Quick Fast Toggle button if modal is enabled */}
+                              {onToggleStepStatus && onOpenAuditModal && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onToggleStepStatus(step.id);
+                                  }}
+                                  className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-[#1e293b] dark:text-[#cbd5e1] dark:hover:text-white transition-all cursor-pointer border border-slate-300 dark:border-[#334155]"
+                                  title="Cambio rápido de estado (Completado / No auditado / Re-visita)"
+                                >
+                                  <span className="material-symbols-outlined text-[13px]">published_with_changes</span>
+                                </button>
+                              )}
+                            </>
+                          ) : (
+                            <span
+                              className={`flex-1 py-1.5 px-2 rounded-lg text-[10px] font-bold text-center border flex items-center justify-center gap-1 select-none ${
+                                isCompleted
+                                  ? 'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-[#064e3b]/60 dark:text-[#6ee7b7] dark:border-emerald-600/40'
+                                  : isNotAudited
+                                  ? 'bg-red-50 text-red-800 border-red-200 dark:bg-red-950/60 dark:text-red-300 dark:border-red-600/40'
+                                  : isRevisit
+                                  ? 'bg-purple-50 text-purple-800 border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-600/40'
+                                  : isCurrent
+                                  ? 'bg-amber-50 text-amber-800 border-amber-200 dark:bg-[#f59e0b]/20 dark:text-[#fde68a] dark:border-amber-500/40 font-bold'
+                                  : 'bg-slate-50 text-slate-600 border-slate-200 dark:bg-[#1e293b]/60 dark:text-[#94a3b8] dark:border-[#334155]'
+                              }`}
+                              title="Modo Solo Vista: La única persona autorizada para actualizar estados es el Administrador"
                             >
-                              <span className="material-symbols-outlined text-[13px]">published_with_changes</span>
-                            </button>
+                              <span className="material-symbols-outlined text-[13px]">
+                                {isCompleted ? 'check_circle' : isNotAudited ? 'cancel' : isRevisit ? 'replay' : 'visibility'}
+                              </span>
+                              <span>
+                                {isCompleted
+                                  ? 'Auditado ✓'
+                                  : isNotAudited
+                                  ? 'No Auditado'
+                                  : isRevisit
+                                  ? 'Re-visita'
+                                  : isCurrent
+                                  ? 'En Curso'
+                                  : 'Pendiente'}
+                              </span>
+                            </span>
                           )}
 
                           <button

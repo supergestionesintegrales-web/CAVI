@@ -63,6 +63,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
   onReloadSampleAlertPoints,
 }) => {
   const isAuxiliar = userRole === 'auxiliar';
+  const isAdmin = userRole === 'administrador';
   const currentAuditor = auditors.find((a) => a.id === activeAuditorId) || auditors[0];
 
   const [selectedDay, setSelectedDay] = useState('martes');
@@ -333,24 +334,10 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
               <span className="px-2.5 py-0.5 rounded-full bg-[#131b2e] text-[#cbd5e1] border border-[#222a3d] text-[10px] font-medium">
                 La Guajira · 15 Municipios
               </span>
-              {activeRouteSourceFile && (
-                <span className="px-2.5 py-0.5 rounded-full bg-[#131b2e] text-[#93c5fd] border border-[#222a3d] text-[10px] font-mono hidden md:inline">
-                  {activeRouteSourceFile}
-                </span>
-              )}
-            </div>
-
-            <div className="flex items-center gap-2">
-              <span className="px-2.5 py-1 rounded-lg bg-[#0c1322] border border-[#222a3d] text-[11px] font-mono text-[#a5b4fc] flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[15px]">
-                  {isAuxiliar ? 'engineering' : 'admin_panel_settings'}
-                </span>
-                <span>{isAuxiliar ? `Auxiliar: ${currentAuditor.name}` : 'Modo Administrador'}</span>
-              </span>
             </div>
           </div>
 
-          {/* Hero Headline & Primary Expand Button */}
+          {/* Hero Headline */}
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
             <div className="flex items-start gap-4 min-w-0">
               <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-[#0088ff] to-[#38bdf8] flex items-center justify-center text-white shadow-xl shadow-[#0088ff]/30 shrink-0">
@@ -366,37 +353,6 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                   Monitoreo georreferenciado de <strong>595+ puntos de venta</strong> (CDA, Puntos Físicos, Centros de Manejo y Bancarios), trazado de rutas GPS, auditoría en terreno y desplazamiento guiado.
                 </p>
               </div>
-            </div>
-
-            {/* PRIMARY HERO ACTION: AMPLIAR MAPA EN GRANDE */}
-            <div className="flex items-center gap-2.5 flex-wrap shrink-0">
-              <button
-                type="button"
-                onClick={() => setMapLayoutMode(mapLayoutMode === 'panoramic_large' ? 'split' : 'panoramic_large')}
-                className={`px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-2 shadow-lg transition-all cursor-pointer ${
-                  mapLayoutMode === 'panoramic_large'
-                    ? 'bg-[#0088ff] hover:bg-[#0070d8] text-white shadow-[#0088ff]/40 ring-2 ring-[#38bdf8]/60'
-                    : 'bg-[#1e293b] hover:bg-[#2d3a58] text-[#38bdf8] border border-[#0088ff]/50'
-                }`}
-                title="Ampliar o compactar el mapa de rutas"
-              >
-                <span className="material-symbols-outlined text-[20px]">
-                  {mapLayoutMode === 'panoramic_large' ? 'close_fullscreen' : 'open_in_full'}
-                </span>
-                <span>
-                  {mapLayoutMode === 'panoramic_large' ? '✓ Mapa en Grande (Activo)' : 'Ampliar Mapa en Grande'}
-                </span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setIsGpsModalOpen(true)}
-                className="px-3.5 py-2.5 rounded-xl bg-[#131b2e] hover:bg-[#1e293b] text-[#cbd5e1] hover:text-white border border-[#222a3d] font-bold text-xs sm:text-sm flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
-                title="Ver territorio departamental en pantalla completa"
-              >
-                <span className="material-symbols-outlined text-[19px] text-[#38bdf8]">fullscreen</span>
-                <span className="hidden sm:inline">Pantalla Completa</span>
-              </button>
             </div>
           </div>
 
@@ -477,94 +433,8 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
             </div>
           </div>
 
-          {/* Operational Action Controls & Data Management */}
-          <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-[#1e2a44]/80">
-            {/* Real Data Actions */}
-            {!isAuxiliar && (
-              <div className="flex items-center gap-2 flex-wrap">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedDay('calendario_auditor');
-                    onShowToast('Calendario del Auditor Activo', 'Selector de rango de fechas y programación sobre nuestro mapa nativo.', 'info');
-                  }}
-                  className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#0088ff] to-[#0284c7] hover:from-[#0070d8] hover:to-[#0369a1] text-white text-xs font-bold flex items-center gap-1.5 shadow-md shadow-[#0088ff]/30 active:scale-95 transition-all cursor-pointer"
-                  title="Abrir calendario del auditor con selector de rango de fechas"
-                >
-                  <span className="material-symbols-outlined text-[16px]">calendar_month</span>
-                  <span>Calendario Auditor (Rango de Fechas)</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleOpenAddStep()}
-                  className="px-3 py-1.5 rounded-xl bg-[#0088ff] hover:bg-[#0070d8] text-white text-xs font-bold flex items-center gap-1.5 shadow-md shadow-[#0088ff]/30 active:scale-95 transition-all cursor-pointer"
-                >
-                  <span className="material-symbols-outlined text-[16px]">add_location_alt</span>
-                  <span>+ Nueva Parada</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="px-3 py-1.5 rounded-xl bg-[#1e293b] hover:bg-[#2d3a58] text-[#f8fafc] text-xs font-bold border border-[#3b4760] flex items-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer"
-                  title="Cargar matriz con dirección, nombre, canal y geolocalización GPS (.xlsx, .csv, .txt, .kml)"
-                >
-                  <span className="material-symbols-outlined text-[16px] text-[#38bdf8]">upload_file</span>
-                  <span>Cargar Matriz PDV (GPS)</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setIsAddFpOpen(true)}
-                  className="px-2.5 py-1.5 rounded-xl bg-[#1e293b] hover:bg-[#2d3a58] text-[#fcd34d] text-xs font-bold border border-[#f59e0b]/40 flex items-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer"
-                  title="Agregar Punto Flotante"
-                >
-                  <span className="material-symbols-outlined text-[16px]">push_pin</span>
-                  <span>+ Flotante</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={downloadRoutesTemplate}
-                  className="px-2.5 py-1.5 rounded-xl bg-[#131b2e] hover:bg-[#1e293b] text-[#cbd5e1] hover:text-white text-xs font-medium border border-[#222a3d] flex items-center gap-1 transition-all cursor-pointer"
-                  title="Descargar Plantilla Excel con columnas de GPS y Canales"
-                >
-                  <span className="material-symbols-outlined text-[15px] text-[#0088ff]">download</span>
-                  <span className="hidden md:inline">Plantilla Matriz GPS</span>
-                </button>
-
-                {floatingPoints.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={onAutoAssignAll}
-                    className="px-2.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border border-amber-500/40 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors shadow-xs"
-                    title="Cargar puntos: priorizar alertas y completar cargue a cada auditor"
-                  >
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
-                    <span>Cargar {floatingPoints.length} Puntos de Alerta</span>
-                  </button>
-                )}
-
-                {totalStepsCount > 0 && onClearRouteSteps && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (window.confirm('¿Seguro que deseas limpiar todas las paradas de ruta?')) {
-                        onClearRouteSteps();
-                      }
-                    }}
-                    className="px-2.5 py-1.5 rounded-xl bg-[#131b2e] hover:bg-[#7f1d1d]/40 text-[#fca5a5] text-xs font-medium border border-[#7f1d1d]/60 flex items-center gap-1 transition-all cursor-pointer"
-                    title="Limpiar todas las paradas"
-                  >
-                    <span className="material-symbols-outlined text-[15px]">delete_sweep</span>
-                    <span className="hidden sm:inline">Limpiar</span>
-                  </button>
-                )}
-              </div>
-            )}
-
-            {/* Quick Auditor Focus Filter for Route Mapping */}
+          {/* Quick Auditor Focus Filter for Route Mapping */}
+          <div className="flex flex-wrap items-center justify-end gap-3 pt-2 border-t border-[#1e2a44]/80">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-xs text-[#94a3b8] font-medium hidden sm:inline">Ruta de Auditor:</span>
               <select
@@ -655,43 +525,18 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
       </div>
 
       {/* ========================================================================= */}
-      {/* 🧭 VIEW MODE SWITCHER BAR (Mapa en Grande vs Vista Dividida vs Pantalla Completa) */}
+      {/* 🧭 STATUS & GPS ACTION BAR */}
       {/* ========================================================================= */}
       {selectedDay !== 'mes' && selectedDay !== 'semana' && selectedDay !== 'calendario_auditor' && (
         <div className="flex items-center justify-between flex-wrap gap-2.5 bg-[#131b2e] px-4 py-2.5 rounded-2xl border border-[#222a3d] shadow-sm">
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold text-white flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[18px] text-[#38bdf8]">view_compact</span>
-              <span>Modo de Visualización:</span>
+              <span className="material-symbols-outlined text-[18px] text-[#38bdf8]">map</span>
+              <span>Mapa Departamental Claro &amp; Despacho</span>
             </span>
-
-            <div className="flex items-center gap-1 bg-[#0b1326] p-1 rounded-xl border border-[#222a3d]">
-              <button
-                type="button"
-                onClick={() => setMapLayoutMode('panoramic_large')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                  mapLayoutMode === 'panoramic_large'
-                    ? 'bg-[#0088ff] text-white shadow-sm shadow-[#0088ff]/30'
-                    : 'text-[#cbd5e1] hover:text-white'
-                }`}
-              >
-                <span className="material-symbols-outlined text-[16px]">map</span>
-                <span>Mapa en Grande (Panorámico)</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setMapLayoutMode('split')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                  mapLayoutMode === 'split'
-                    ? 'bg-[#0088ff] text-white shadow-sm shadow-[#0088ff]/30'
-                    : 'text-[#cbd5e1] hover:text-white'
-                }`}
-              >
-                <span className="material-symbols-outlined text-[16px]">view_sidebar</span>
-                <span>Vista Dividida</span>
-              </button>
-            </div>
+            <span className="px-2 py-0.5 rounded-full bg-[#10b981]/20 text-[#4edea3] text-[10px] font-bold border border-[#10b981]/30">
+              CAVIMAPS Claro Activo
+            </span>
           </div>
 
           <div className="flex items-center gap-2">
@@ -702,7 +547,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                   type="button"
                   onClick={() => setSelectedAuditorForMap('todos')}
                   className="hover:text-white cursor-pointer ml-1"
-                  title="Quitar filtro"
+                  title="Quitar filtro de ruta"
                 >
                   ✕
                 </button>
@@ -744,6 +589,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
           onUploadMatrix={() => fileInputRef.current?.click()}
           onDownloadTemplate={downloadRoutesTemplate}
           onShowToast={onShowToast}
+          userRole={userRole}
         />
       ) : selectedDay === 'calendario_auditor' ? (
         <ActiveAuditorCalendarView
@@ -759,17 +605,17 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
           onOpenGpsModal={() => setIsGpsModalOpen(true)}
           onShowToast={onShowToast}
           isAuxiliar={isAuxiliar}
+          userRole={userRole}
         />
       ) : (
-        /* RESPONSIVE LAYOUT (PANORAMIC LARGE MAP OR SPLIT) */
+        /* RESPONSIVE UNIFIED LAYOUT */
         <div className="flex flex-col w-full space-y-6">
-          {/* 1. PANORAMIC LARGE MAP (WHEN MODE IS PANORAMIC_LARGE) */}
-          {mapLayoutMode === 'panoramic_large' && (
-            <div className="w-full bg-[#060e20] rounded-2xl overflow-hidden border border-[#222a3d] shadow-2xl relative">
+          {/* 1. UPPER SECTION: MAP & DISPATCH CONTROL CARD SIDE-BY-SIDE */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+            {/* LEFT / CENTER: Clear Territory Map (Voyager / Claro) */}
+            <div className="lg:col-span-7 xl:col-span-7 bg-[#f8fafc] dark:bg-[#060e20] rounded-2xl overflow-hidden border border-slate-200 dark:border-[#222a3d] shadow-xl relative min-h-[480px] flex flex-col">
               <CaviNativeMap
-                height="680px"
-                isExpandedLarge={true}
-                onToggleExpandLarge={() => setMapLayoutMode('split')}
+                height="480px"
                 initialRouteStops={mapWaypoints}
                 routeGroups={mapRouteGroups}
                 showPointCatalog={true}
@@ -783,16 +629,162 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                 }}
               />
             </div>
-          )}
 
-          {/* 2. ITINERARIES & DISPATCH SECTION */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-            {/* LEFT COLUMN: Auditor Cards & Itineraries */}
-            <div className="lg:col-span-7 xl:col-span-7 space-y-4">
-            <div className="flex items-center justify-between pt-1">
-              <h2 className="font-headline font-bold text-sm text-[#f8fafc] flex items-center gap-2">
+            {/* RIGHT COLUMN: "un cuadro como este al lado" - DISPATCH & WORKLOAD CONTROL */}
+            <div className="lg:col-span-5 xl:col-span-5 flex flex-col justify-between gap-3.5 bg-white dark:bg-[#171f33] p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-[#222a3d] shadow-sm">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-[#222a3d]">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-[#0088ff]/20 text-[#0088ff] flex items-center justify-center shrink-0">
+                      <span className="material-symbols-outlined text-[20px]">assignment_turned_in</span>
+                    </div>
+                    <div>
+                      <h2 className="font-headline font-bold text-sm text-slate-900 dark:text-white">
+                        Cargue y Capacidad de Auditores
+                      </h2>
+                      <p className="text-[11px] text-slate-600 dark:text-[#cbd5e1]">
+                        Asignación balanceada de red operativa en La Guajira
+                      </p>
+                    </div>
+                  </div>
+                  <span className="px-2 py-0.5 rounded-full bg-blue-100 dark:bg-[#0088ff]/20 text-blue-900 dark:text-[#38bdf8] text-[11px] font-mono font-bold">
+                    {auditors.length} Auditores
+                  </span>
+                </div>
+
+                {/* Priority Rule Notice */}
+                <div className="p-2.5 rounded-xl bg-blue-50 dark:bg-[#0f1d2e] border border-blue-200 dark:border-[#0088ff]/30 flex items-start gap-2">
+                  <span className="material-symbols-outlined text-[17px] text-[#0088ff] shrink-0 mt-0.5">priority_high</span>
+                  <div className="text-[11px] text-slate-700 dark:text-[#cbd5e1] leading-relaxed">
+                    <strong className="text-slate-900 dark:text-white font-bold block mb-0.5">
+                      Regla de Despacho Prioritaria
+                    </strong>
+                    Al ejecutar el cargue, <span className="font-semibold text-red-600 dark:text-[#f87171]">se asignan primero los puntos con alerta de campo</span> (quiebres, moras &gt;60 días o anomalías). Una vez cubiertas todas las alertas, se distribuyen los demás puntos para completar la cuota a cada auditor.
+                  </div>
+                </div>
+
+                {/* Auditor Workload Progress Cards */}
+                <div className="space-y-2 pt-0.5">
+                  {auditors.map((aud) => {
+                    const audSteps = steps.filter((s) => s.auditorId === aud.id);
+                    const alertStepsCount = audSteps.filter((s) => (s.daysWithoutVisit && s.daysWithoutVisit >= 60) || (s.alertCategory && s.alertCategory !== 'ninguna')).length;
+                    const regularStepsCount = audSteps.length - alertStepsCount;
+                    const target = aud.visitsTarget > 0 ? aud.visitsTarget : Math.max(audSteps.length, 10);
+                    const percentLoaded = Math.min(100, Math.round((audSteps.length / target) * 100));
+
+                    return (
+                      <div
+                        key={aud.id}
+                        className="p-2.5 rounded-xl bg-slate-50 dark:bg-[#131b2e] border border-slate-200 dark:border-[#222a3d] space-y-1.5"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="min-w-0">
+                            <span className="text-xs font-bold text-slate-900 dark:text-white truncate block">
+                              {aud.name}
+                            </span>
+                            <span className="text-[10px] text-slate-500 dark:text-[#94a3b8]">
+                              Zona {aud.zone} · {aud.code}
+                            </span>
+                          </div>
+                          <div className="text-right">
+                            <span className="text-xs font-bold font-mono text-slate-900 dark:text-white">
+                              {audSteps.length} paradas
+                            </span>
+                            <span className="text-[10px] text-slate-500 dark:text-[#94a3b8] block">
+                              {percentLoaded}% cargado
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Progress Bar */}
+                        <div className="w-full bg-slate-200 dark:bg-[#1e293b] h-2 rounded-full overflow-hidden flex">
+                          {alertStepsCount > 0 && (
+                            <div
+                              style={{ width: `${(alertStepsCount / target) * 100}%` }}
+                              className="bg-[#ef4444] h-full"
+                              title={`${alertStepsCount} paradas con alerta prioritaria`}
+                            />
+                          )}
+                          {regularStepsCount > 0 && (
+                            <div
+                              style={{ width: `${(regularStepsCount / target) * 100}%` }}
+                              className="bg-[#0088ff] h-full"
+                              title={`${regularStepsCount} paradas regulares`}
+                            />
+                          )}
+                        </div>
+
+                        {/* Breakdown pills */}
+                        <div className="flex items-center justify-between text-[10px]">
+                          <span className="inline-flex items-center gap-1 font-semibold text-red-700 dark:text-[#fca5a5]">
+                            <span className="w-2 h-2 rounded-full bg-[#ef4444]" />
+                            {alertStepsCount} alertas
+                          </span>
+                          <span className="inline-flex items-center gap-1 font-semibold text-blue-700 dark:text-[#93c5fd]">
+                            <span className="w-2 h-2 rounded-full bg-[#0088ff]" />
+                            {regularStepsCount} regulares
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* TACTICAL ACTIONS BAR */}
+              <div className="pt-2 border-t border-slate-200 dark:border-[#222a3d]">
+                {isAdmin ? (
+                  <div className="flex flex-col gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={onAutoAssignAll}
+                        className="py-2.5 px-3 rounded-xl bg-[#0088ff] hover:bg-[#0070d8] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-md shadow-[#0088ff]/30 active:scale-95 transition-all cursor-pointer"
+                        title="Asignar primero los puntos con alerta y completar el cargue de cada auditor con los demás puntos"
+                      >
+                        <span className="material-symbols-outlined text-[17px]">bolt</span>
+                        <span className="truncate">Cargar Rutas</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handlePublish}
+                        disabled={isPublishing}
+                        className="py-2.5 px-3 rounded-xl bg-[#1e293b] hover:bg-[#2d3a58] text-[#f8fafc] text-xs font-bold border border-[#3b4760] flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer"
+                      >
+                        <span className="material-symbols-outlined text-[17px] text-[#38bdf8]">
+                          {isPublishing ? 'sync' : 'send_to_mobile'}
+                        </span>
+                        <span className="truncate">
+                          {isPublishing ? 'Publicando...' : 'Publicar Rutas'}
+                        </span>
+                      </button>
+                    </div>
+                    <p className="text-center text-[10px] text-slate-500 dark:text-[#cbd5e1]">
+                      <span className="material-symbols-outlined text-[12px] align-middle mr-0.5">verified_user</span>
+                      Cargue balanceado CAVI · Priorización automática de alertas activa
+                    </p>
+                  </div>
+                ) : (
+                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#0b1326] border border-slate-200 dark:border-[#222a3d] text-center">
+                    <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-slate-700 dark:text-[#94a3b8]">
+                      <span className="material-symbols-outlined text-[16px] text-[#0088ff]">visibility</span>
+                      <span>Modo Solo Lectura (Solo Vista)</span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 dark:text-[#64748b] mt-1 leading-snug">
+                      La única persona autorizada para cargar información o actualizar es el Administrador.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* 2. LOWER SECTION: 3-COLUMN MOSAIC OF AUDITORES DE CAMPO (3 EN PANTALLA) */}
+          <div className="space-y-4 pt-2">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-[#1e2a44]">
+              <h2 className="font-headline font-bold text-sm text-slate-900 dark:text-[#f8fafc] flex items-center gap-2">
                 <span>Auditores de Campo</span>
-                <span className="px-2 py-0.5 rounded-full bg-[#1e293b] text-[10px] text-white border border-[#334155]">
+                <span className="px-2.5 py-0.5 rounded-full bg-blue-100 dark:bg-[#1e293b] text-blue-900 dark:text-white border border-blue-200 dark:border-[#334155] text-[10px] font-bold">
                   {filteredAuditors.length} en pantalla
                 </span>
               </h2>
@@ -807,7 +799,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                     });
                     setCollapsedAuditors((prev) => ({ ...prev, ...nextState }));
                   }}
-                  className="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-[#1e293b] text-[#cbd5e1] hover:text-white hover:bg-[#2d3a58] transition-colors border border-[#334155] cursor-pointer flex items-center gap-1"
+                  className="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-[#1e293b] text-slate-700 dark:text-[#cbd5e1] hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-[#2d3a58] transition-colors border border-slate-200 dark:border-[#334155] cursor-pointer flex items-center gap-1"
                   title="Plegar o desplegar todas las paradas"
                 >
                   <span className="material-symbols-outlined text-[15px]">
@@ -817,11 +809,14 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                     {filteredAuditors.every((a) => collapsedAuditors[a.id]) ? 'Desplegar todas' : 'Plegar todas'}
                   </span>
                 </button>
-                <span className="text-xs text-[#cbd5e1] font-medium hidden sm:inline">
+                <span className="text-xs text-slate-600 dark:text-[#cbd5e1] font-medium hidden sm:inline">
                   {totalStepsCount} paradas totales
                 </span>
               </div>
             </div>
+
+            {/* DYNAMIC 3-COLUMN MOSAIC */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 items-start">
 
             {/* DYNAMIC AUDITOR CARDS */}
             {filteredAuditors.map((aud) => {
@@ -986,7 +981,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                         </span>
                       </div>
 
-                      {!isAuxiliar && (
+                      {isAdmin && (
                         <button
                           type="button"
                           onClick={() => handleOpenAddStep(aud.id)}
@@ -1265,54 +1260,82 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
 
                                     {/* Right: Explicit "Auditar" button and Quick status options */}
                                     <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
-                                      {/* Primary Auditar Modal Button */}
-                                      <button
-                                        type="button"
-                                        onClick={() => setAuditModalStep(step)}
-                                        className="px-2.5 py-1.5 rounded-xl bg-[#0088ff] hover:bg-[#0070d8] text-white text-[11px] font-bold flex items-center gap-1.5 shadow-sm shadow-[#0088ff]/30 active:scale-95 transition-all cursor-pointer"
-                                        title="Registrar estado de visita (Auditado, No Auditado, Re-visita, número de visitas)"
-                                      >
-                                        <span className="material-symbols-outlined text-[15px]">rate_review</span>
-                                        <span>Auditar</span>
-                                      </button>
+                                      {isAdmin ? (
+                                        <>
+                                          {/* Primary Auditar Modal Button */}
+                                          <button
+                                            type="button"
+                                            onClick={() => setAuditModalStep(step)}
+                                            className="px-2.5 py-1.5 rounded-xl bg-[#0088ff] hover:bg-[#0070d8] text-white text-[11px] font-bold flex items-center gap-1.5 shadow-sm shadow-[#0088ff]/30 active:scale-95 transition-all cursor-pointer"
+                                            title="Registrar estado de visita (Auditado, No Auditado, Re-visita, número de visitas)"
+                                          >
+                                            <span className="material-symbols-outlined text-[15px]">rate_review</span>
+                                            <span>Auditar</span>
+                                          </button>
 
-                                      {/* Fast Cycle Button */}
-                                      <button
-                                        type="button"
-                                        onClick={() => onToggleStepStatus && onToggleStepStatus(step.id)}
-                                        className={`px-2 py-1 rounded-lg text-[10px] font-bold border transition-colors cursor-pointer ${
-                                          isCompleted
-                                            ? 'bg-emerald-100 text-emerald-800 dark:bg-[#064e3b] dark:text-[#6ee7b7] border-emerald-200 dark:border-emerald-800'
-                                            : isNotAudited
-                                            ? 'bg-red-100 text-red-800 dark:bg-red-950/50 dark:text-red-300 border-red-200 dark:border-red-900'
-                                            : isRevisit
-                                            ? 'bg-purple-100 text-purple-800 dark:bg-purple-950/50 dark:text-purple-300 border-purple-200 dark:border-purple-900'
-                                            : isCurrent
-                                            ? 'bg-amber-100 text-amber-800 dark:bg-[#78350f] dark:text-[#fcd34d] border-amber-200 dark:border-amber-800'
-                                            : 'bg-slate-100 text-slate-700 dark:bg-[#1e293b] dark:text-[#93c5fd] border-slate-200 dark:border-slate-700'
-                                        }`}
-                                        title="Click para ciclar estado rápidamente"
-                                      >
-                                        {isCompleted
-                                          ? 'Auditado'
-                                          : isNotAudited
-                                          ? 'No Auditado'
-                                          : isRevisit
-                                          ? 'Re-visita'
-                                          : isCurrent
-                                          ? 'En Curso'
-                                          : 'Pendiente'}
-                                      </button>
+                                          {/* Fast Cycle Button */}
+                                          <button
+                                            type="button"
+                                            onClick={() => onToggleStepStatus && onToggleStepStatus(step.id)}
+                                            className={`px-2 py-1 rounded-lg text-[10px] font-bold border transition-colors cursor-pointer ${
+                                              isCompleted
+                                                ? 'bg-emerald-100 text-emerald-800 dark:bg-[#064e3b] dark:text-[#6ee7b7] border-emerald-200 dark:border-emerald-800'
+                                                : isNotAudited
+                                                ? 'bg-red-100 text-red-800 dark:bg-red-950/50 dark:text-red-300 border-red-200 dark:border-red-900'
+                                                : isRevisit
+                                                ? 'bg-purple-100 text-purple-800 dark:bg-purple-950/50 dark:text-purple-300 border-purple-200 dark:border-purple-900'
+                                                : isCurrent
+                                                ? 'bg-amber-100 text-amber-800 dark:bg-[#78350f] dark:text-[#fcd34d] border-amber-200 dark:border-amber-800'
+                                                : 'bg-slate-100 text-slate-700 dark:bg-[#1e293b] dark:text-[#93c5fd] border-slate-200 dark:border-slate-700'
+                                            }`}
+                                            title="Click para ciclar estado rápidamente"
+                                          >
+                                            {isCompleted
+                                              ? 'Auditado'
+                                              : isNotAudited
+                                              ? 'No Auditado'
+                                              : isRevisit
+                                              ? 'Re-visita'
+                                              : isCurrent
+                                              ? 'En Curso'
+                                              : 'Pendiente'}
+                                          </button>
 
-                                      {!isAuxiliar && onDeleteRouteStep && (
-                                        <button
-                                          type="button"
-                                          onClick={() => onDeleteRouteStep(step.id)}
-                                          className="w-7 h-7 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-600 dark:hover:bg-[#7f1d1d]/40 dark:text-[#cbd5e1] dark:hover:text-[#f87171] flex items-center justify-center transition-colors cursor-pointer"
-                                          title="Eliminar parada"
+                                          {onDeleteRouteStep && (
+                                            <button
+                                              type="button"
+                                              onClick={() => onDeleteRouteStep(step.id)}
+                                              className="w-7 h-7 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-600 dark:hover:bg-[#7f1d1d]/40 dark:text-[#cbd5e1] dark:hover:text-[#f87171] flex items-center justify-center transition-colors cursor-pointer"
+                                              title="Eliminar parada"
+                                            >
+                                              <span className="material-symbols-outlined text-[16px]">delete</span>
+                                            </button>
+                                          )}
+                                        </>
+                                      ) : (
+                                        <span
+                                          className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border ${
+                                            isCompleted
+                                              ? 'bg-emerald-100 text-emerald-800 dark:bg-[#064e3b] dark:text-[#6ee7b7] border-emerald-200 dark:border-emerald-800'
+                                              : isNotAudited
+                                              ? 'bg-red-100 text-red-800 dark:bg-red-950/50 dark:text-red-300 border-red-200 dark:border-red-900'
+                                              : isRevisit
+                                              ? 'bg-purple-100 text-purple-800 dark:bg-purple-950/50 dark:text-purple-300 border-purple-200 dark:border-purple-900'
+                                              : isCurrent
+                                              ? 'bg-amber-100 text-amber-800 dark:bg-[#78350f] dark:text-[#fcd34d] border-amber-200 dark:border-amber-800'
+                                              : 'bg-slate-100 text-slate-700 dark:bg-[#1e293b] dark:text-[#93c5fd] border-slate-200 dark:border-slate-700'
+                                          }`}
                                         >
-                                          <span className="material-symbols-outlined text-[16px]">delete</span>
-                                        </button>
+                                          {isCompleted
+                                            ? 'Auditado ✓'
+                                            : isNotAudited
+                                            ? 'No Auditado'
+                                            : isRevisit
+                                            ? 'Re-visita'
+                                            : isCurrent
+                                            ? 'En Curso'
+                                            : 'Pendiente'}
+                                        </span>
                                       )}
                                     </div>
                                   </div>
@@ -1325,246 +1348,11 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                     </div>
                   </div>
                 </div>
-              );
             })}
-        </div>
-
-        {/* RIGHT COLUMN: Interactive Territory Map (in Split Mode) & Dispatch Management */}
-        <div className="lg:col-span-5 xl:col-span-5 space-y-4 lg:sticky lg:top-22">
-          {/* Native CAVIMAPS Engine with Route Tracing & Guided Displacement (Split Mode) */}
-          {mapLayoutMode === 'split' && (
-            <div className="w-full bg-[#060e20] rounded-2xl overflow-hidden border border-[#222a3d] shadow-2xl relative">
-              <CaviNativeMap
-                height="520px"
-                isExpandedLarge={false}
-                onToggleExpandLarge={() => setMapLayoutMode('panoramic_large')}
-                initialRouteStops={mapWaypoints}
-                routeGroups={mapRouteGroups}
-                onStopArrival={(stop) => {
-                  onShowToast(
-                    'Parada Alcanzada',
-                    `Llegada registrada en ${stop.name} (${stop.municipality || 'La Guajira'}).`,
-                    'success'
-                  );
-                }}
-              />
             </div>
-          )}
-
-          {/* RIGHT COLUMN: SMART ROUTE PLANNER OR AUXILIAR FIELD PANEL */}
-          {isAuxiliar ? (
-            <div className="flex flex-col gap-3 bg-[#171f33] p-4 rounded-2xl border border-[#222a3d] shadow-sm">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-[#0088ff]/20 border border-[#0088ff]/30 flex items-center justify-center text-[#0088ff] shrink-0">
-                  <span className="material-symbols-outlined text-[18px]">verified</span>
-                </div>
-                <div>
-                  <h2 className="font-headline font-bold text-sm text-white">
-                    Despacho Asignado · {currentAuditor.name}
-                  </h2>
-                  <p className="text-[11px] text-[#cbd5e1]">
-                    Zona {currentAuditor.zone} · Estado de visitas en terreno
-                  </p>
-                </div>
-              </div>
-
-              {/* Auditor Field Metrics */}
-              <div className="grid grid-cols-2 gap-2 bg-slate-50 dark:bg-[#131b2e] border border-slate-200 dark:border-transparent p-3 rounded-xl">
-                <div>
-                  <span className="text-[10px] text-slate-700 dark:text-[#cbd5e1] uppercase block font-bold">Paradas Asignadas</span>
-                  <span className="text-base font-bold text-slate-900 dark:text-white font-mono">
-                    {steps.filter((s) => s.auditorId === currentAuditor.id && s.status === 'completed').length} /{' '}
-                    {steps.filter((s) => s.auditorId === currentAuditor.id).length}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-[10px] text-slate-700 dark:text-[#cbd5e1] uppercase block font-bold">Eficacia</span>
-                  <span className="text-base font-bold text-[#0088ff] font-mono">100% SLA</span>
-                </div>
-              </div>
-
-              <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#131b2e] border border-slate-200 dark:border-transparent space-y-1.5">
-                <div className="flex items-center gap-1.5 text-xs text-[#0088ff] dark:text-[#38bdf8] font-bold">
-                  <span className="material-symbols-outlined text-[16px]">info</span>
-                  <span>Modo Operativo de Campo</span>
-                </div>
-                <p className="text-[11px] text-slate-700 dark:text-[#cbd5e1] leading-relaxed">
-                  Confirma cada visita usando el botón de estado en la secuencia. Tu reporte se sincroniza en tiempo real con la central.
-                </p>
-              </div>
-
-              {/* Auxiliar Field Operations */}
-              <div className="flex flex-col gap-2 pt-1">
-                <button
-                  type="button"
-                  onClick={() =>
-                    onShowToast(
-                      'GPS Confirmado',
-                      `Coordenadas satelitales de ${currentAuditor.name} transmitidas con éxito`,
-                      'success'
-                    )
-                  }
-                  className="w-full py-2.5 px-3 rounded-xl bg-[#1e293b] hover:bg-[#2d3a58] text-[#0088ff] text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer"
-                >
-                  <span className="material-symbols-outlined text-[16px]">my_location</span>
-                  <span>Confirmar Ubicación GPS en Campo</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    onShowToast(
-                      'Avance Transmitido',
-                      `Reporte de paradas de la Zona ${currentAuditor.zone} sincronizado con la central`,
-                      'info'
-                    )
-                  }
-                  className="w-full py-2.5 px-3 rounded-xl bg-[#3b82f6] hover:bg-[#2563eb] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer"
-                >
-                  <span className="material-symbols-outlined text-[16px]">cloud_upload</span>
-                  <span>Transmitir Avance de Jornada</span>
-                </button>
-              </div>
-            </div>
-          ) : (
-            <>
-              {/* CONTROL DE CARGUE Y CAPACIDAD DE AUDITORES (DESPACHO INTELIGENTE) */}
-              <div className="flex flex-col gap-3 bg-white dark:bg-[#171f33] p-4 rounded-2xl border border-slate-200 dark:border-[#222a3d] shadow-sm">
-                <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-[#222a3d]">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-[#0088ff]/20 text-[#0088ff] flex items-center justify-center shrink-0">
-                      <span className="material-symbols-outlined text-[20px]">assignment_turned_in</span>
-                    </div>
-                    <div>
-                      <h2 className="font-headline font-bold text-sm text-slate-900 dark:text-white">
-                        Cargue y Capacidad de Auditores
-                      </h2>
-                      <p className="text-[11px] text-slate-600 dark:text-[#cbd5e1]">
-                        Asignación balanceada de red operativa en La Guajira
-                      </p>
-                    </div>
-                  </div>
-                  <span className="px-2 py-0.5 rounded-full bg-blue-100 dark:bg-[#0088ff]/20 text-blue-900 dark:text-[#38bdf8] text-[11px] font-mono font-bold">
-                    {auditors.length} Auditores
-                  </span>
-                </div>
-
-                {/* Priority Rule Notice */}
-                <div className="p-2.5 rounded-xl bg-blue-50 dark:bg-[#0f1d2e] border border-blue-200 dark:border-[#0088ff]/30 flex items-start gap-2">
-                  <span className="material-symbols-outlined text-[17px] text-[#0088ff] shrink-0 mt-0.5">priority_high</span>
-                  <div className="text-[11px] text-slate-700 dark:text-[#cbd5e1] leading-relaxed">
-                    <strong className="text-slate-900 dark:text-white font-bold block mb-0.5">
-                      Regla de Despacho Prioritaria
-                    </strong>
-                    Al ejecutar el cargue, <span className="font-semibold text-red-600 dark:text-[#f87171]">se asignan primero los puntos con alerta de campo</span> (quiebres, moras &gt;60 días o anomalías). Una vez cubiertas todas las alertas, se distribuyen los demás puntos para completar el cargue y cuota a cada auditor.
-                  </div>
-                </div>
-
-                {/* Auditor Workload Progress Cards */}
-                <div className="space-y-2 pt-1">
-                  {auditors.map((aud) => {
-                    const audSteps = steps.filter((s) => s.auditorId === aud.id);
-                    const alertStepsCount = audSteps.filter((s) => (s.daysWithoutVisit && s.daysWithoutVisit >= 60) || (s.alertCategory && s.alertCategory !== 'ninguna')).length;
-                    const regularStepsCount = audSteps.length - alertStepsCount;
-                    const target = aud.visitsTarget > 0 ? aud.visitsTarget : Math.max(audSteps.length, 10);
-                    const percentLoaded = Math.min(100, Math.round((audSteps.length / target) * 100));
-
-                    return (
-                      <div
-                        key={aud.id}
-                        className="p-3 rounded-xl bg-slate-50 dark:bg-[#131b2e] border border-slate-200 dark:border-[#222a3d] space-y-2"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="min-w-0">
-                            <span className="text-xs font-bold text-slate-900 dark:text-white truncate block">
-                              {aud.name}
-                            </span>
-                            <span className="text-[10px] text-slate-500 dark:text-[#94a3b8]">
-                              Zona {aud.zone} · {aud.code}
-                            </span>
-                          </div>
-                          <div className="text-right">
-                            <span className="text-xs font-bold font-mono text-slate-900 dark:text-white">
-                              {audSteps.length} paradas
-                            </span>
-                            <span className="text-[10px] text-slate-500 dark:text-[#94a3b8] block">
-                              {percentLoaded}% cargado
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Progress Bar */}
-                        <div className="w-full bg-slate-200 dark:bg-[#1e293b] h-2 rounded-full overflow-hidden flex">
-                          {alertStepsCount > 0 && (
-                            <div
-                              style={{ width: `${(alertStepsCount / target) * 100}%` }}
-                              className="bg-[#ef4444] h-full"
-                              title={`${alertStepsCount} paradas con alerta prioritaria`}
-                            />
-                          )}
-                          {regularStepsCount > 0 && (
-                            <div
-                              style={{ width: `${(regularStepsCount / target) * 100}%` }}
-                              className="bg-[#0088ff] h-full"
-                              title={`${regularStepsCount} paradas regulares`}
-                            />
-                          )}
-                        </div>
-
-                        {/* Breakdown pills */}
-                        <div className="flex items-center justify-between text-[10px]">
-                          <span className="inline-flex items-center gap-1 font-semibold text-red-700 dark:text-[#fca5a5]">
-                            <span className="w-2 h-2 rounded-full bg-[#ef4444]" />
-                            {alertStepsCount} con alerta priorizada
-                          </span>
-                          <span className="inline-flex items-center gap-1 font-semibold text-blue-700 dark:text-[#93c5fd]">
-                            <span className="w-2 h-2 rounded-full bg-[#0088ff]" />
-                            {regularStepsCount} regulares
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* TACTICAL ACTIONS BAR */}
-              <div className="flex flex-col gap-2 pt-1">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  <button
-                    type="button"
-                    onClick={onAutoAssignAll}
-                    className="py-3 px-3 rounded-xl bg-[#0088ff] hover:bg-[#0070d8] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-md shadow-[#0088ff]/30 active:scale-95 transition-all cursor-pointer"
-                    title="Asignar primero los puntos con alerta y completar el cargue de cada auditor con los demás puntos"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">bolt</span>
-                    <span className="truncate">Cargar Rutas (Priorizar Alertas)</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handlePublish}
-                    disabled={isPublishing}
-                    className="py-3 px-3 rounded-xl bg-[#1e293b] hover:bg-[#2d3a58] text-[#f8fafc] text-xs font-bold border border-[#3b4760] flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer"
-                  >
-                    <span className="material-symbols-outlined text-[18px] text-[#38bdf8]">
-                      {isPublishing ? 'sync' : 'send_to_mobile'}
-                    </span>
-                    <span className="truncate">
-                      {isPublishing ? 'Publicando...' : 'Publicar Rutas'}
-                    </span>
-                  </button>
-                </div>
-                <p className="text-center text-[10px] text-[#cbd5e1] pt-0.5">
-                  <span className="material-symbols-outlined text-[12px] align-middle mr-0.5">verified_user</span>
-                  Cargue balanceado CAVI · Priorización automática de alertas activa
-                </p>
-              </div>
-            </>
-          )}
+          </div>
         </div>
-      </div>
-    </div>
-    )}
+      )}
 
       {/* Audit Visit Outcome Modal */}
       <AuditVisitModal

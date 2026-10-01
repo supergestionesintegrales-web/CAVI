@@ -86,8 +86,8 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
     return [...customPoints, ...initialPoints].map((point) => enrichPdvWithAssignment(point));
   }, [customPoints, initialPoints]);
 
-  // Map settings state
-  const [mapStyle, setMapStyle] = useState<'satellite' | 'dark' | 'streets'>('dark');
+  // Map settings state: default to 'streets' (claro/light)
+  const [mapStyle, setMapStyle] = useState<'streets' | 'light' | 'satellite' | 'dark'>('streets');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [filterRegion, setFilterRegion] = useState<'Todas' | 'Norte' | 'Centro' | 'Sur' | 'Bancario'>('Todas');
   const [filterChannel, setFilterChannel] = useState<string>('todos');
@@ -232,8 +232,9 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
   // CARTO Basemaps API Key integration (removes watermark)
   const cartoApiKey = (import.meta as any).env?.VITE_CARTO_API_KEY || 'cb1_456j_1_b12ca51a8d315e590b3384b4';
 
-  // Tile layer URL configuration
-  const getTileConfig = useCallback((style: 'satellite' | 'dark' | 'streets') => {
+  // Tile layer URL configuration (Clear / light map tiles by default)
+  const getTileConfig = useCallback((style: 'streets' | 'light' | 'satellite' | 'dark') => {
+    const keyParam = cartoApiKey ? `?key=${cartoApiKey}` : '';
     switch (style) {
       case 'satellite':
         return {
@@ -242,17 +243,24 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
           maxZoom: 18,
           subdomains: 'abc',
         };
-      case 'streets':
+      case 'light':
         return {
-          url: `https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key=${cartoApiKey}`,
+          url: `https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png${keyParam}`,
           attribution: '&copy; OpenStreetMap, &copy; CARTO',
           maxZoom: 19,
           subdomains: 'abcd',
         };
       case 'dark':
+        return {
+          url: `https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png${keyParam}`,
+          attribution: '&copy; OpenStreetMap, &copy; CARTO',
+          maxZoom: 19,
+          subdomains: 'abcd',
+        };
+      case 'streets':
       default:
         return {
-          url: `https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png?key=${cartoApiKey}`,
+          url: `https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png${keyParam}`,
           attribution: '&copy; OpenStreetMap, &copy; CARTO',
           maxZoom: 19,
           subdomains: 'abcd',
@@ -866,12 +874,23 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
           <div className="flex items-center gap-1 bg-[#0b1326] p-1 rounded-xl border border-[#222a3d]">
             <button
               type="button"
-              onClick={() => setMapStyle('dark')}
+              onClick={() => setMapStyle('streets')}
               className={`px-2 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
-                mapStyle === 'dark' ? 'bg-[#0088ff] text-white shadow-xs' : 'text-[#cbd5e1] hover:text-white'
+                mapStyle === 'streets' ? 'bg-[#0088ff] text-white shadow-xs' : 'text-[#cbd5e1] hover:text-white'
               }`}
+              title="Mapa Claro Vial de alta definición"
             >
-              Táctico
+              Claro (Vial)
+            </button>
+            <button
+              type="button"
+              onClick={() => setMapStyle('light')}
+              className={`px-2 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                mapStyle === 'light' ? 'bg-[#0088ff] text-white shadow-xs' : 'text-[#cbd5e1] hover:text-white'
+              }`}
+              title="Mapa Claro Positron"
+            >
+              Positron
             </button>
             <button
               type="button"
@@ -879,17 +898,19 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
               className={`px-2 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
                 mapStyle === 'satellite' ? 'bg-[#0088ff] text-white shadow-xs' : 'text-[#cbd5e1] hover:text-white'
               }`}
+              title="Vista Satelital"
             >
               Satelital
             </button>
             <button
               type="button"
-              onClick={() => setMapStyle('streets')}
+              onClick={() => setMapStyle('dark')}
               className={`px-2 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
-                mapStyle === 'streets' ? 'bg-[#0088ff] text-white shadow-xs' : 'text-[#cbd5e1] hover:text-white'
+                mapStyle === 'dark' ? 'bg-[#0088ff] text-white shadow-xs' : 'text-[#cbd5e1] hover:text-white'
               }`}
+              title="Modo Nocturno"
             >
-              Calles
+              Oscuro
             </button>
           </div>
 
