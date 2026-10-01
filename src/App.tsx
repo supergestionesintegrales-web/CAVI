@@ -37,6 +37,7 @@ import { RoutesScreen } from './components/screens/RoutesScreen';
 import { ScheduleScreen } from './components/screens/ScheduleScreen';
 import { MacroFoldersScreen } from './components/screens/MacroFoldersScreen';
 import { LeaseScreen } from './components/screens/LeaseScreen';
+import { AlertsScreen } from './components/screens/AlertsScreen';
 import { parseLeasePointsFromMacroFiles, parseLeaseSalesFromMacroFiles, generateLeaseDataAlerts, LeaseDataAlert } from './utils/dataReconciliation';
 
 export default function App() {
@@ -816,8 +817,11 @@ export default function App() {
             onResolveIncident={handleResolveLeaseIncident}
             onShowToast={showToast}
             userRole={userRole}
-            alerts={dataAlerts}
           />
+        )}
+
+        {activeTab === 'alertas' && (
+          <AlertsScreen alerts={dataAlerts} leasePoints={leasePoints} onOpenPoint={() => {}} />
         )}
       </main>
 
