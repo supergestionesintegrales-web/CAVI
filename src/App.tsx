@@ -17,6 +17,7 @@ import {
 import { evaluatePointOpenStatus } from './data/leasePointsData';
 import {
   distributePointsWithAlertPriority,
+  MASTER_SAMPLE_CANDIDATE_POINTS,
   PointCandidate,
 } from './utils/pointAssignment';
 import { resolvePdvZone, getAssignedAuditorForZone } from './data/zoneAssignments';
@@ -709,18 +710,6 @@ export default function App() {
     );
   };
 
-  // Reload sample alert points for testing
-  const handleReloadSampleAlertPoints = () => {
-    if (userRole !== 'administrador') { showToast('Solo lectura', 'Solo el administrador puede modificar la información.', 'alert'); return; }
-    setFloatingPoints(INITIAL_ALERT_POINTS);
-    localStorage.setItem('cavi_real_floating_points', JSON.stringify(INITIAL_ALERT_POINTS));
-    showToast(
-      'Puntos Recargados',
-      'Se han preparado nuevos puntos con alertas y moras para demostrar la priorización en el cargue.',
-      'info'
-    );
-  };
-
   // Handle Apply CAVI optimization to today's auditor load
   const handleApplyCaviToAuditors = () => {
     if (userRole !== 'administrador') {
@@ -879,7 +868,6 @@ export default function App() {
             onGoToMacros={() => setActiveTab('archivos-macros')}
             onAssignFloatingPoint={handleAssignFloatingPoint}
             onAutoAssignAll={handleAutoAssignAll}
-            onReloadSampleAlertPoints={handleReloadSampleAlertPoints}
             onShowToast={showToast}
             userRole={userRole}
             activeAuditorId={activeAuditorId}
