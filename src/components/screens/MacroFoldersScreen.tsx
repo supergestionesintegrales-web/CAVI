@@ -10,8 +10,6 @@ interface MacroFoldersScreenProps {
   onAddFiles: (newFiles: MacroFile[]) => void;
   onInjectRoutes: (file: MacroFile) => void;
   activeRouteSourceFile?: string;
-  theme?: 'dark' | 'light';
-  onToggleTheme?: () => void;
   onOpenScanner?: () => void;
   onManualCheckIn?: (code: string, name: string) => void;
   onShowToast: (title: string, message: string, type?: 'info' | 'success' | 'alert') => void;
@@ -62,8 +60,6 @@ export const MacroFoldersScreen: React.FC<MacroFoldersScreenProps> = ({
   onAddFiles,
   onInjectRoutes,
   activeRouteSourceFile,
-  theme = 'dark',
-  onToggleTheme,
   onOpenScanner,
   onManualCheckIn,
   onShowToast,
@@ -485,7 +481,6 @@ FORMATOS COMPATIBLES:
   };
 
   const showMacros = activeConfigSection === 'macros' || activeConfigSection === 'todas';
-  const showTemaVial = activeConfigSection === 'tema-vial' || activeConfigSection === 'todas';
   const showOperacionesReportes =
     activeConfigSection === 'reportes-operaciones' ||
     activeConfigSection === 'reportes' ||
@@ -520,7 +515,6 @@ FORMATOS COMPATIBLES:
         activeSection={activeConfigSection}
         onSelectSection={setActiveConfigSection}
         filesCount={files.length}
-        currentTheme={theme}
         userRole={userRole}
       />
 
@@ -529,149 +523,6 @@ FORMATOS COMPATIBLES:
         progress={uploadProgress}
         onDismiss={() => setUploadProgress((prev) => ({ ...prev, isActive: false, isComplete: false }))}
       />
-
-      {/* =========================================================================
-          SECTION A: TEMA VIAL & APARIENCIA DE LA PLATAFORMA (CAMBIO DE TEMA VIAL)
-          ========================================================================= */}
-      {showTemaVial && (
-        <div className="bg-[#131b2e] p-4 sm:p-5 rounded-2xl border border-[#222a3d] shadow-sm overflow-hidden transition-all">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-            <div className="flex items-center gap-2.5 min-w-0 flex-1">
-              <div className="w-10 h-10 rounded-xl bg-[#3131c0]/20 flex items-center justify-center text-[#c0c1ff] border border-[#3131c0]/40 shrink-0">
-                <span className="material-symbols-outlined text-[22px]">palette</span>
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h2 className="text-sm sm:text-base font-bold text-[#dae2fd]">
-                    Tema Vial &amp; Apariencia Operativa en Terreno
-                  </h2>
-                  <span className="px-2 py-0.5 rounded-full bg-[#10b981]/15 text-[#4edea3] text-[10px] font-bold border border-[#4edea3]/30">
-                    Selector de Alto Rendimiento
-                  </span>
-                </div>
-                <p className="text-xs text-[#bbcabf] mt-0.5">
-                  Alterna la paleta visual según las condiciones de luminosidad en ruta vial: modo nocturno táctico o modo diurno de alto contraste para sol intenso.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto flex-wrap">
-              <span className="text-xs text-[#bbcabf]">Tema activo:</span>
-              <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-[#171f33] border border-[#222a3d] text-[#dae2fd]">
-                {theme === 'dark' ? ' Modo Oscuro (Nocturno Táctico)' : ' Modo Claro (Diurno / Vial)'}
-              </span>
-            </div>
-          </div>
-
-          {/* Theme Option Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-            {/* Dark Mode Card */}
-            <button
-              type="button"
-              onClick={() => {
-                if (theme !== 'dark' && onToggleTheme) onToggleTheme();
-              }}
-              className={`p-4 rounded-xl border text-left flex items-center justify-between transition-all cursor-pointer ${
-                theme === 'dark'
-                  ? 'bg-[#171f33] border-[#4edea3] shadow-[0_0_20px_rgba(78,222,163,0.18)] ring-1 ring-[#4edea3]/60'
-                  : 'bg-[#131b2e] border-[#222a3d] hover:border-[#cbd5e1] opacity-75 hover:opacity-100'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-[#0b1326] flex items-center justify-center text-[#ffb95f] border border-[#222a3d] shadow-inner">
-                  <span className="material-symbols-outlined text-[24px]">dark_mode</span>
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-[#dae2fd]">Modo Oscuro (Nocturno)</p>
-                  <p className="text-[11px] text-[#bbcabf] mt-0.5">Táctico para cabina vehicular y descanso visual en ruta</p>
-                  <span className="text-[10px] text-[#4edea3] font-medium">Bajo consumo de batería OLED en campo</span>
-                </div>
-              </div>
-              <span
-                className={`px-2.5 py-1 rounded-lg text-[10px] font-bold shrink-0 ${
-                  theme === 'dark'
-                    ? 'bg-[#4edea3]/20 text-[#4edea3] border border-[#4edea3]/40'
-                    : 'bg-[#222a3d] text-[#bbcabf]'
-                }`}
-              >
-                {theme === 'dark' ? '✓ Activo' : 'Seleccionar'}
-              </span>
-            </button>
-
-            {/* Light Mode Card */}
-            <button
-              type="button"
-              onClick={() => {
-                if (theme !== 'light' && onToggleTheme) onToggleTheme();
-              }}
-              className={`p-4 rounded-xl border text-left flex items-center justify-between transition-all cursor-pointer ${
-                theme === 'light'
-                  ? 'bg-white border-2 border-emerald-600 shadow-[0_0_20px_rgba(5,150,105,0.2)] ring-2 ring-emerald-500/60 text-black'
-                  : 'bg-[#131b2e] border-[#222a3d] hover:border-[#4edea3]/50 opacity-75 hover:opacity-100 text-[#dae2fd]'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-[#f4f6fb] flex items-center justify-center text-[#0284c7] border border-[#cbd5e1] shadow-inner shrink-0">
-                  <span className="material-symbols-outlined text-[24px]">light_mode</span>
-                </div>
-                <div>
-                  <p className={`text-xs font-bold ${theme === 'light' ? 'text-black font-extrabold' : 'text-[#dae2fd]'}`}>
-                    Modo Claro (Diurno / Vial)
-                  </p>
-                  <p className={`text-[11px] ${theme === 'light' ? 'text-slate-900 font-medium' : 'text-[#bbcabf]'} mt-0.5`}>
-                    Alto contraste para luz solar directa en La Guajira
-                  </p>
-                  <span className={`text-[10px] ${theme === 'light' ? 'text-blue-700 font-bold' : 'text-[#0284c7] font-medium'}`}>
-                    Fácil lectura de señalética y hojas de ruta
-                  </span>
-                </div>
-              </div>
-              <span
-                className={`px-2.5 py-1 rounded-lg text-[10px] font-bold shrink-0 ${
-                  theme === 'light'
-                    ? 'bg-emerald-100 text-emerald-900 border border-emerald-300 font-extrabold'
-                    : 'bg-[#222a3d] text-[#bbcabf]'
-                }`}
-              >
-                {theme === 'light' ? '✓ Activo' : 'Seleccionar'}
-              </span>
-            </button>
-          </div>
-
-          {/* ROAD / FIELD SIMULATION BANNER */}
-          <div className="p-3.5 rounded-xl bg-[#171f33] border border-[#222a3d] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-[#4edea3]/15 flex items-center justify-center text-[#4edea3]">
-                <span className="material-symbols-outlined text-[18px]">alt_route</span>
-              </div>
-              <div>
-                <p className="text-xs font-bold text-[#dae2fd]">
-                  Simulación de Señalética Vial CAVI en Terreno
-                </p>
-                <p className="text-[11px] text-[#bbcabf]">
-                  Visualizando paradas con tipografía optimizada para vibración vehicular y visión a media distancia.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 shrink-0">
-              <span className="px-2 py-0.5 rounded bg-[#222a3d] text-[10px] font-mono text-[#4edea3]">
-                Troncal del Caribe Km 14
-              </span>
-              <span className="px-2 py-0.5 rounded bg-[#222a3d] text-[10px] font-mono text-[#dae2fd]">
-                SLA: 45 min
-              </span>
-              <button
-                type="button"
-                onClick={onToggleTheme}
-                className="px-2.5 py-1 rounded-lg bg-[#4edea3] hover:bg-[#6ffbbe] text-[#003824] text-[11px] font-bold transition-all cursor-pointer"
-              >
-                Alternar Ahora
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* =========================================================================
           SECTION B: ALIMENTADOR DE MACROS & ARCHIVOS (SUBIDA DE CARPETAS Y ARCHIVOS)
