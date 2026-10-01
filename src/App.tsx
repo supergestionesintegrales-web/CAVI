@@ -66,7 +66,7 @@ export default function App() {
 
   const [routeSteps, setRouteSteps] = useState<RouteStep[]>(() => {
     try {
-      const saved = localStorage.getItem('cavi_real_route_steps');
+      const saved = localStorage.getItem('cavi_data_schema_version') === '2' ? localStorage.getItem('cavi_real_route_steps') : null;
       return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
@@ -75,7 +75,7 @@ export default function App() {
 
   const [floatingPoints, setFloatingPoints] = useState<FloatingPoint[]>(() => {
     try {
-      const saved = localStorage.getItem('cavi_real_floating_points');
+      const saved = localStorage.getItem('cavi_data_schema_version') === '2' ? localStorage.getItem('cavi_real_floating_points') : null;
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) return parsed;
@@ -88,7 +88,7 @@ export default function App() {
 
   const [macroFiles, setMacroFiles] = useState<MacroFile[]>(() => {
     try {
-      const saved = localStorage.getItem('cavi_real_macro_files');
+      const saved = localStorage.getItem('cavi_data_schema_version') === '2' ? localStorage.getItem('cavi_real_macro_files') : null;
       return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
@@ -97,7 +97,7 @@ export default function App() {
 
   const [leasePoints, setLeasePoints] = useState<LeasePoint[]>(() => {
     try {
-      const saved = localStorage.getItem('cavi_real_lease_points');
+      const saved = localStorage.getItem('cavi_data_schema_version') === '2' ? localStorage.getItem('cavi_real_lease_points') : null;
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) return parsed;
@@ -110,7 +110,7 @@ export default function App() {
 
   const [activeRouteSourceFile, setActiveRouteSourceFile] = useState<string>('');
 
-  const [dataAlerts, setDataAlerts] = useState<LeaseDataAlert[]>(() => { try { const saved = localStorage.getItem('cavi_data_alerts'); return saved ? JSON.parse(saved) : []; } catch { return []; } });
+  const [dataAlerts, setDataAlerts] = useState<LeaseDataAlert[]>(() => { try { const saved = localStorage.getItem('cavi_data_schema_version') === '2' ? localStorage.getItem('cavi_data_alerts') : null; return saved ? JSON.parse(saved) : []; } catch { return []; } });
   useEffect(() => { try { localStorage.setItem('cavi_data_alerts', JSON.stringify(dataAlerts)); } catch {} }, [dataAlerts]);
 
   // Persist changes to localStorage
