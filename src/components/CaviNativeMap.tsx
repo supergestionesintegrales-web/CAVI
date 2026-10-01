@@ -1210,16 +1210,16 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
 
         {/* FLOATING POINT TYPES MAP LEGEND */}
         {showLegend && (
-          <div className="cavi-map-legend absolute top-3 right-3 z-20 bg-white/95 backdrop-blur-md p-2 rounded-xl border border-slate-200 shadow-xl text-xs w-[min(94vw,430px)] hidden md:block select-none animate-in fade-in">
+          <div className="cavi-map-legend absolute top-3 right-3 z-[1000] bg-white/98 backdrop-blur-md p-2 rounded-xl border border-slate-200 shadow-xl text-xs w-[min(94vw,430px)] select-none animate-in fade-in">
             <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-slate-200">
-              <span className="text-[11px] font-bold text-white uppercase tracking-wider flex items-center gap-1">
+              <span className="text-[11px] font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-1">
                 <span className="material-symbols-outlined text-[15px] text-[#38bdf8]">category</span>
                 <span>Convenciones PDV</span>
               </span>
               <button
                 type="button"
                 onClick={() => setShowLegend(false)}
-                className="text-slate-500 hover:text-white p-0.5 cursor-pointer"
+                className="text-slate-500 hover:text-slate-900 p-0.5 cursor-pointer"
                 title="Minimizar leyenda"
               >
                 <span className="material-symbols-outlined text-[15px]">minimize</span>
@@ -1280,7 +1280,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
           <button
             type="button"
             onClick={() => setShowLegend(true)}
-            className="cavi-map-legend-toggle absolute top-3 right-3 z-20 bg-[#0b1326]/90 backdrop-blur-md px-2.5 py-1.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center gap-1 shadow-lg cursor-pointer hidden md:flex"
+            className="cavi-map-legend-toggle absolute top-3 right-3 z-[1000] bg-[#0b1326]/90 backdrop-blur-md px-2.5 py-1.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center gap-1 shadow-lg cursor-pointer hidden md:flex"
             title="Mostrar leyenda de convenciones"
           >
             <span className="material-symbols-outlined text-[15px] text-[#38bdf8]">category</span>
