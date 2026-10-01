@@ -1611,3 +1611,23 @@ body {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+
+/* ==========================================================================
+   LIGHT THEME - SECTION TITLES
+   Section headings use the CAVI blue accent for clear contrast on white.
+   ========================================================================== */
+[data-theme="light"] h1:not([class*="bg-"]):not([class*="text-white"]),
+[data-theme="light"] h2:not([class*="bg-"]):not([class*="text-white"]),
+[data-theme="light"] h3:not([class*="bg-"]):not([class*="text-white"]),
+[data-theme="light"] h4:not([class*="bg-"]):not([class*="text-white"]),
+.theme-light h1:not([class*="bg-"]):not([class*="text-white"]),
+.theme-light h2:not([class*="bg-"]):not([class*="text-white"]),
+.theme-light h3:not([class*="bg-"]):not([class*="text-white"]),
+.theme-light h4:not([class*="bg-"]):not([class*="text-white"]),
+.light h1:not([class*="bg-"]):not([class*="text-white"]),
+.light h2:not([class*="bg-"]):not([class*="text-white"]),
+.light h3:not([class*="bg-"]):not([class*="text-white"]),
+.light h4:not([class*="bg-"]):not([class*="text-white"]) {
+  color: #0070d8 !important;
+}
