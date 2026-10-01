@@ -508,7 +508,6 @@ FORMATOS COMPATIBLES:
   };
 
   const showMacros = activeConfigSection === 'macros' || activeConfigSection === 'todas';
-  const showCaviTxt = activeConfigSection === 'cavimaps-txt' || activeConfigSection === 'todas';
   const showOperacionesReportes =
     activeConfigSection === 'reportes-operaciones' ||
     activeConfigSection === 'reportes' ||
@@ -546,27 +545,6 @@ FORMATOS COMPATIBLES:
         userRole={userRole}
       />
 
-      {/* CAVIMAPS TXT CONFIGURATION */}
-      {showCaviTxt && (
-        <section className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-5">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-[#0088ff] text-[24px]">map</span>
-                <h2 className="text-lg font-extrabold text-black">Carga de puntos CAVIMAPS</h2>
-              </div>
-              <p className="text-sm text-slate-600 mt-1">Cargue aquí el archivo <strong>.txt</strong> con los puntos territoriales. CAVI lo procesa y los puntos quedan disponibles en el mapa CAVIMAPS.</p>
-            </div>
-            {isAdmin && (
-              <button type="button" onClick={() => setIsCaviTxtModalOpen(true)} className="shrink-0 px-4 py-2.5 rounded-xl bg-[#0088ff] hover:bg-[#0070d8] text-white text-sm font-bold flex items-center justify-center gap-2 shadow-md cursor-pointer">
-                <span className="material-symbols-outlined text-[18px]">upload_file</span>
-                Cargar archivo .TXT
-              </button>
-            )}
-          </div>
-          <div className="mt-4 rounded-xl bg-[#f0f7ff] border border-[#bfdbfe] p-3 text-xs text-slate-700"><strong className="text-black">Flujo:</strong> Configuración → TXT → Procesar puntos → CAVIMAPS.</div>
-        </section>
-      )}
       {/* GLOBAL PERSISTENT PROGRESS BAR (Visible whenever upload/processing is happening) */}
       <ProcessingProgressBar
         progress={uploadProgress}
@@ -644,6 +622,36 @@ FORMATOS COMPATIBLES:
               </div>
             </div>
           </div>
+
+          {/* CAVIMAPS TXT — INTEGRADO EN MACROS & ARCHIVOS */}
+          <section className="rounded-2xl bg-[#0088ff] p-4 sm:p-5 shadow-lg shadow-[#0088ff]/20 overflow-hidden">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-11 h-11 rounded-xl bg-white/15 border border-white/30 flex items-center justify-center text-white shrink-0">
+                  <span className="material-symbols-outlined text-[25px]">upload_file</span>
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h2 className="text-base sm:text-lg font-extrabold text-white tracking-tight">TXT CAVIMAPS</h2>
+                    <span className="px-2 py-0.5 rounded-full bg-white/15 border border-white/30 text-white text-[10px] font-bold whitespace-nowrap">Mapa</span>
+                  </div>
+                  <p className="text-xs sm:text-sm text-white/95 mt-0.5 leading-snug">
+                    Procesar puntos territoriales para el mapa CAVIMAPS
+                  </p>
+                </div>
+              </div>
+              {isAdmin && (
+                <button
+                  type="button"
+                  onClick={() => setIsCaviTxtModalOpen(true)}
+                  className="shrink-0 px-4 py-2.5 rounded-xl bg-white text-[#006fcf] hover:bg-slate-50 text-xs sm:text-sm font-extrabold flex items-center justify-center gap-2 shadow-md cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-[18px]">upload_file</span>
+                  Cargar .TXT
+                </button>
+              )}
+            </div>
+          </section>
 
           {/* STATS & QUICK TELEMETRY */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
