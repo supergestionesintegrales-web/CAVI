@@ -1078,15 +1078,6 @@ main {
   color: #3730a3 !important;
 }
 
-[data-theme="light"] .border-\[\#3131c0\]\/50 p,
-[data-theme="light"] .border-\[\#3131c0\]\/50 span,
-.theme-light .border-\[\#3131c0\]\/50 p,
-.theme-light .border-\[\#3131c0\]\/50 span,
-.light .border-\[\#3131c0\]\/50 p,
-.light .border-\[\#3131c0\]\/50 span {
-  color: #3730a3 !important;
-}
-
 /* ==========================================================================
    UNIVERSAL CONTRAST ENGINE & DARK/LIGHT MODE TEXT LEGIBILITY:
    - DONDE EL FONDO SEA CLARO -> EL TEXTO SERÁ NEGRO (#000000 / #0f172a)
@@ -1253,17 +1244,11 @@ html:not([data-theme="light"]):not(.theme-light):not(.light) .day-matrix-badge {
 [data-theme="light"] .bg-slate-100 .text-white,
 [data-theme="light"] .bg-gray-50 .text-white,
 [data-theme="light"] .bg-gray-100 .text-white,
-[data-theme="light"] .bg-[#ffffff] .text-white,
-[data-theme="light"] .bg-[#f8fafc] .text-white,
-[data-theme="light"] .bg-[#f1f5f9] .text-white,
 .theme-light .bg-white .text-white,
 .theme-light .bg-slate-50 .text-white,
 .theme-light .bg-slate-100 .text-white,
 .theme-light .bg-gray-50 .text-white,
 .theme-light .bg-gray-100 .text-white,
-.theme-light .bg-[#ffffff] .text-white,
-.theme-light .bg-[#f8fafc] .text-white,
-.theme-light .bg-[#f1f5f9] .text-white,
 .light .bg-white .text-white,
 .light .bg-slate-50 .text-white,
 .light .bg-slate-100 .text-white,
@@ -1283,8 +1268,6 @@ html:not([data-theme="light"]):not(.theme-light):not(.light) .day-matrix-badge {
 [data-theme="light"] .bg-slate-50 .text-slate-100,
 [data-theme="light"] .bg-slate-50 .text-slate-200,
 [data-theme="light"] .bg-slate-50 .text-slate-300,
-[data-theme="light"] .bg-[#f8fafc] .text-slate-100,
-[data-theme="light"] .bg-[#f8fafc] .text-slate-200,
 .theme-light .bg-white .text-slate-100,
 .theme-light .bg-white .text-slate-200,
 .theme-light .bg-white .text-slate-300,
@@ -1292,8 +1275,6 @@ html:not([data-theme="light"]):not(.theme-light):not(.light) .day-matrix-badge {
 .theme-light .bg-slate-50 .text-slate-100,
 .theme-light .bg-slate-50 .text-slate-200,
 .theme-light .bg-slate-50 .text-slate-300,
-.theme-light .bg-[#f8fafc] .text-slate-100,
-.theme-light .bg-[#f8fafc] .text-slate-200,
 .light .bg-white .text-slate-100,
 .light .bg-white .text-slate-200,
 .light .bg-white .text-slate-300,
@@ -1334,19 +1315,11 @@ html:not([data-theme="light"]):not(.theme-light):not(.light) .day-matrix-badge {
 [data-theme="light"] .bg-red-600 .text-white,
 [data-theme="light"] .bg-green-600 .text-white,
 [data-theme="light"] .bg-emerald-600 .text-white,
-[data-theme="light"] .bg-[#0088ff] .text-white,
-[data-theme="light"] .bg-[#dc2626] .text-white,
-[data-theme="light"] .bg-[#0284c7] .text-white,
-[data-theme="light"] .bg-[#7c3aed] .text-white,
 .theme-light .bg-blue-600 .text-white,
 .theme-light .bg-blue-700 .text-white,
 .theme-light .bg-red-600 .text-white,
 .theme-light .bg-green-600 .text-white,
 .theme-light .bg-emerald-600 .text-white,
-.theme-light .bg-[#0088ff] .text-white,
-.theme-light .bg-[#dc2626] .text-white,
-.theme-light .bg-[#0284c7] .text-white,
-.theme-light .bg-[#7c3aed] .text-white,
 .light .bg-blue-600 .text-white,
 .light .bg-blue-700 .text-white,
 .light .bg-red-600 .text-white,
