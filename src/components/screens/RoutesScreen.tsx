@@ -19,7 +19,7 @@ interface RoutesScreenProps {
   floatingPoints: FloatingPoint[];
   activeRouteSourceFile?: string;
   onGoToMacros?: () => void;
-  onAssignFloatingPoint: (id: string, auditorName: string, day?: string) => void;
+  onAssignFloatingPoint: (id: string, auditorId: string, day?: string) => void;
   onAutoAssignAll: () => void;
   onShowToast: (title: string, message: string, type?: 'info' | 'success' | 'alert') => void;
   userRole?: UserRole;
@@ -381,7 +381,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
             <div className="flex items-center gap-2.5 flex-wrap">
               <span className="px-3 py-1 rounded-full bg-[#0088ff]/25 text-[#38bdf8] border border-[#0088ff]/40 text-xs font-extrabold flex items-center gap-1.5 shadow-sm">
                 <span className="material-symbols-outlined text-[15px]">event</span>
-                <span>📅 Hoy: <strong className="capitalize">{todayDateFormatted}</strong></span>
+                <span>Hoy: <strong className="capitalize">{todayDateFormatted}</strong></span>
               </span>
               <span className="px-2.5 py-0.5 rounded-full bg-[#131b2e] text-[#cbd5e1] border border-[#222a3d] text-[10px] font-medium">
                 La Guajira · 15 Municipios (Sábados Medio Día Laboral)
@@ -437,7 +437,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                   {mapWaypoints.length} Paradas
                 </span>
                 <p className="text-[10px] text-[#38bdf8] mt-0.5 truncate font-medium">
-                  {selectedDay.toUpperCase()} · {selectedZone === 'Todas' ? 'La Guajira' : `Zona ${selectedZone}`}
+                  {selectedDay.toUpperCase()} · {selectedZone === 'Todas' ? 'La Guajira' : selectedZone}
                 </p>
               </div>
             </div>
@@ -498,7 +498,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                 <option value="todos">Todas las rutas de auditores</option>
                 {auditors.map((a) => (
                   <option key={a.id} value={a.id}>
-                    {a.name} (Zona {a.zone})
+                    {a.name}
                   </option>
                 ))}
               </select>
@@ -569,21 +569,19 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
             </div>
 
             {/* Zone Selector */}
-            <div className="flex items-center gap-1 bg-[#0b1326] p-1 rounded-xl border border-[#222a3d] shrink-0">
-              {(['Todas', 'Norte', 'Centro', 'Sur'] as const).map((zone) => (
-                <button
-                  key={zone}
-                  type="button"
-                  onClick={() => setSelectedZone(zone)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                    selectedZone === zone
-                      ? 'bg-[#0088ff] text-white font-bold shadow-md shadow-[#0088ff]/30'
-                      : 'text-[#cbd5e1] hover:text-white'
-                  }`}
-                >
-                  {zone}
-                </button>
-              ))}
+            <div className="flex items-center gap-2 shrink-0">
+              <label htmlFor="routes-zone-filter" className="text-xs text-[#94a3b8] font-medium">Zona</label>
+              <select
+                id="routes-zone-filter"
+                value={selectedZone}
+                onChange={(e) => setSelectedZone(e.target.value as typeof selectedZone)}
+                className="bg-[#0b1326] text-white text-xs px-3 py-1.5 rounded-xl border border-[#222a3d] focus:outline-none focus:ring-1 focus:ring-[#0088ff] cursor-pointer min-w-[150px]"
+              >
+                <option value="Todas">Todas</option>
+                <option value="Norte">Norte</option>
+                <option value="Centro">Centro</option>
+                <option value="Sur">Sur</option>
+              </select>
             </div>
           </div>
         </div>
@@ -694,10 +692,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                           </span>
                         </div>
                         <div className="flex items-center gap-1.5 mt-0.5">
-                          <span className="text-[10px] font-semibold text-[#c0c1ff]">Auditor {auditor.zone}</span>
-                          <span className="text-[9px] px-1.5 py-0.2 rounded bg-[#222a3d] text-[#bbcabf] font-mono">
-                            Zona {auditor.zone}
-                          </span>
+                          <span className="text-[10px] font-semibold text-[#c0c1ff]">Auditor</span>
                         </div>
                       </div>
                     </div>
@@ -732,7 +727,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
       )}
 
       {/* ========================================================================= */}
-      {/* 🚨 BANDEJA DE PUNTOS PRIORIZADOS Y ALERTAS AL FONDO DEL MÓDULO DE RUTAS  */}
+      {/* BANDEJA DE PUNTOS PRIORIZADOS Y ALERTAS AL FONDO DEL MÓDULO DE RUTAS  */}
       {/* ========================================================================= */}
       <AlertPointsAssignmentPool
         floatingPoints={floatingPoints}
@@ -756,7 +751,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                 auditorId: matchedAud?.id || targetStep.auditorId,
                 auditorName: matchedAud?.name || targetStep.auditorName,
                 status: 'pending',
-                notes: `🚨 Priorizado para visita en ${day.toUpperCase()}`,
+                notes: `Priorizado para visita en ${day.toUpperCase()}`,
               });
             }
           }
