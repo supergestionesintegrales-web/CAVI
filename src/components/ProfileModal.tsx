@@ -6,8 +6,6 @@ import { UserRole, Auditor } from '../types';
 interface ProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
-  theme?: 'dark' | 'light';
-  onToggleTheme?: () => void;
   onShowToast: (title: string, message: string, type?: 'info' | 'success' | 'alert') => void;
   userRole?: UserRole;
   onSelectRole?: (role: UserRole) => void;
