@@ -17,7 +17,6 @@ import {
 import { evaluatePointOpenStatus } from './data/leasePointsData';
 import {
   distributePointsWithAlertPriority,
-  MASTER_SAMPLE_CANDIDATE_POINTS,
   PointCandidate,
 } from './utils/pointAssignment';
 import { resolvePdvZone, getAssignedAuditorForZone } from './data/zoneAssignments';
@@ -667,13 +666,12 @@ export default function App() {
         alertDescription: fp.alertDescription || `${fp.daysWithoutVisit || 75}d sin visita`,
       }));
 
-      // Add regular candidate points to complete each auditor's capacity (up to 73 monthly total)
-      const alertCodes = new Set(fpCandidates.map((c) => c.code));
-      const regularPool = MASTER_SAMPLE_CANDIDATE_POINTS.filter((p) => !alertCodes.has(p.code));
-      candidatesToProcess = [...fpCandidates, ...regularPool];
-    } else {
-      // Use full candidate set containing 73 monthly sampling points
-      candidatesToProcess = [...MASTER_SAMPLE_CANDIDATE_POINTS];
+      candidatesToProcess = fpCandidates;
+    }
+
+    if (candidatesToProcess.length === 0) {
+      showToast('Sin información cargada', 'Cargue primero los puntos o alertas desde TXT, Excel o el formulario de CAVI.', 'info');
+      return;
     }
 
     const { assignedSteps, alertCount, regularCount, auditorSummary } = distributePointsWithAlertPriority(
