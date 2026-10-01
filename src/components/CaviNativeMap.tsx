@@ -80,6 +80,20 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
 
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
+  // Sincroniza los puntos cargados desde Configuración > TXT CAVIMAPS.
+  useEffect(() => {
+    const syncCustomPoints = () => {
+      try {
+        const saved = localStorage.getItem('cavi_user_custom_points');
+        setCustomPoints(saved ? JSON.parse(saved) : []);
+      } catch {
+        setCustomPoints([]);
+      }
+    };
+    window.addEventListener('cavi-custom-points-updated', syncCustomPoints);
+    return () => window.removeEventListener('cavi-custom-points-updated', syncCustomPoints);
+  }, []);
+
   // All points combined
   const allAvailablePoints = useMemo(() => {
     // Every PDV shown on the map receives its operational zone and designated auditor.
