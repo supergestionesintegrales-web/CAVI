@@ -591,8 +591,8 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
         />
       ) : (
         /* RESPONSIVE UNIFIED LAYOUT */
-        <div className="flex flex-col w-full space-y-6">
-          {/* MAPA PRINCIPAL: ocupación total del ancho */}
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-4 items-stretch">
+          {/* MAPA PRINCIPAL */}
           <div className="w-full bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-lg relative min-h-[520px] flex flex-col">
             <CaviNativeMap
               height="520px"
@@ -609,6 +609,73 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
               }}
             />
           </div>
+
+          {/* AUDITORES DE CAMPO · PANEL LATERAL */}
+          <aside className="bg-white rounded-2xl border border-slate-200 shadow-lg p-3 flex flex-col min-h-[520px]">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-[#0088ff] text-[19px]">engineering</span>
+                <h2 className="font-bold text-sm text-slate-900">Auditores de Campo</h2>
+              </div>
+              <span className="text-[10px] text-slate-500 flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                {filteredAuditors.slice(0, 3).length} en pantalla
+              </span>
+            </div>
+
+            <div className="flex flex-col gap-2.5">
+              {filteredAuditors.slice(0, 3).map((auditor) => {
+                const progress = auditor.visitsTarget > 0
+                  ? Math.min(100, Math.round((auditor.visitsDone / auditor.visitsTarget) * 100))
+                  : 0;
+                return (
+                  <div
+                    key={auditor.id}
+                    className="rounded-xl border border-slate-200 bg-slate-50 p-2.5 shadow-sm hover:border-blue-200 transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="relative shrink-0">
+                        <img
+                          src={auditor.avatar}
+                          alt={auditor.name}
+                          className="w-11 h-11 rounded-full object-cover ring-1 ring-blue-200"
+                          referrerPolicy="no-referrer"
+                        />
+                        <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-slate-50 bg-emerald-400"></span>
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-start justify-between gap-1">
+                          <span className="font-bold text-xs text-slate-900 leading-tight">{auditor.name}</span>
+                          <span className="text-sm font-bold text-blue-600 shrink-0">
+                            {auditor.visitsDone}/{auditor.visitsTarget}
+                          </span>
+                        </div>
+                        <div className="text-[10px] text-slate-500 mt-0.5">Auditor {auditor.zone}</div>
+                        <div className="text-[9px] text-slate-500">Zona {auditor.zone}</div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 mt-2">
+                      <div className="flex-1 bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                        <div className="h-full rounded-full bg-[#0088ff] transition-all" style={{ width: `${progress}%` }} />
+                      </div>
+                      <span className="text-[9px] font-bold text-slate-500">{progress}%</span>
+                    </div>
+
+                    <div className="mt-2 pt-2 border-t border-slate-200 flex items-center gap-1.5 text-[10px] text-slate-600">
+                      <span className="material-symbols-outlined text-[14px] text-indigo-500">
+                        {auditor.status === 'completed' ? 'task_alt' : 'alt_route'}
+                      </span>
+                      <span className="truncate">{auditor.statusText}</span>
+                    </div>
+                    {auditor.currentLocation && (
+                      <div className="text-[9px] text-slate-500 mt-1 truncate">{auditor.currentLocation}</div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </aside>
         </div>
       )}
 
