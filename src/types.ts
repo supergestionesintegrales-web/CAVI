@@ -1,4 +1,4 @@
-export type TabType = 'dashboard-cavi' | 'asignacion-rutas' | 'cronograma' | 'resultados-kpis' | 'archivos-macros' | 'arrendamientos';
+export type TabType = 'dashboard-cavi' | 'asignacion-rutas' | 'cronograma' | 'resultados-kpis' | 'archivos-macros' | 'arrendamientos' | 'alertas';
 
 export type UserRole = 'administrador' | 'auxiliar';
 
