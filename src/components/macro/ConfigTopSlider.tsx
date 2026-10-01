@@ -4,7 +4,6 @@ import { UserRole } from '../../types';
 
 export type ConfigSectionId =
   | 'macros'
-  | 'tema-vial'
   | 'reportes-operaciones'
   | 'reportes'
   | 'sensor-qr'
@@ -15,7 +14,6 @@ export interface ConfigTopSliderProps {
   activeSection: ConfigSectionId;
   onSelectSection: (section: ConfigSectionId) => void;
   filesCount: number;
-  currentTheme: 'dark' | 'light';
   userRole?: UserRole;
 }
 
@@ -23,7 +21,6 @@ export const ConfigTopSlider: React.FC<ConfigTopSliderProps> = ({
   activeSection,
   onSelectSection,
   filesCount,
-  currentTheme,
   userRole = 'administrador',
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -56,16 +53,6 @@ export const ConfigTopSlider: React.FC<ConfigTopSliderProps> = ({
           badgeColor: 'bg-[#171f33] text-[#38bdf8] border-[#38bdf8]/30',
           description: 'Consulta, lectura y visor de archivos indexados',
           isActiveMatch: activeSection === 'macros',
-        },
-        {
-          id: 'tema-vial',
-          title: 'Tema de Color & Apariencia',
-          shortTitle: 'Cambio de Color',
-          icon: 'palette',
-          badgeText: currentTheme === 'dark' ? 'Nocturno' : 'Diurno',
-          badgeColor: 'bg-[#3131c0]/25 text-[#c0c1ff] border-[#3131c0]/40',
-          description: 'Tema oscuro táctico vs tema blanco de alto contraste',
-          isActiveMatch: activeSection === 'tema-vial',
         },
         {
           id: 'sensor-qr',
@@ -108,16 +95,6 @@ export const ConfigTopSlider: React.FC<ConfigTopSliderProps> = ({
           badgeColor: 'bg-[#0088ff]/15 text-[#0088ff] border-[#0088ff]/30',
           description: 'Subida de carpetas, archivos sueltos y visor',
           isActiveMatch: activeSection === 'macros',
-        },
-        {
-          id: 'tema-vial',
-          title: 'Tema Vial & Apariencia',
-          shortTitle: 'Tema Vial',
-          icon: 'palette',
-          badgeText: currentTheme === 'dark' ? 'Nocturno' : 'Diurno',
-          badgeColor: 'bg-[#3131c0]/25 text-[#c0c1ff] border-[#3131c0]/40',
-          description: 'Modo nocturno táctico vs diurno de alto contraste',
-          isActiveMatch: activeSection === 'tema-vial',
         },
         {
           id: 'reportes-operaciones',
