@@ -14,11 +14,7 @@ interface ToastProps {
 }
 
 export const Toast: React.FC<ToastProps> = ({ toasts, onDismiss }) => {
-  const isLight =
-    theme === 'light' ||
-    (typeof document !== 'undefined' &&
-      (document.documentElement.getAttribute('data-theme') === 'light' ||
-        document.documentElement.classList.contains('theme-light')));
+  const isLight = true;
 
   return (
     <div className="fixed top-20 left-4 right-4 z-[1300] pointer-events-none flex flex-col gap-2 max-w-md mx-auto">
