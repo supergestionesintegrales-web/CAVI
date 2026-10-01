@@ -235,6 +235,36 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
   // Auxiliar: siempre queda bloqueado a su propia ruta; nunca puede ver la de otro auditor.
   const effectiveAuditorForMap = isAuxiliar ? activeAuditorId : selectedAuditorForMap;
 
+  // Inventario georreferenciado completo: CAVI_POINTS + cualquier PDV nuevo
+  // que llegue por una ruta/Excel y todavía no exista en el catálogo base.
+  const mapInventoryPoints = useMemo(() => {
+    const base = [...CAVI_POINTS];
+    const seen = new Set(base.map((p) => (p.codePdv || p.id).toLowerCase()));
+
+    steps.forEach((step) => {
+      if (!Number.isFinite(step.lat) || !Number.isFinite(step.lng)) return;
+      const key = step.code.toLowerCase();
+      if (seen.has(key)) return;
+
+      base.push({
+        id: `route-pdv-${step.id}`,
+        name: step.name,
+        category: step.format || step.channel || 'PDV',
+        subregion: step.zone || 'Centro',
+        zone: step.zone,
+        municipality: step.municipality,
+        address: step.address,
+        lat: step.lat,
+        lng: step.lng,
+        codePdv: step.code,
+        channel: step.format || step.channel || 'CM',
+      });
+      seen.add(key);
+    });
+
+    return base;
+  }, [steps]);
+
   const mapWaypoints = useMemo(() => {
     if (effectiveAuditorForMap === 'todos') return [];
     return activeRouteStops.filter((s) => s.auditorId === effectiveAuditorForMap);
@@ -616,6 +646,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
             <div className="lg:col-span-7 xl:col-span-7 bg-[#f8fafc] dark:bg-[#060e20] rounded-2xl overflow-hidden border border-slate-200 dark:border-[#222a3d] shadow-xl relative min-h-[480px] flex flex-col">
               <CaviNativeMap
                 height="480px"
+                initialPoints={mapInventoryPoints}
                 initialRouteStops={mapWaypoints}
                 routeGroups={mapRouteGroups}
                 showPointCatalog={true}
