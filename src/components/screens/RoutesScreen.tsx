@@ -11,7 +11,6 @@ import { ActiveAuditorCalendarView } from '../ActiveAuditorCalendarView';
 import { AlertPointsAssignmentPool } from '../AlertPointsAssignmentPool';
 import { parseRoutesFile, downloadRoutesTemplate } from '../../utils/routesExcel';
 import { calculateTotalRouteDistanceKm, formatDistance, estimateTravelTime } from '../../utils/geoUtils';
-import { CAVI_POINTS } from '../../data/caviPointsData';
 
 interface RoutesScreenProps {
   auditors: Auditor[];
@@ -209,32 +208,6 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
     const options: ActiveRoutePointOption[] = [];
     const seen = new Set<string>();
 
-    CAVI_POINTS.forEach((point) => {
-      const channel = point.channel || point.category || 'CM';
-      const channelUpper = channel.toUpperCase();
-      const format: 'CM' | 'PF' | 'CDA' =
-        channelUpper.includes('CDA') ? 'CDA' :
-        channelUpper.includes('PF') || channelUpper.includes('FIJO') ? 'PF' :
-        'CM';
-
-      const code = point.codePdv || point.id;
-      const key = code.toLowerCase();
-      if (seen.has(key)) return;
-      seen.add(key);
-      options.push({
-        id: point.id,
-        code,
-        name: point.name,
-        format,
-        channel,
-        address: point.address || point.name,
-        municipality: point.municipality,
-        lat: point.lat,
-        lng: point.lng,
-        zone: point.zone,
-      });
-    });
-
     steps.forEach((step) => {
       const key = step.code.toLowerCase();
       if (seen.has(key)) return;
@@ -263,8 +236,8 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
   // Inventario georreferenciado completo: CAVI_POINTS + cualquier PDV nuevo
   // que llegue por una ruta/Excel y todavía no exista en el catálogo base.
   const mapInventoryPoints = useMemo(() => {
-    const base = [...CAVI_POINTS];
-    const seen = new Set(base.map((p) => (p.codePdv || p.id).toLowerCase()));
+    const base: any[] = [];
+    const seen = new Set<string>();
 
     steps.forEach((step) => {
       if (!Number.isFinite(step.lat) || !Number.isFinite(step.lng)) return;
