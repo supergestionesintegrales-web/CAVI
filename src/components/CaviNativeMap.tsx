@@ -1196,10 +1196,10 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
 
         {/* FLOATING POINT TYPES MAP LEGEND (CONVENCIONES PDV - ALTO CONSTRASTE Y TEMA CONSISTENTE) */}
         {showLegend && (
-          <div className="cavi-map-legend absolute top-3 right-3 z-30 bg-white/95 dark:bg-[#0f172a]/95 backdrop-blur-md p-3 rounded-2xl border border-slate-300 dark:border-[#334155] shadow-2xl text-xs w-[min(94vw,420px)] select-none animate-in fade-in">
-            <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-slate-200 dark:border-[#334155]">
-              <span className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[17px] text-[#0088ff] dark:text-[#38bdf8]">category</span>
+          <div className="cavi-map-legend absolute top-3 right-3 z-30 bg-white/98 backdrop-blur-md p-3 rounded-2xl border border-[#bfdbfe] shadow-[0_8px_28px_rgba(0,136,255,0.16)] text-xs w-[min(94vw,420px)] select-none animate-in fade-in">
+            <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-[#dbeafe]">
+              <span className="text-xs font-black text-[#0047AB] uppercase tracking-wider flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-[17px] text-[#0088ff]">category</span>
                 <span>Convenciones PDV</span>
               </span>
               <button
@@ -1225,7 +1225,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
                     className={`w-full min-w-0 flex flex-col items-center justify-center gap-1.5 p-2 rounded-xl transition-all text-center cursor-pointer border ${
                       isActive
                         ? 'bg-[#0088ff]/15 ring-2 ring-[#0088ff] border-[#0088ff] shadow-md text-[#0088ff]'
-                        : 'bg-slate-50 hover:bg-slate-100 dark:bg-[#1e293b] dark:hover:bg-[#2d3a58] border-slate-200 dark:border-[#334155]'
+                        : 'bg-[#f0f7ff] hover:bg-[#e0efff] border-[#bfdbfe]'
                     }`}
                     title={`Filtrar por ${cfg.fullLabel}`}
                   >
@@ -1244,7 +1244,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
                       className="text-[10px] font-mono font-extrabold px-2 py-0.5 rounded-full shrink-0 border"
                       style={{
                         backgroundColor: `${cfg.color}25`,
-                        color: cfg.color === '#22D3EE' ? '#38bdf8' : cfg.color === '#C084FC' ? '#e9d5ff' : '#ffffff',
+                        color: '#0070d8',
                         borderColor: `${cfg.color}50`
                       }}
                     >
@@ -1259,9 +1259,9 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
               <button
                 type="button"
                 onClick={() => setFilterChannel('todos')}
-                className="w-full mt-2 pt-1.5 border-t border-[#334155] text-center text-[10px] font-bold text-[#38bdf8] hover:text-white cursor-pointer block"
+                className="w-full mt-2 pt-1.5 border-t border-[#dbeafe] text-center text-[10px] font-bold text-[#0070d8] hover:text-[#0047AB] cursor-pointer block"
               >
-                ✕ Mostrar todos los PDV ({allAvailablePoints.length})
+                <span className="material-symbols-outlined text-[13px] align-middle">close</span> Mostrar todos los PDV ({allAvailablePoints.length})
               </button>
             )}
           </div>
