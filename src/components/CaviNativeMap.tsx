@@ -500,7 +500,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
 
       const marker = L.marker([wp.lat, wp.lng], { icon: badgeIcon, zIndexOffset: 1000 });
       marker.bindTooltip(
-        `<strong>Parada ${index + 1}: ${wp.name}</strong><br/>${wp.municipality || 'La Guajira'} ${isVisited ? '✓ Visitado' : isNextTarget ? '📍 Próximo' : ''}`,
+        `<strong>Parada ${index + 1}: ${wp.name}</strong><br/>${wp.municipality || 'La Guajira'} ${isVisited ? '✓ Visitado' : isNextTarget ? ' Próximo' : ''}`,
         { direction: 'top', offset: [0, -14], opacity: 0.95 }
       );
 
