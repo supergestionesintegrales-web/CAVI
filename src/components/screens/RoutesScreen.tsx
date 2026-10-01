@@ -341,7 +341,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
       )}
 
       {/* ========================================================================= */}
-      {/* 🚀 GRAND TACTICAL HERO BANNER: RUTAS Y NAVEGACIÓN DEPARTAMENTAL */}
+      {/* GRAND TACTICAL HERO BANNER: RUTAS Y NAVEGACIÓN DEPARTAMENTAL */}
       {/* ========================================================================= */}
       <div className="routes-tactical-shell relative w-full rounded-3xl p-5 sm:p-6 md:p-8 overflow-hidden bg-gradient-to-br from-[#070e1f] via-[#0f1d3b] to-[#070e1f] border border-[#1e345b] shadow-2xl">
         {/* Glowing atmospheric background radial accents */}
@@ -471,7 +471,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                 <option value="todos">Todas las rutas de auditores</option>
                 {auditors.map((a) => (
                   <option key={a.id} value={a.id}>
-                    {a.name} (Zona {a.zone})
+                    {a.name}
                   </option>
                 ))}
               </select>
@@ -529,21 +529,19 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
             </div>
 
             {/* Zone Selector */}
-            <div className="flex items-center gap-1 bg-[#0b1326] p-1 rounded-xl border border-[#222a3d] shrink-0">
-              {(['Todas', 'Norte', 'Centro', 'Sur'] as const).map((zone) => (
-                <button
-                  key={zone}
-                  type="button"
-                  onClick={() => setSelectedZone(zone)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                    selectedZone === zone
-                      ? 'bg-[#0088ff] text-white font-bold shadow-md shadow-[#0088ff]/30'
-                      : 'text-[#cbd5e1] hover:text-white'
-                  }`}
-                >
-                  {zone}
-                </button>
-              ))}
+            <div className="flex items-center gap-2 shrink-0">
+              <label htmlFor="routes-zone-filter" className="text-xs text-[#94a3b8] font-medium">Zona</label>
+              <select
+                id="routes-zone-filter"
+                value={selectedZone}
+                onChange={(e) => setSelectedZone(e.target.value as typeof selectedZone)}
+                className="bg-[#0b1326] text-white text-xs px-3 py-1.5 rounded-xl border border-[#222a3d] focus:outline-none focus:ring-1 focus:ring-[#0088ff] cursor-pointer min-w-[150px]"
+              >
+                <option value="Todas">Todas</option>
+                <option value="Norte">Norte</option>
+                <option value="Centro">Centro</option>
+                <option value="Sur">Sur</option>
+              </select>
             </div>
           </div>
         </div>
@@ -645,8 +643,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                             {auditor.visitsDone}/{auditor.visitsTarget}
                           </span>
                         </div>
-                        <div className="text-[10px] text-slate-500 mt-0.5">Auditor {auditor.zone}</div>
-                        <div className="text-[9px] text-slate-500">Zona {auditor.zone}</div>
+                        <div className="text-[10px] text-slate-500 mt-0.5">Auditor</div>
                       </div>
                     </div>
 
