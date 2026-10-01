@@ -105,9 +105,9 @@ export const AlertsScreen: React.FC<AlertsScreenProps> = ({ alerts, leasePoints,
             className={`px-3 py-2.5 rounded-xl border text-xs focus:outline-none focus:border-[#0088ff] cursor-pointer ${input}`}
           >
             <option value="all">Todas las severidades</option>
-            <option value="urgent">🔴 Urgentes</option>
-            <option value="warning">🟠 Advertencias</option>
-            <option value="info">🔵 Informativas</option>
+            <option value="urgent"> Urgentes</option>
+            <option value="warning"> Advertencias</option>
+            <option value="info"> Informativas</option>
           </select>
           <select
             value={type}
@@ -286,10 +286,10 @@ export const AlertsScreen: React.FC<AlertsScreenProps> = ({ alerts, leasePoints,
                             }`}
                           >
                             {a.severity === 'urgent'
-                              ? '🔴 Urgente'
+                              ? ' Urgente'
                               : a.severity === 'warning'
-                              ? '🟠 Advertencia'
-                              : '🔵 Informativa'}
+                              ? ' Advertencia'
+                              : ' Informativa'}
                           </b>
                         </div>
                         <div className={`p-2.5 rounded-xl border ${panel}`}>
