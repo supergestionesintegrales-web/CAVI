@@ -657,6 +657,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
               }}
             />
           </div>
+        </div>
       )}
 
       {/* Audit Visit Outcome Modal */}
