@@ -347,7 +347,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
       // Canvas markers keep all PDVs visible without creating hundreds of DOM nodes.
       const marker = L.circleMarker([pt.lat, pt.lng], {
         renderer: pointRenderer,
-        radius: 7,
+        radius: 8,
         color: isCustom ? '#facc15' : '#ffffff',
         weight: 1.5,
         fillColor: meta.color,
@@ -390,8 +390,8 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
         if (onPointSelect) onPointSelect(pt);
       });
 
-      marker.on('mouseover', () => marker.setStyle({ radius: 9, weight: 2 }));
-      marker.on('mouseout', () => marker.setStyle({ radius: 7, weight: 1.5 }));
+      marker.on('mouseover', () => marker.setStyle({ radius: 10, weight: 2.5 }));
+      marker.on('mouseout', () => marker.setStyle({ radius: 8, weight: 1.5 }));
 
       markersLayer.addLayer(marker);
     });
@@ -728,6 +728,19 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
     mapInstanceRef.current.setView([11.38, -72.65], 9);
   };
 
+  const handleFitPointBounds = () => {
+    if (!mapInstanceRef.current || filteredPoints.length === 0) return;
+    const bounds = L.latLngBounds(filteredPoints.map((p) => [p.lat, p.lng] as [number, number]));
+    mapInstanceRef.current.fitBounds(bounds, { padding: [35, 35], maxZoom: filteredPoints.length === 1 ? 16 : 12 });
+  };
+
+  // Re-centra el mapa cuando cambia el ámbito territorial o el tipo de PDV.
+  useEffect(() => {
+    if (!mapInstanceRef.current || filteredPoints.length === 0) return;
+    const bounds = L.latLngBounds(filteredPoints.map((p) => [p.lat, p.lng] as [number, number]));
+    mapInstanceRef.current.fitBounds(bounds, { padding: [35, 35], maxZoom: filteredPoints.length === 1 ? 16 : 12 });
+  }, [filterRegion, filterChannel, selectedMunicipality]);
+
   const handleToggleSimulation = () => {
     if (!isGuidedModeActive) {
       setIsGuidedModeActive(true);
@@ -792,7 +805,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
 
   return (
     <div
-      className={`relative w-full bg-[#060e20] rounded-2xl border border-[#222a3d] overflow-hidden shadow-2xl transition-all duration-300 flex flex-col ${
+      className={`relative w-full bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-lg transition-all duration-300 flex flex-col ${
         isFullscreen ? 'fixed inset-0 z-50 rounded-none h-screen min-h-screen' : ''
       } ${className}`}
       style={{ height: isFullscreen ? '100vh' : height }}
@@ -806,18 +819,18 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
       )}
 
       {/* TOP COMMAND BAR */}
-      <div className="p-3 bg-[#131b2e]/95 backdrop-blur-md border-b border-[#222a3d] flex flex-wrap items-center justify-between gap-2.5 z-20 shrink-0">
+      <div className="p-3 bg-white/95 backdrop-blur-md border-b border-slate-200 flex flex-wrap items-center justify-between gap-2.5 z-20 shrink-0">
         <div className="flex items-center gap-2.5 min-w-0">
           <div className="w-8 h-8 rounded-xl bg-[#0088ff] text-white flex items-center justify-center shadow-md shadow-[#0088ff]/30 shrink-0">
             <span className="material-symbols-outlined text-[19px]">map</span>
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-xs sm:text-sm font-bold text-white tracking-wide truncate">
-                CAVIMAPS · Motor Territorial Nativo
+              <h2 className="text-xs sm:text-sm font-bold text-slate-900 tracking-wide truncate">
+                CAVIMAPS · Mapa Territorial de PDV
               </h2>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#10b981]/20 text-[#4edea3] border border-[#10b981]/30">
-                {allAvailablePoints.length} Puntos Activos
+                {allAvailablePoints.length} PDV en mapa
               </span>
               {customPoints.length > 0 && (
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#f59e0b]/20 text-[#fcd34d] border border-[#f59e0b]/30">
@@ -825,8 +838,8 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
                 </span>
               )}
             </div>
-            <p className="text-[11px] text-[#94a3b8] truncate">
-              {routeWaypoints.length} paradas marcadas · {formatDistance(totalDistanceKm)} · Est. {estimatedTime}
+            <p className="text-[11px] text-slate-500 truncate">
+              {filteredPoints.length} PDV visibles · {routeWaypoints.length} paradas · {formatDistance(totalDistanceKm)} · Est. {estimatedTime}
             </p>
           </div>
         </div>
@@ -837,7 +850,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
           <button
             type="button"
             onClick={() => setIsImportModalOpen(true)}
-            className="px-3 py-1.5 rounded-xl bg-[#1e293b] hover:bg-[#2d3a58] text-[#38bdf8] border border-[#0088ff]/40 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm active:scale-95 cursor-pointer"
+            className="px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm active:scale-95 cursor-pointer"
             title="Cargar nuevo archivo .txt o KML con puntos de atención"
           >
             <span className="material-symbols-outlined text-[17px] text-[#38bdf8]">upload_file</span>
@@ -871,12 +884,12 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
           </button>
 
           {/* Layer Style Switcher */}
-          <div className="flex items-center gap-1 bg-[#0b1326] p-1 rounded-xl border border-[#222a3d]">
+          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
             <button
               type="button"
               onClick={() => setMapStyle('streets')}
               className={`px-2 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
-                mapStyle === 'streets' ? 'bg-[#0088ff] text-white shadow-xs' : 'text-[#cbd5e1] hover:text-white'
+                mapStyle === 'streets' ? 'bg-[#0088ff] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
               }`}
               title="Mapa Claro Vial de alta definición"
             >
@@ -886,7 +899,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
               type="button"
               onClick={() => setMapStyle('light')}
               className={`px-2 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
-                mapStyle === 'light' ? 'bg-[#0088ff] text-white shadow-xs' : 'text-[#cbd5e1] hover:text-white'
+                mapStyle === 'light' ? 'bg-[#0088ff] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
               }`}
               title="Mapa Claro Positron"
             >
@@ -896,7 +909,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
               type="button"
               onClick={() => setMapStyle('satellite')}
               className={`px-2 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
-                mapStyle === 'satellite' ? 'bg-[#0088ff] text-white shadow-xs' : 'text-[#cbd5e1] hover:text-white'
+                mapStyle === 'satellite' ? 'bg-[#0088ff] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
               }`}
               title="Vista Satelital"
             >
@@ -910,8 +923,8 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
             onClick={() => setIsDrawerOpen(!isDrawerOpen)}
             className={`p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer ${
               isDrawerOpen
-                ? 'bg-[#171f33] border-[#38bdf8]/50 text-[#38bdf8]'
-                : 'bg-[#131b2e] border-[#222a3d] text-[#cbd5e1] hover:text-white'
+                ? 'bg-blue-50 border-blue-300 text-blue-700'
+                : 'bg-[#131b2e] border-slate-200 text-slate-600 hover:text-slate-900'
             }`}
             title="Panel de paradas y diseño de ruta"
           >
@@ -919,11 +932,21 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
             <span className="hidden sm:inline">Ruta ({routeWaypoints.length})</span>
           </button>
 
+          {/* Fit All PDV Bounds */}
+          <button
+            type="button"
+            onClick={handleFitPointBounds}
+            className="p-1.5 rounded-xl bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 transition-colors cursor-pointer"
+            title="Mostrar todos los puntos de venta en el mapa"
+          >
+            <span className="material-symbols-outlined text-[16px]">location_on</span>
+          </button>
+
           {/* Fit Route Bounds */}
           <button
             type="button"
             onClick={handleFitRouteBounds}
-            className="p-1.5 rounded-xl bg-[#1e293b] hover:bg-[#2d3a58] text-[#cbd5e1] hover:text-white border border-[#3b4760] transition-colors cursor-pointer"
+            className="p-1.5 rounded-xl bg-[#1e293b] hover:bg-[#2d3a58] text-slate-600 hover:text-slate-900 border border-[#3b4760] transition-colors cursor-pointer"
             title="Centrar mapa en la ruta"
           >
             <span className="material-symbols-outlined text-[16px]">filter_center_focus</span>
@@ -937,7 +960,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
               className={`p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                 isExpandedLarge
                   ? 'bg-[#0088ff] text-white border-[#38bdf8] shadow-md shadow-[#0088ff]/40'
-                  : 'bg-[#1e293b] hover:bg-[#2d3a58] text-[#cbd5e1] hover:text-white border-[#3b4760]'
+                  : 'bg-[#1e293b] hover:bg-[#2d3a58] text-slate-600 hover:text-slate-900 border-[#3b4760]'
               }`}
               title={isExpandedLarge ? 'Reducir a vista dividida' : 'Ampliar mapa en grande'}
             >
@@ -955,7 +978,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
             <button
               type="button"
               onClick={() => setIsFullscreen(!isFullscreen)}
-              className="p-1.5 rounded-xl bg-[#1e293b] hover:bg-[#2d3a58] text-[#cbd5e1] hover:text-white border border-[#3b4760] transition-colors cursor-pointer"
+              className="p-1.5 rounded-xl bg-[#1e293b] hover:bg-[#2d3a58] text-slate-600 hover:text-slate-900 border border-[#3b4760] transition-colors cursor-pointer"
               title={isFullscreen ? 'Salir de pantalla completa' : 'Pantalla completa'}
             >
               <span className="material-symbols-outlined text-[16px]">
@@ -967,11 +990,11 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
       </div>
 
       {/* FILTER & SEARCH SUBBAR */}
-      <div className="px-3 py-2 bg-[#0b1326] border-b border-[#222a3d] flex flex-wrap items-center justify-between gap-2 z-10 shrink-0 text-xs">
+      <div className="px-3 py-2 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2 z-10 shrink-0 text-xs">
         <div className="flex items-center gap-2 flex-wrap flex-1 min-w-0">
           {/* Quick Search */}
           <div className="relative min-w-[160px] max-w-xs flex-1">
-            <span className="material-symbols-outlined text-[15px] text-[#94a3b8] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none">
+            <span className="material-symbols-outlined text-[15px] text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none">
               search
             </span>
             <input
@@ -979,7 +1002,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Buscar PDV, centro de costo o código..."
-              className="w-full bg-[#131b2e] text-white text-xs pl-8 pr-2.5 py-1.5 rounded-xl border border-[#222a3d] focus:outline-none focus:ring-1 focus:ring-[#0088ff]"
+              className="w-full bg-white text-slate-800 text-xs pl-8 pr-2.5 py-1.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#0088ff]"
             />
           </div>
 
@@ -987,7 +1010,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
           <select
             value={filterRegion}
             onChange={(e) => setFilterRegion(e.target.value as any)}
-            className="bg-[#131b2e] text-white text-xs px-2.5 py-1.5 rounded-xl border border-[#222a3d] focus:outline-none focus:ring-1 focus:ring-[#0088ff] cursor-pointer"
+            className="bg-white text-slate-800 text-xs px-2.5 py-1.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#0088ff] cursor-pointer"
           >
             <option value="Todas">Toda La Guajira ({allAvailablePoints.length})</option>
             <option value="Norte">Regional Norte (Maicao/Uribia/Albania)</option>
@@ -1000,7 +1023,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
           <select
             value={filterChannel}
             onChange={(e) => setFilterChannel(e.target.value)}
-            className="bg-[#131b2e] text-white text-xs px-2.5 py-1.5 rounded-xl border border-[#222a3d] focus:outline-none focus:ring-1 focus:ring-[#0088ff] cursor-pointer"
+            className="bg-white text-slate-800 text-xs px-2.5 py-1.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#0088ff] cursor-pointer"
           >
             <option value="todos">Todos los Canales ({filteredPoints.length})</option>
             <option value="CDA">🔵 CDA · Acopio ({typeCounts.CDA})</option>
@@ -1014,7 +1037,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
           <select
             value={selectedMunicipality}
             onChange={(e) => setSelectedMunicipality(e.target.value)}
-            className="bg-[#131b2e] text-white text-xs px-2.5 py-1.5 rounded-xl border border-[#222a3d] focus:outline-none focus:ring-1 focus:ring-[#0088ff] cursor-pointer"
+            className="bg-white text-slate-800 text-xs px-2.5 py-1.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#0088ff] cursor-pointer"
           >
             <option value="todos">15 Municipios</option>
             {MUNICIPALITIES_GUAJIRA.map((m) => (
@@ -1039,7 +1062,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
           <button
             type="button"
             onClick={handleFitGuajiraBounds}
-            className="text-[#cbd5e1] hover:text-white text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-colors"
+            className="text-slate-600 hover:text-slate-900 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-colors"
           >
             <span className="material-symbols-outlined text-[14px]">public</span>
             <span>Vista Guajira</span>
@@ -1058,7 +1081,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-[#10b981] animate-ping" />
-                <span className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1">
+                <span className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1">
                   <span>Desplazamiento Guiado</span>
                 </span>
               </div>
@@ -1068,17 +1091,17 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
             </div>
 
             {/* Next Stop Details */}
-            <div className="bg-[#131b2e] p-2.5 rounded-xl border border-[#222a3d] space-y-1.5">
+            <div className="bg-[#131b2e] p-2.5 rounded-xl border border-slate-200 space-y-1.5">
               <div className="flex items-center justify-between text-[11px]">
-                <span className="text-[#94a3b8]">Próximo Destino:</span>
+                <span className="text-slate-500">Próximo Destino:</span>
                 <span className="font-bold text-[#fcd34d] truncate ml-2 text-right">{currentDestinationStop.name}</span>
               </div>
               <div className="flex items-center justify-between text-[11px]">
-                <span className="text-[#94a3b8]">Municipio:</span>
+                <span className="text-slate-500">Municipio:</span>
                 <span className="font-semibold text-white">{currentDestinationStop.municipality || 'La Guajira'}</span>
               </div>
               <div className="flex items-center justify-between text-[11px]">
-                <span className="text-[#94a3b8]">Distancia Restante:</span>
+                <span className="text-slate-500">Distancia Restante:</span>
                 <span className="font-mono font-bold text-[#38bdf8]">{formatDistance(legDistanceRemainingKm)}</span>
               </div>
 
@@ -1129,7 +1152,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
                 type="button"
                 onClick={() => setSoundEnabled(!soundEnabled)}
                 className={`p-1.5 rounded-xl transition-all cursor-pointer ${
-                  soundEnabled ? 'bg-[#1e293b] text-[#38bdf8]' : 'bg-[#1e293b] text-[#94a3b8]'
+                  soundEnabled ? 'bg-[#1e293b] text-[#38bdf8]' : 'bg-[#1e293b] text-slate-500'
                 }`}
                 title={soundEnabled ? 'Alertas de voz y sonido activas' : 'Sonido silenciado'}
               >
@@ -1143,7 +1166,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
                 type="button"
                 onClick={() => setFollowCamera(!followCamera)}
                 className={`p-1.5 rounded-xl transition-all cursor-pointer ${
-                  followCamera ? 'bg-[#10b981] text-white' : 'bg-[#1e293b] text-[#94a3b8]'
+                  followCamera ? 'bg-[#10b981] text-white' : 'bg-[#1e293b] text-slate-500'
                 }`}
                 title={followCamera ? 'Seguimiento de cámara activo' : 'Cámara libre'}
               >
@@ -1151,7 +1174,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
               </button>
 
               {/* External navigation handoff: CAVIMAPS stays the default */}
-              <div className="flex items-center gap-1 rounded-xl bg-[#0b1326] border border-[#222a3d] p-1">
+              <div className="flex items-center gap-1 rounded-xl bg-[#0b1326] border border-slate-200 p-1">
                 <span className="px-1.5 text-[9px] font-bold uppercase tracking-wide text-[#64748b] hidden md:inline">Ir con</span>
                 <button
                   type="button"
@@ -1180,7 +1203,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
                   setIsGuidedModeActive(false);
                   setIsSimulationPlaying(false);
                 }}
-                className="p-1.5 rounded-xl bg-[#1e293b] hover:bg-[#991b1b] text-[#cbd5e1] hover:text-white transition-colors cursor-pointer"
+                className="p-1.5 rounded-xl bg-[#1e293b] hover:bg-[#991b1b] text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
                 title="Cerrar navegación guiada"
               >
                 <span className="material-symbols-outlined text-[16px]">close</span>
@@ -1193,7 +1216,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
         {selectedPoint && (() => {
           const ptMeta = getPointTypeMeta(selectedPoint.channel, selectedPoint.category);
           return (
-            <div className="absolute bottom-4 left-4 z-30 max-w-sm w-[calc(100%-32px)] bg-[#131b2e]/95 backdrop-blur-md p-3.5 rounded-2xl border border-[#222a3d] shadow-2xl animate-in fade-in">
+            <div className="absolute bottom-4 left-4 z-30 max-w-sm w-[calc(100%-32px)] bg-white/95 backdrop-blur-md p-3.5 rounded-2xl border border-slate-200 shadow-2xl animate-in fade-in">
               <div className="flex items-start justify-between gap-2.5">
                 <div
                   className="w-9 h-9 rounded-xl flex items-center justify-center text-white shrink-0 shadow-lg mt-0.5"
@@ -1210,29 +1233,29 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
                       {ptMeta.label} · {ptMeta.fullLabel}
                     </span>
                     {selectedPoint.codePdv && (
-                      <span className="px-1.5 py-0.5 rounded bg-[#1e293b] text-[#cbd5e1] text-[10px] font-mono font-bold">
+                      <span className="px-1.5 py-0.5 rounded bg-[#1e293b] text-slate-600 text-[10px] font-mono font-bold">
                         PDV: {selectedPoint.codePdv}
                       </span>
                     )}
                     <span className="text-[10px] text-[#38bdf8] font-bold">{selectedPoint.municipality}</span>
                   </div>
-                  <h3 className="text-sm font-bold text-white mt-1 leading-snug truncate">{selectedPoint.name}</h3>
-                  {selectedPoint.address && <p className="text-xs text-[#cbd5e1] mt-0.5">{selectedPoint.address}</p>}
+                  <h3 className="text-sm font-bold text-slate-900 mt-1 leading-snug truncate">{selectedPoint.name}</h3>
+                  {selectedPoint.address && <p className="text-xs text-slate-600 mt-0.5">{selectedPoint.address}</p>}
                   {selectedPoint.costCenter && (
-                    <p className="text-[11px] text-[#94a3b8] mt-0.5">Centro Costo: {selectedPoint.costCenter}</p>
+                    <p className="text-[11px] text-slate-500 mt-0.5">Centro Costo: {selectedPoint.costCenter}</p>
                   )}
                 </div>
                 <button
                   type="button"
                   onClick={() => setSelectedPoint(null)}
-                  className="p-1 text-[#cbd5e1] hover:text-white cursor-pointer"
+                  className="p-1 text-slate-600 hover:text-slate-900 cursor-pointer"
                 >
                   <span className="material-symbols-outlined text-[17px]">close</span>
                 </button>
               </div>
 
               {/* Quick Actions for Selected Point */}
-              <div className="mt-3 pt-2.5 border-t border-[#222a3d] flex items-center gap-1.5 flex-wrap">
+              <div className="mt-3 pt-2.5 border-t border-slate-200 flex items-center gap-1.5 flex-wrap">
                 <button
                   type="button"
                   onClick={() => handleAddPointToRoute(selectedPoint)}
@@ -1275,8 +1298,8 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
 
         {/* FLOATING POINT TYPES MAP LEGEND */}
         {showLegend && (
-          <div className="cavi-map-legend absolute top-3 right-3 z-20 bg-[#0b1326]/95 backdrop-blur-md p-2.5 rounded-2xl border border-[#222a3d] shadow-xl text-xs max-w-[210px] hidden md:block select-none animate-in fade-in">
-            <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-[#222a3d]">
+          <div className="cavi-map-legend absolute top-3 right-3 z-20 bg-white/95 backdrop-blur-md p-2.5 rounded-2xl border border-slate-200 shadow-xl text-xs max-w-[210px] hidden md:block select-none animate-in fade-in">
+            <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-slate-200">
               <span className="text-[11px] font-bold text-white uppercase tracking-wider flex items-center gap-1">
                 <span className="material-symbols-outlined text-[15px] text-[#38bdf8]">category</span>
                 <span>Convenciones PDV</span>
@@ -1284,7 +1307,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
               <button
                 type="button"
                 onClick={() => setShowLegend(false)}
-                className="text-[#94a3b8] hover:text-white p-0.5 cursor-pointer"
+                className="text-slate-500 hover:text-white p-0.5 cursor-pointer"
                 title="Minimizar leyenda"
               >
                 <span className="material-symbols-outlined text-[15px]">minimize</span>
@@ -1302,7 +1325,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
                     type="button"
                     onClick={() => setFilterChannel(filterChannel === cfg.type ? 'todos' : cfg.type)}
                     className={`w-full flex items-center justify-between gap-1.5 p-1 px-1.5 rounded-lg transition-all text-left cursor-pointer ${
-                      isActive ? 'bg-[#1e293b] ring-1 ring-white/60 shadow-xs' : 'hover:bg-[#131b2e]'
+                      isActive ? 'bg-[#1e293b] ring-1 ring-white/60 shadow-xs' : 'hover:bg-slate-100'
                     }`}
                     title={`Filtrar por ${cfg.fullLabel}`}
                   >
@@ -1332,7 +1355,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
               <button
                 type="button"
                 onClick={() => setFilterChannel('todos')}
-                className="w-full mt-2 pt-1 border-t border-[#222a3d] text-center text-[10px] font-bold text-[#38bdf8] hover:underline cursor-pointer block"
+                className="w-full mt-2 pt-1 border-t border-slate-200 text-center text-[10px] font-bold text-[#38bdf8] hover:underline cursor-pointer block"
               >
                 Restablecer todos los canales
               </button>
@@ -1345,7 +1368,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
           <button
             type="button"
             onClick={() => setShowLegend(true)}
-            className="cavi-map-legend-toggle absolute top-3 right-3 z-20 bg-[#0b1326]/90 backdrop-blur-md px-2.5 py-1.5 rounded-xl border border-[#222a3d] text-xs font-bold text-[#cbd5e1] hover:text-white flex items-center gap-1 shadow-lg cursor-pointer hidden md:flex"
+            className="cavi-map-legend-toggle absolute top-3 right-3 z-20 bg-[#0b1326]/90 backdrop-blur-md px-2.5 py-1.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center gap-1 shadow-lg cursor-pointer hidden md:flex"
             title="Mostrar leyenda de convenciones"
           >
             <span className="material-symbols-outlined text-[15px] text-[#38bdf8]">category</span>
@@ -1355,15 +1378,15 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
 
         {/* SIDEBAR DRAWER: ROUTE STOPS & SEQUENCE BUILDER */}
         {isDrawerOpen && (
-          <div className="w-72 sm:w-84 bg-[#131b2e]/95 backdrop-blur-md border-l border-[#222a3d] flex flex-col h-full z-20 shrink-0">
+          <div className="w-72 sm:w-84 bg-white/95 backdrop-blur-md border-l border-slate-200 flex flex-col h-full z-20 shrink-0">
             {/* Drawer Header */}
-            <div className="p-3 border-b border-[#222a3d] bg-[#171f33] flex items-center justify-between">
+            <div className="p-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
               <div>
                 <span className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1">
                   <span className="material-symbols-outlined text-[16px] text-[#0088ff]">route</span>
                   <span>Ruta Trazada</span>
                 </span>
-                <span className="text-[10px] text-[#94a3b8] block">
+                <span className="text-[10px] text-slate-500 block">
                   {routeWaypoints.length} paradas · {formatDistance(totalDistanceKm)} · {estimatedTime}
                 </span>
               </div>
@@ -1391,7 +1414,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsDrawerOpen(false)}
-                  className="p-1 text-[#cbd5e1] hover:text-white cursor-pointer"
+                  className="p-1 text-slate-600 hover:text-slate-900 cursor-pointer"
                 >
                   <span className="material-symbols-outlined text-[17px]">chevron_right</span>
                 </button>
@@ -1401,10 +1424,10 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
             {/* List of stops in route */}
             <div className="flex-1 overflow-y-auto p-2 space-y-2">
               {routeWaypoints.length === 0 ? (
-                <div className="p-6 text-center text-xs text-[#94a3b8] space-y-2">
+                <div className="p-6 text-center text-xs text-slate-500 space-y-2">
                   <span className="material-symbols-outlined text-[32px] text-[#38bdf8]/40 block">route</span>
                   <p className="font-semibold text-white">No hay paradas en la ruta</p>
-                  <p className="text-[11px] text-[#cbd5e1] leading-relaxed">
+                  <p className="text-[11px] text-slate-600 leading-relaxed">
                     Haz clic en cualquier punto del mapa y pulsa <strong>"Añadir a Ruta"</strong> para trazar el recorrido.
                   </p>
                 </div>
@@ -1422,7 +1445,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
                           ? 'bg-[#0088ff]/15 border-[#0088ff] shadow-sm'
                           : isVisited
                           ? 'bg-[#064e3b]/30 border-[#059669]/50 opacity-80'
-                          : 'bg-[#171f33] border-[#222a3d] hover:border-[#38bdf8]/50'
+                          : 'bg-[#171f33] border-slate-200 hover:border-[#38bdf8]/50'
                       }`}
                     >
                       <div className="flex items-start justify-between gap-1.5">
@@ -1443,7 +1466,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
                               </span>
                               <p className="text-xs font-bold text-white truncate">{wp.name}</p>
                             </div>
-                            <p className="text-[10px] text-[#cbd5e1] truncate mt-0.5">
+                            <p className="text-[10px] text-slate-600 truncate mt-0.5">
                               {wp.municipality || 'La Guajira'} {wp.codePdv ? `· Cod: ${wp.codePdv}` : ''}
                             </p>
                           </div>
@@ -1455,7 +1478,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
                             type="button"
                             disabled={idx === 0}
                             onClick={() => handleMoveWaypoint(idx, 'up')}
-                            className="p-0.5 text-[#94a3b8] hover:text-white disabled:opacity-30 cursor-pointer"
+                            className="p-0.5 text-slate-500 hover:text-white disabled:opacity-30 cursor-pointer"
                             title="Mover arriba"
                           >
                             <span className="material-symbols-outlined text-[14px]">arrow_upward</span>
@@ -1464,7 +1487,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
                             type="button"
                             disabled={idx === routeWaypoints.length - 1}
                             onClick={() => handleMoveWaypoint(idx, 'down')}
-                            className="p-0.5 text-[#94a3b8] hover:text-white disabled:opacity-30 cursor-pointer"
+                            className="p-0.5 text-slate-500 hover:text-white disabled:opacity-30 cursor-pointer"
                             title="Mover abajo"
                           >
                             <span className="material-symbols-outlined text-[14px]">arrow_downward</span>
@@ -1472,7 +1495,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
                           <button
                             type="button"
                             onClick={() => handleRemoveWaypoint(idx)}
-                            className="p-0.5 text-[#94a3b8] hover:text-rose-400 cursor-pointer"
+                            className="p-0.5 text-slate-500 hover:text-rose-400 cursor-pointer"
                             title="Remover de la ruta"
                           >
                             <span className="material-symbols-outlined text-[14px]">close</span>
@@ -1482,7 +1505,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
 
                       {/* Leg distance indicator between stops */}
                       {idx < routeWaypoints.length - 1 && (
-                        <div className="mt-1.5 pt-1 border-t border-[#222a3d]/50 flex items-center justify-between text-[10px] text-[#94a3b8] font-mono">
+                        <div className="mt-1.5 pt-1 border-t border-slate-200/50 flex items-center justify-between text-[10px] text-slate-500 font-mono">
                           <span>Hacia parada {idx + 2}:</span>
                           <span className="font-bold text-[#38bdf8]">
                             {formatDistance(
@@ -1503,7 +1526,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
             </div>
 
             {/* Bottom Actions of Drawer */}
-            <div className="p-3 bg-[#171f33] border-t border-[#222a3d] space-y-2">
+            <div className="p-3 bg-[#171f33] border-t border-slate-200 space-y-2">
               <button
                 type="button"
                 onClick={handleToggleSimulation}
@@ -1542,7 +1565,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
                   type="button"
                   onClick={handleFitRouteBounds}
                   disabled={routeWaypoints.length === 0}
-                  className="py-1.5 px-2 rounded-xl bg-[#1e293b] hover:bg-[#2d3a58] text-[#cbd5e1] hover:text-white disabled:opacity-40 text-xs font-semibold flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                  className="py-1.5 px-2 rounded-xl bg-[#1e293b] hover:bg-[#2d3a58] text-slate-600 hover:text-slate-900 disabled:opacity-40 text-xs font-semibold flex items-center justify-center gap-1 transition-colors cursor-pointer"
                 >
                   <span className="material-symbols-outlined text-[14px]">center_focus_strong</span>
                   <span>Enfocar</span>
