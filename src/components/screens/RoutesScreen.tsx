@@ -634,14 +634,9 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                     className="rounded-xl border border-slate-200 bg-slate-50 p-2.5 shadow-sm hover:border-blue-200 transition-colors"
                   >
                     <div className="flex items-center gap-2">
-                      <div className="relative shrink-0">
-                        <img
-                          src={auditor.avatar}
-                          alt={auditor.name}
-                          className="w-11 h-11 rounded-full object-cover ring-1 ring-blue-200"
-                          referrerPolicy="no-referrer"
-                        />
-                        <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-slate-50 bg-emerald-400"></span>
+                      <div className="relative shrink-0 w-10 h-10 rounded-full bg-blue-50 border border-blue-200 text-blue-700 flex items-center justify-center text-xs font-extrabold">
+                        {auditor.name.split(' ').map((part) => part[0]).slice(0, 2).join('')}
+                        <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white bg-emerald-400"></span>
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-start justify-between gap-1">
