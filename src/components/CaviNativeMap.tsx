@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react'
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { CaviPoint, getPointTypeMeta, POINT_TYPE_CONFIG, PointType } from '../types/caviMap';
-import { CAVI_POINTS, MUNICIPALITIES_GUAJIRA } from '../data/caviPointsData';
+import { MUNICIPALITIES_GUAJIRA } from '../data/caviPointsData';
 import { enrichPdvWithAssignment } from '../data/zoneAssignments';
 import {
   calculateDistanceKm,
@@ -45,7 +45,7 @@ interface CaviNativeMapProps {
 }
 
 export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
-  initialPoints = CAVI_POINTS,
+  initialPoints = [],
   initialRouteStops = [],
   routeGroups = [],
   showPointCatalog = true,
