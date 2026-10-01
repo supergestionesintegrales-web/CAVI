@@ -11,10 +11,9 @@ export interface ToastData {
 interface ToastProps {
   toasts: ToastData[];
   onDismiss: (id: string) => void;
-  theme?: 'light' | 'dark';
 }
 
-export const Toast: React.FC<ToastProps> = ({ toasts, onDismiss, theme }) => {
+export const Toast: React.FC<ToastProps> = ({ toasts, onDismiss }) => {
   const isLight =
     theme === 'light' ||
     (typeof document !== 'undefined' &&
