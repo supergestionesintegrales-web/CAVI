@@ -24,7 +24,21 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
   onMarkAllRead,
   alerts = [],
 }) => {
-  const notifications: NotificationItem[] = alerts.map((a) => ({ id:a.id, time:new Date(a.createdAt).toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'}), title:a.title, message:a.message, type:a.severity === 'urgent' ? 'urgent' : a.severity === 'warning' ? 'info' : 'cavi', unread:true }));
+  const notifications: NotificationItem[] = Array.from(
+    new Map(
+      alerts.map((a) => [
+        `${a.type}|${a.pointCode || ''}|${a.title}|${a.message}`,
+        {
+          id: a.id,
+          time: new Date(a.createdAt).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }),
+          title: a.title,
+          message: a.message,
+          type: a.severity === 'urgent' ? 'urgent' : a.severity === 'warning' ? 'info' : 'cavi',
+          unread: true,
+        } as NotificationItem,
+      ])
+    ).values()
+  );
 
 
   if (!isOpen) return null;
@@ -37,7 +51,7 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
           initial={{ opacity: 0, scale: 0.94, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.94, y: 15 }}
-          className="w-full max-w-sm bg-[#131b2e] border border-[#2d3449] rounded-2xl p-5 shadow-2xl flex flex-col text-[#dae2fd]"
+          className="w-full max-w-6xl bg-[#131b2e] border border-[#2d3449] rounded-2xl p-5 shadow-2xl flex flex-col text-[#dae2fd]"
         >
           <div className="flex items-center justify-between pb-3 border-b border-[#222a3d]">
             <div className="flex items-center gap-2">
@@ -52,7 +66,7 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
             </button>
           </div>
 
-          <div className="py-3 space-y-2.5 max-h-80 overflow-y-auto pr-1">
+          <div className="py-3 max-h-[70vh] overflow-y-auto pr-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
             {notifications.length === 0 ? <div className="text-xs text-[#bbcabf] text-center py-8">No hay alertas generadas por actualizaciones de datos.</div> : notifications.map((n) => (
               <div
                 key={n.id}
