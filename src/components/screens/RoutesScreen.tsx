@@ -1348,6 +1348,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                     </div>
                   </div>
                 </div>
+              );
             })}
             </div>
           </div>
