@@ -191,7 +191,7 @@ export const ActiveAuditorCalendarView: React.FC<ActiveAuditorCalendarViewProps>
                   <span>Calendario de Auditor Activo</span>
                 </span>
                 <span className="px-2 py-0.5 rounded-md bg-[#131b2e] text-[#cbd5e1] text-[10px] font-mono border border-[#222a3d]">
-                  Zona {activeAuditor.zone}
+                  Auditor activo: {activeAuditor.name}
                 </span>
                 <span className="px-2 py-0.5 rounded-md bg-[#131b2e] text-[#38bdf8] text-[10px] font-mono border border-[#222a3d]">
                   {activeAuditor.code}
