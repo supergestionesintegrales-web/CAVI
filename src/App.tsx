@@ -43,8 +43,30 @@ import { parseLeasePointsFromMacroFiles, parseLeaseSalesFromMacroFiles, generate
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabType>('dashboard-cavi');
   const [userRole, setUserRole] = useState<UserRole>('administrador');
-  const [activeAuditorId, setActiveAuditorId] = useState<string>('aud-1');
-  const [auditors, setAuditors] = useState<Auditor[]>(AUDITORS_DATA);
+  const [activeAuditorId, setActiveAuditorId] = useState<string>(() => {
+    try {
+      return localStorage.getItem('cavi_active_auditor_id') || 'aud-1';
+    } catch {
+      return 'aud-1';
+    }
+  });
+  const [auditors, setAuditors] = useState<Auditor[]>(() => {
+    try {
+      const saved = localStorage.getItem('cavi_auditors');
+      return saved ? JSON.parse(saved) : AUDITORS_DATA;
+    } catch {
+      return AUDITORS_DATA;
+    }
+  });
+
+  // Persistir auditor activo y configuración de auditores para que las asignaciones se reflejen en todas las vistas.
+  useEffect(() => {
+    try { localStorage.setItem('cavi_active_auditor_id', activeAuditorId); } catch {}
+  }, [activeAuditorId]);
+
+  useEffect(() => {
+    try { localStorage.setItem('cavi_auditors', JSON.stringify(auditors)); } catch {}
+  }, [auditors]);
 
   // Local storage persistence for real data
   const [routeSteps, setRouteSteps] = useState<RouteStep[]>(() => {
@@ -528,20 +550,16 @@ export default function App() {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  // Assign single floating/alert point to an auditor (with optional target day)
-  const handleAssignFloatingPoint = (id: string, auditorName: string, day?: string) => {
+  // Assign single floating/alert point to an auditor (by stable auditorId, never by display name).
+  const handleAssignFloatingPoint = (id: string, auditorId: string, day?: string) => {
     if (userRole !== 'administrador') { showToast('Solo lectura', 'Solo el administrador puede modificar la información.', 'alert'); return; }
     const targetPoint = floatingPoints.find((p) => p.id === id);
     if (!targetPoint) return;
 
     setFloatingPoints((prev) => prev.filter((p) => p.id !== id));
 
-    const matchedAuditor =
-      auditors.find(
-        (a) =>
-          a.name.toLowerCase() === auditorName.toLowerCase() ||
-          a.name.toLowerCase().includes(auditorName.split(' ')[0].toLowerCase())
-      ) || auditors[0];
+    const matchedAuditor = auditors.find((a) => a.id === auditorId) || auditors[0];
+    if (!matchedAuditor) return;
 
     const validDays: RouteStep['day'][] = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes'];
     const lowerDay = day ? day.toLowerCase() : '';
@@ -860,8 +878,8 @@ export default function App() {
       <CriticalPointsModal
         isOpen={isCriticalPointsOpen}
         onClose={() => setIsCriticalPointsOpen(false)}
-        onAssignPoint={(code) => {
-          handleAssignFloatingPoint(code, 'Samuel Ramos Quintero');
+        onAssignPoint={(code, auditorId) => {
+          handleAssignFloatingPoint(code, auditorId);
         }}
       />
 
