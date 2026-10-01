@@ -820,7 +820,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
       )}
 
       {/* TOP COMMAND BAR */}
-      <div className="p-3 bg-white/95 backdrop-blur-md border-b border-slate-200 flex flex-wrap items-center justify-between gap-2.5 z-20 shrink-0">
+      <div className="p-2 bg-white/95 backdrop-blur-md border-b border-slate-200 flex flex-wrap items-center justify-between gap-2.5 z-20 shrink-0">
         <div className="flex items-center gap-2.5 min-w-0">
           <div className="w-8 h-8 rounded-xl bg-[#0088ff] text-white flex items-center justify-center shadow-md shadow-[#0088ff]/30 shrink-0">
             <span className="material-symbols-outlined text-[19px]">map</span>
@@ -974,9 +974,6 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
                 </button>
                 <button type="button" onClick={() => setShowLegend((v) => !v)} className="p-2 rounded-lg border border-slate-200 bg-white hover:bg-blue-50 text-slate-700 text-[10px] font-bold flex items-center gap-1.5 cursor-pointer">
                   <span className="material-symbols-outlined text-[15px] text-blue-600">category</span> Leyenda
-                </button>
-                <button type="button" onClick={() => setIsImportModalOpen(true)} className="p-2 rounded-lg border border-slate-200 bg-white hover:bg-blue-50 text-slate-700 text-[10px] font-bold flex items-center gap-1.5 cursor-pointer">
-                  <span className="material-symbols-outlined text-[15px] text-blue-600">upload_file</span> Cargar .txt
                 </button>
                 <button type="button" onClick={() => setIsFullscreen((v) => !v)} className="p-2 rounded-lg border border-slate-200 bg-white hover:bg-blue-50 text-slate-700 text-[10px] font-bold flex items-center gap-1.5 cursor-pointer">
                   <span className="material-symbols-outlined text-[15px] text-blue-600">{isFullscreen ? 'fullscreen_exit' : 'fullscreen'}</span>
