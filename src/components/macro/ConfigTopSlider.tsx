@@ -8,6 +8,7 @@ export type ConfigSectionId =
   | 'reportes'
   | 'sensor-qr'
   | 'red-parametros'
+  | 'cavimaps-txt'
   | 'todas';
 
 export interface ConfigTopSliderProps {
@@ -75,6 +76,16 @@ export const ConfigTopSlider: React.FC<ConfigTopSliderProps> = ({
           isActiveMatch: activeSection === 'red-parametros',
         },
         {
+          id: 'cavimaps-txt',
+          title: 'Carga TXT CAVIMAPS',
+          shortTitle: 'TXT CAVIMAPS',
+          icon: 'upload_file',
+          badgeText: 'Mapa',
+          badgeColor: 'bg-[#0088ff]/15 text-[#0088ff] border-[#0088ff]/30',
+          description: 'Procesar puntos territoriales para el mapa CAVIMAPS',
+          isActiveMatch: activeSection === 'cavimaps-txt',
+        },
+        {
           id: 'todas',
           title: 'Ver Todo Habilitado',
           shortTitle: 'Ver Todo',
@@ -105,6 +116,16 @@ export const ConfigTopSlider: React.FC<ConfigTopSliderProps> = ({
           badgeColor: 'bg-[#0088ff]/15 text-[#38bdf8] border-[#0088ff]/30',
           description: 'Consolidado oficial, telemetría sensor QR y red departamental',
           isActiveMatch: isOperacionesActive,
+        },
+        {
+          id: 'cavimaps-txt',
+          title: 'Carga TXT CAVIMAPS',
+          shortTitle: 'TXT CAVIMAPS',
+          icon: 'upload_file',
+          badgeText: 'Mapa',
+          badgeColor: 'bg-[#0088ff]/15 text-[#0088ff] border-[#0088ff]/30',
+          description: 'Procesar puntos territoriales para el mapa CAVIMAPS',
+          isActiveMatch: activeSection === 'cavimaps-txt',
         },
         {
           id: 'todas',
