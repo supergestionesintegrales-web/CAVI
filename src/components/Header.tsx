@@ -247,7 +247,7 @@ export const Header: React.FC<HeaderProps> = ({
                               <span className="truncate">{aud.name}</span>
                             </div>
                             <span className="text-[10px] opacity-80 shrink-0 font-mono">
-                              {aud.zone}
+                              Asignado
                             </span>
                           </button>
                         );
