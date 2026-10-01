@@ -313,24 +313,24 @@ main {
    ========================================================================== */
 
 /* Primary Headings & Bold Text on Light Cards (Excludes modals, dark headers and protected classes) */
-[data-theme="light"] :not(.fixed):not([class*="bg-[#0e172a]"]):not([class*="bg-[#131b2e]"]):not([class*="bg-[#0b1326]"]):not([class*="bg-[#060e20]"]):not(.cavi-map-legend) > h1:not([class*="!text-white"]):not([class*="text-white"]),
-[data-theme="light"] :not(.fixed):not([class*="bg-[#0e172a]"]):not([class*="bg-[#131b2e]"]):not([class*="bg-[#0b1326]"]):not([class*="bg-[#060e20]"]):not(.cavi-map-legend) > h2:not([class*="!text-white"]):not([class*="text-white"]),
-[data-theme="light"] :not(.fixed):not([class*="bg-[#0e172a]"]):not([class*="bg-[#131b2e]"]):not([class*="bg-[#0b1326]"]):not([class*="bg-[#060e20]"]):not(.cavi-map-legend) > h3:not([class*="!text-white"]):not([class*="text-white"]),
-[data-theme="light"] :not(.fixed):not([class*="bg-[#0e172a]"]):not([class*="bg-[#131b2e]"]):not([class*="bg-[#0b1326]"]):not([class*="bg-[#060e20]"]):not(.cavi-map-legend) > h4:not([class*="!text-white"]):not([class*="text-white"]),
-[data-theme="light"] :not(.fixed):not([class*="bg-[#0e172a]"]):not([class*="bg-[#131b2e]"]):not([class*="bg-[#0b1326]"]):not([class*="bg-[#060e20]"]):not(.cavi-map-legend) > h5:not([class*="!text-white"]):not([class*="text-white"]),
-[data-theme="light"] :not(.fixed):not([class*="bg-[#0e172a]"]):not([class*="bg-[#131b2e]"]):not([class*="bg-[#0b1326]"]):not([class*="bg-[#060e20]"]):not(.cavi-map-legend) > h6:not([class*="!text-white"]):not([class*="text-white"]),
-.theme-light :not(.fixed):not([class*="bg-[#0e172a]"]):not([class*="bg-[#131b2e]"]):not([class*="bg-[#0b1326]"]):not([class*="bg-[#060e20]"]):not(.cavi-map-legend) > h1:not([class*="!text-white"]):not([class*="text-white"]),
-.theme-light :not(.fixed):not([class*="bg-[#0e172a]"]):not([class*="bg-[#131b2e]"]):not([class*="bg-[#0b1326]"]):not([class*="bg-[#060e20]"]):not(.cavi-map-legend) > h2:not([class*="!text-white"]):not([class*="text-white"]),
-.theme-light :not(.fixed):not([class*="bg-[#0e172a]"]):not([class*="bg-[#131b2e]"]):not([class*="bg-[#0b1326]"]):not([class*="bg-[#060e20]"]):not(.cavi-map-legend) > h3:not([class*="!text-white"]):not([class*="text-white"]),
-.theme-light :not(.fixed):not([class*="bg-[#0e172a]"]):not([class*="bg-[#131b2e]"]):not([class*="bg-[#0b1326]"]):not([class*="bg-[#060e20]"]):not(.cavi-map-legend) > h4:not([class*="!text-white"]):not([class*="text-white"]),
-.theme-light :not(.fixed):not([class*="bg-[#0e172a]"]):not([class*="bg-[#131b2e]"]):not([class*="bg-[#0b1326]"]):not([class*="bg-[#060e20]"]):not(.cavi-map-legend) > h5:not([class*="!text-white"]):not([class*="text-white"]),
-.theme-light :not(.fixed):not([class*="bg-[#0e172a]"]):not([class*="bg-[#131b2e]"]):not([class*="bg-[#0b1326]"]):not([class*="bg-[#060e20]"]):not(.cavi-map-legend) > h6:not([class*="!text-white"]):not([class*="text-white"]),
-.light :not(.fixed):not([class*="bg-[#0e172a]"]):not([class*="bg-[#131b2e]"]):not([class*="bg-[#0b1326]"]):not([class*="bg-[#060e20]"]):not(.cavi-map-legend) > h1:not([class*="!text-white"]):not([class*="text-white"]),
-.light :not(.fixed):not([class*="bg-[#0e172a]"]):not([class*="bg-[#131b2e]"]):not([class*="bg-[#0b1326]"]):not([class*="bg-[#060e20]"]):not(.cavi-map-legend) > h2:not([class*="!text-white"]):not([class*="text-white"]),
-.light :not(.fixed):not([class*="bg-[#0e172a]"]):not([class*="bg-[#131b2e]"]):not([class*="bg-[#0b1326]"]):not([class*="bg-[#060e20]"]):not(.cavi-map-legend) > h3:not([class*="!text-white"]):not([class*="text-white"]),
-.light :not(.fixed):not([class*="bg-[#0e172a]"]):not([class*="bg-[#131b2e]"]):not([class*="bg-[#0b1326]"]):not([class*="bg-[#060e20]"]):not(.cavi-map-legend) > h4:not([class*="!text-white"]):not([class*="text-white"]),
-.light :not(.fixed):not([class*="bg-[#0e172a]"]):not([class*="bg-[#131b2e]"]):not([class*="bg-[#0b1326]"]):not([class*="bg-[#060e20]"]):not(.cavi-map-legend) > h5:not([class*="!text-white"]):not([class*="text-white"]),
-.light :not(.fixed):not([class*="bg-[#0e172a]"]):not([class*="bg-[#131b2e]"]):not([class*="bg-[#0b1326]"]):not([class*="bg-[#060e20]"]):not(.cavi-map-legend) > h6:not([class*="!text-white"]):not([class*="text-white"]) {
+[data-theme="light"] :not(.fixed):not([class*="bg-[\\#0e172a]"]):not([class*="bg-[\\#131b2e]"]):not([class*="bg-[\\#0b1326]"]):not([class*="bg-[\\#060e20]"]):not(.cavi-map-legend) > h1:not([class*="!text-white"]):not([class*="text-white"]),
+[data-theme="light"] :not(.fixed):not([class*="bg-[\\#0e172a]"]):not([class*="bg-[\\#131b2e]"]):not([class*="bg-[\\#0b1326]"]):not([class*="bg-[\\#060e20]"]):not(.cavi-map-legend) > h2:not([class*="!text-white"]):not([class*="text-white"]),
+[data-theme="light"] :not(.fixed):not([class*="bg-[\\#0e172a]"]):not([class*="bg-[\\#131b2e]"]):not([class*="bg-[\\#0b1326]"]):not([class*="bg-[\\#060e20]"]):not(.cavi-map-legend) > h3:not([class*="!text-white"]):not([class*="text-white"]),
+[data-theme="light"] :not(.fixed):not([class*="bg-[\\#0e172a]"]):not([class*="bg-[\\#131b2e]"]):not([class*="bg-[\\#0b1326]"]):not([class*="bg-[\\#060e20]"]):not(.cavi-map-legend) > h4:not([class*="!text-white"]):not([class*="text-white"]),
+[data-theme="light"] :not(.fixed):not([class*="bg-[\\#0e172a]"]):not([class*="bg-[\\#131b2e]"]):not([class*="bg-[\\#0b1326]"]):not([class*="bg-[\\#060e20]"]):not(.cavi-map-legend) > h5:not([class*="!text-white"]):not([class*="text-white"]),
+[data-theme="light"] :not(.fixed):not([class*="bg-[\\#0e172a]"]):not([class*="bg-[\\#131b2e]"]):not([class*="bg-[\\#0b1326]"]):not([class*="bg-[\\#060e20]"]):not(.cavi-map-legend) > h6:not([class*="!text-white"]):not([class*="text-white"]),
+.theme-light :not(.fixed):not([class*="bg-[\\#0e172a]"]):not([class*="bg-[\\#131b2e]"]):not([class*="bg-[\\#0b1326]"]):not([class*="bg-[\\#060e20]"]):not(.cavi-map-legend) > h1:not([class*="!text-white"]):not([class*="text-white"]),
+.theme-light :not(.fixed):not([class*="bg-[\\#0e172a]"]):not([class*="bg-[\\#131b2e]"]):not([class*="bg-[\\#0b1326]"]):not([class*="bg-[\\#060e20]"]):not(.cavi-map-legend) > h2:not([class*="!text-white"]):not([class*="text-white"]),
+.theme-light :not(.fixed):not([class*="bg-[\\#0e172a]"]):not([class*="bg-[\\#131b2e]"]):not([class*="bg-[\\#0b1326]"]):not([class*="bg-[\\#060e20]"]):not(.cavi-map-legend) > h3:not([class*="!text-white"]):not([class*="text-white"]),
+.theme-light :not(.fixed):not([class*="bg-[\\#0e172a]"]):not([class*="bg-[\\#131b2e]"]):not([class*="bg-[\\#0b1326]"]):not([class*="bg-[\\#060e20]"]):not(.cavi-map-legend) > h4:not([class*="!text-white"]):not([class*="text-white"]),
+.theme-light :not(.fixed):not([class*="bg-[\\#0e172a]"]):not([class*="bg-[\\#131b2e]"]):not([class*="bg-[\\#0b1326]"]):not([class*="bg-[\\#060e20]"]):not(.cavi-map-legend) > h5:not([class*="!text-white"]):not([class*="text-white"]),
+.theme-light :not(.fixed):not([class*="bg-[\\#0e172a]"]):not([class*="bg-[\\#131b2e]"]):not([class*="bg-[\\#0b1326]"]):not([class*="bg-[\\#060e20]"]):not(.cavi-map-legend) > h6:not([class*="!text-white"]):not([class*="text-white"]),
+.light :not(.fixed):not([class*="bg-[\\#0e172a]"]):not([class*="bg-[\\#131b2e]"]):not([class*="bg-[\\#0b1326]"]):not([class*="bg-[\\#060e20]"]):not(.cavi-map-legend) > h1:not([class*="!text-white"]):not([class*="text-white"]),
+.light :not(.fixed):not([class*="bg-[\\#0e172a]"]):not([class*="bg-[\\#131b2e]"]):not([class*="bg-[\\#0b1326]"]):not([class*="bg-[\\#060e20]"]):not(.cavi-map-legend) > h2:not([class*="!text-white"]):not([class*="text-white"]),
+.light :not(.fixed):not([class*="bg-[\\#0e172a]"]):not([class*="bg-[\\#131b2e]"]):not([class*="bg-[\\#0b1326]"]):not([class*="bg-[\\#060e20]"]):not(.cavi-map-legend) > h3:not([class*="!text-white"]):not([class*="text-white"]),
+.light :not(.fixed):not([class*="bg-[\\#0e172a]"]):not([class*="bg-[\\#131b2e]"]):not([class*="bg-[\\#0b1326]"]):not([class*="bg-[\\#060e20]"]):not(.cavi-map-legend) > h4:not([class*="!text-white"]):not([class*="text-white"]),
+.light :not(.fixed):not([class*="bg-[\\#0e172a]"]):not([class*="bg-[\\#131b2e]"]):not([class*="bg-[\\#0b1326]"]):not([class*="bg-[\\#060e20]"]):not(.cavi-map-legend) > h5:not([class*="!text-white"]):not([class*="text-white"]),
+.light :not(.fixed):not([class*="bg-[\\#0e172a]"]):not([class*="bg-[\\#131b2e]"]):not([class*="bg-[\\#0b1326]"]):not([class*="bg-[\\#060e20]"]):not(.cavi-map-legend) > h6:not([class*="!text-white"]):not([class*="text-white"]) {
   color: #0f172a !important;
 }
 
@@ -341,7 +341,7 @@ main {
   color: #ffffff !important;
 }
 
-[class*="!text-[#cbd5e1]"], [class*="!text-[#cbd5e1]"] * {
+[class*="!text-[\\#cbd5e1]"], [class*="!text-[\\#cbd5e1]"] * {
   color: #cbd5e1 !important;
 }
 
@@ -378,9 +378,9 @@ main {
 [data-theme="light"] .bg-white h3.text-white,
 [data-theme="light"] .bg-white strong.text-white,
 [data-theme="light"] span.text-white:not([class*="bg-"]):not([class*="rounded-full"]):not([class*="rounded-md"]):not([class*="rounded-lg"]),
-[data-theme="light"] div:not([class*="bg-[#0088ff]"]):not([class*="bg-[#dc2626]"]):not([class*="bg-[#0284c7]"]):not([class*="bg-[#7c3aed]"]):not([class*="bg-[#059669]"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-[#0f172a]"]):not([class*="map-overlay-banner"]) > p.text-white,
-.theme-light div:not([class*="bg-[#0088ff]"]):not([class*="bg-[#dc2626]"]):not([class*="bg-[#0284c7]"]):not([class*="bg-[#7c3aed]"]):not([class*="bg-[#059669]"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-[#0f172a]"]):not([class*="map-overlay-banner"]) > p.text-white,
-.light div:not([class*="bg-[#0088ff]"]):not([class*="bg-[#dc2626]"]):not([class*="bg-[#0284c7]"]):not([class*="bg-[#7c3aed]"]):not([class*="bg-[#059669]"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-[#0f172a]"]):not([class*="map-overlay-banner"]) > p.text-white {
+[data-theme="light"] div:not([class*="bg-[\\#0088ff]"]):not([class*="bg-[\\#dc2626]"]):not([class*="bg-[\\#0284c7]"]):not([class*="bg-[\\#7c3aed]"]):not([class*="bg-[\\#059669]"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-[\\#0f172a]"]):not([class*="map-overlay-banner"]) > p.text-white,
+.theme-light div:not([class*="bg-[\\#0088ff]"]):not([class*="bg-[\\#dc2626]"]):not([class*="bg-[\\#0284c7]"]):not([class*="bg-[\\#7c3aed]"]):not([class*="bg-[\\#059669]"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-[\\#0f172a]"]):not([class*="map-overlay-banner"]) > p.text-white,
+.light div:not([class*="bg-[\\#0088ff]"]):not([class*="bg-[\\#dc2626]"]):not([class*="bg-[\\#0284c7]"]):not([class*="bg-[\\#7c3aed]"]):not([class*="bg-[\\#059669]"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-[\\#0f172a]"]):not([class*="map-overlay-banner"]) > p.text-white {
   color: #0f172a !important;
 }
 
@@ -1078,12 +1078,12 @@ main {
   color: #3730a3 !important;
 }
 
-[data-theme="light"] .border-[#3131c0]/50 p,
-[data-theme="light"] .border-[#3131c0]/50 span,
-.theme-light .border-[#3131c0]/50 p,
-.theme-light .border-[#3131c0]/50 span,
-.light .border-[#3131c0]/50 p,
-.light .border-[#3131c0]/50 span {
+[data-theme="light"] .border-\[\#3131c0\]\/50 p,
+[data-theme="light"] .border-\[\#3131c0\]\/50 span,
+.theme-light .border-\[\#3131c0\]\/50 p,
+.theme-light .border-\[\#3131c0\]\/50 span,
+.light .border-\[\#3131c0\]\/50 p,
+.light .border-\[\#3131c0\]\/50 span {
   color: #3730a3 !important;
 }
 
@@ -1443,52 +1443,52 @@ html:not([data-theme="light"]):not(.theme-light):not(.light) .day-matrix-badge {
 }
 
 /* Borders and dividers used by the tactical dark palette */
-[data-theme="light"] .routes-tactical-shell [class*="border-[#1e2a44]"],
-[data-theme="light"] .routes-tactical-shell [class*="border-[#222a3d]"],
-[data-theme="light"] .routes-tactical-shell [class*="border-[#1e345b]"],
-[data-theme="light"] .routes-tactical-shell [class*="border-[#3b4760]"],
-.theme-light .routes-tactical-shell [class*="border-[#1e2a44]"],
-.theme-light .routes-tactical-shell [class*="border-[#222a3d]"],
-.theme-light .routes-tactical-shell [class*="border-[#1e345b]"],
-.theme-light .routes-tactical-shell [class*="border-[#3b4760]"],
-.light .routes-tactical-shell [class*="border-[#1e2a44]"],
-.light .routes-tactical-shell [class*="border-[#222a3d]"],
-.light .routes-tactical-shell [class*="border-[#1e345b]"],
-.light .routes-tactical-shell [class*="border-[#3b4760]"] {
+[data-theme="light"] .routes-tactical-shell [class*="border-[\\#1e2a44]"],
+[data-theme="light"] .routes-tactical-shell [class*="border-[\\#222a3d]"],
+[data-theme="light"] .routes-tactical-shell [class*="border-[\\#1e345b]"],
+[data-theme="light"] .routes-tactical-shell [class*="border-[\\#3b4760]"],
+.theme-light .routes-tactical-shell [class*="border-[\\#1e2a44]"],
+.theme-light .routes-tactical-shell [class*="border-[\\#222a3d]"],
+.theme-light .routes-tactical-shell [class*="border-[\\#1e345b]"],
+.theme-light .routes-tactical-shell [class*="border-[\\#3b4760]"],
+.light .routes-tactical-shell [class*="border-[\\#1e2a44]"],
+.light .routes-tactical-shell [class*="border-[\\#222a3d]"],
+.light .routes-tactical-shell [class*="border-[\\#1e345b]"],
+.light .routes-tactical-shell [class*="border-[\\#3b4760]"] {
   border-color: #d5deea !important;
 }
 
 /* Preserve white lettering on deliberately colored buttons/badges. */
-[data-theme="light"] .routes-tactical-shell [class*="bg-[#0088ff]"] [class~="text-white"],
-[data-theme="light"] .routes-tactical-shell [class*="bg-[#0088ff]"],
-[data-theme="light"] .routes-tactical-shell [class*="bg-[#dc2626]"] [class~="text-white"],
-[data-theme="light"] .routes-tactical-shell [class*="bg-[#dc2626]"],
-[data-theme="light"] .routes-tactical-shell [class*="bg-[#0284c7]"] [class~="text-white"],
-[data-theme="light"] .routes-tactical-shell [class*="bg-[#0284c7]"],
-[data-theme="light"] .routes-tactical-shell [class*="bg-[#7c3aed]"] [class~="text-white"],
-[data-theme="light"] .routes-tactical-shell [class*="bg-[#7c3aed]"],
-[data-theme="light"] .routes-tactical-shell [class*="bg-[#059669]"] [class~="text-white"],
-[data-theme="light"] .routes-tactical-shell [class*="bg-[#059669]"],
-.theme-light .routes-tactical-shell [class*="bg-[#0088ff]"] [class~="text-white"],
-.theme-light .routes-tactical-shell [class*="bg-[#0088ff]"],
-.theme-light .routes-tactical-shell [class*="bg-[#dc2626]"] [class~="text-white"],
-.theme-light .routes-tactical-shell [class*="bg-[#dc2626]"],
-.theme-light .routes-tactical-shell [class*="bg-[#0284c7]"] [class~="text-white"],
-.theme-light .routes-tactical-shell [class*="bg-[#0284c7]"],
-.theme-light .routes-tactical-shell [class*="bg-[#7c3aed]"] [class~="text-white"],
-.theme-light .routes-tactical-shell [class*="bg-[#7c3aed]"],
-.theme-light .routes-tactical-shell [class*="bg-[#059669]"] [class~="text-white"],
-.theme-light .routes-tactical-shell [class*="bg-[#059669]"],
-.light .routes-tactical-shell [class*="bg-[#0088ff]"] [class~="text-white"],
-.light .routes-tactical-shell [class*="bg-[#0088ff]"],
-.light .routes-tactical-shell [class*="bg-[#dc2626]"] [class~="text-white"],
-.light .routes-tactical-shell [class*="bg-[#dc2626]"],
-.light .routes-tactical-shell [class*="bg-[#0284c7]"] [class~="text-white"],
-.light .routes-tactical-shell [class*="bg-[#0284c7]"],
-.light .routes-tactical-shell [class*="bg-[#7c3aed]"] [class~="text-white"],
-.light .routes-tactical-shell [class*="bg-[#7c3aed]"],
-.light .routes-tactical-shell [class*="bg-[#059669]"] [class~="text-white"],
-.light .routes-tactical-shell [class*="bg-[#059669]"] {
+[data-theme="light"] .routes-tactical-shell [class*="bg-[\\#0088ff]"] [class~="text-white"],
+[data-theme="light"] .routes-tactical-shell [class*="bg-[\\#0088ff]"],
+[data-theme="light"] .routes-tactical-shell [class*="bg-[\\#dc2626]"] [class~="text-white"],
+[data-theme="light"] .routes-tactical-shell [class*="bg-[\\#dc2626]"],
+[data-theme="light"] .routes-tactical-shell [class*="bg-[\\#0284c7]"] [class~="text-white"],
+[data-theme="light"] .routes-tactical-shell [class*="bg-[\\#0284c7]"],
+[data-theme="light"] .routes-tactical-shell [class*="bg-[\\#7c3aed]"] [class~="text-white"],
+[data-theme="light"] .routes-tactical-shell [class*="bg-[\\#7c3aed]"],
+[data-theme="light"] .routes-tactical-shell [class*="bg-[\\#059669]"] [class~="text-white"],
+[data-theme="light"] .routes-tactical-shell [class*="bg-[\\#059669]"],
+.theme-light .routes-tactical-shell [class*="bg-[\\#0088ff]"] [class~="text-white"],
+.theme-light .routes-tactical-shell [class*="bg-[\\#0088ff]"],
+.theme-light .routes-tactical-shell [class*="bg-[\\#dc2626]"] [class~="text-white"],
+.theme-light .routes-tactical-shell [class*="bg-[\\#dc2626]"],
+.theme-light .routes-tactical-shell [class*="bg-[\\#0284c7]"] [class~="text-white"],
+.theme-light .routes-tactical-shell [class*="bg-[\\#0284c7]"],
+.theme-light .routes-tactical-shell [class*="bg-[\\#7c3aed]"] [class~="text-white"],
+.theme-light .routes-tactical-shell [class*="bg-[\\#7c3aed]"],
+.theme-light .routes-tactical-shell [class*="bg-[\\#059669]"] [class~="text-white"],
+.theme-light .routes-tactical-shell [class*="bg-[\\#059669]"],
+.light .routes-tactical-shell [class*="bg-[\\#0088ff]"] [class~="text-white"],
+.light .routes-tactical-shell [class*="bg-[\\#0088ff]"],
+.light .routes-tactical-shell [class*="bg-[\\#dc2626]"] [class~="text-white"],
+.light .routes-tactical-shell [class*="bg-[\\#dc2626]"],
+.light .routes-tactical-shell [class*="bg-[\\#0284c7]"] [class~="text-white"],
+.light .routes-tactical-shell [class*="bg-[\\#0284c7]"],
+.light .routes-tactical-shell [class*="bg-[\\#7c3aed]"] [class~="text-white"],
+.light .routes-tactical-shell [class*="bg-[\\#7c3aed]"],
+.light .routes-tactical-shell [class*="bg-[\\#059669]"] [class~="text-white"],
+.light .routes-tactical-shell [class*="bg-[\\#059669]"] {
   color: #ffffff !important;
 }
 
