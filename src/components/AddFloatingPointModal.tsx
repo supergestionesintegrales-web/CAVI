@@ -222,10 +222,10 @@ export const AddFloatingPointModal: React.FC<AddFloatingPointModalProps> = ({
               />
               <span className="text-[10px] text-[#94a3b8] mt-1 block">
                 {daysWithoutVisit >= 90
-                  ? '🔴 >3 meses (Crítico)'
+                  ? ' >3 meses (Crítico)'
                   : daysWithoutVisit >= 60
-                  ? '🟠 2 a 3 meses (Alerta)'
-                  : '🟡 < 2 meses'}
+                  ? ' 2 a 3 meses (Alerta)'
+                  : ' < 2 meses'}
               </span>
             </div>
 
