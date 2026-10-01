@@ -848,7 +848,6 @@ export default function App() {
         activeAuditorId={activeAuditorId}
         onSelectAuditor={setActiveAuditorId}
         auditors={liveAuditors}
-        theme={theme}
       />
 
       {/* Main Screen Content with Padding for Header and Mobile Bottom Nav */}
@@ -901,8 +900,6 @@ export default function App() {
             onAddFiles={handleAddMacroFiles}
             onInjectRoutes={handleInjectRoutesFromMacro}
             activeRouteSourceFile={activeRouteSourceFile}
-            theme={theme}
-            onToggleTheme={handleToggleTheme}
             onOpenScanner={() => setIsScannerOpen(true)}
             onManualCheckIn={handleCheckInSuccess}
             onShowToast={showToast}
@@ -966,7 +963,6 @@ export default function App() {
       <ProfileModal
         isOpen={isProfileOpen}
         onClose={() => setIsProfileOpen(false)}
-        theme={theme}
         onShowToast={showToast}
         userRole={userRole}
         onSelectRole={handleSelectRole}
