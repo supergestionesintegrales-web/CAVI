@@ -191,7 +191,7 @@ export const ActiveAuditorCalendarView: React.FC<ActiveAuditorCalendarViewProps>
                   <span>Calendario de Auditor Activo</span>
                 </span>
                 <span className="px-2 py-0.5 rounded-md bg-[#131b2e] text-[#cbd5e1] text-[10px] font-mono border border-[#222a3d]">
-                  Zona {activeAuditor.zone}
+                  Auditor activo: {activeAuditor.name}
                 </span>
                 <span className="px-2 py-0.5 rounded-md bg-[#131b2e] text-[#38bdf8] text-[10px] font-mono border border-[#222a3d]">
                   {activeAuditor.code}
@@ -221,7 +221,7 @@ export const ActiveAuditorCalendarView: React.FC<ActiveAuditorCalendarViewProps>
                       onSelectAuditor(aud.id);
                       onShowToast(
                         'Auditor Activo',
-                        `Visualizando calendario de ${aud.name} (Zona ${aud.zone}).`,
+                        `Visualizando calendario de ${aud.name}.`,
                         'info'
                       );
                     }}
@@ -233,7 +233,7 @@ export const ActiveAuditorCalendarView: React.FC<ActiveAuditorCalendarViewProps>
                   >
                     <span className="w-2 h-2 rounded-full bg-emerald-400" />
                     <span>{aud.name.split(' ')[0]}</span>
-                    <span className="text-[10px] opacity-75 font-mono">({aud.zone})</span>
+                    <span className="text-[10px] opacity-75 font-mono">Asignado</span>
                   </button>
                 );
               })}
