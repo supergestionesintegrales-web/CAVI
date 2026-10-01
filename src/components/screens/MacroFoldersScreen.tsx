@@ -10,6 +10,7 @@ import { CaviPoint } from '../../types/caviMap';
 interface MacroFoldersScreenProps {
   files: MacroFile[];
   onAddFiles: (newFiles: MacroFile[]) => void;
+  onDeleteFiles?: (fileIds: string[]) => void;
   onInjectRoutes: (file: MacroFile) => void;
   activeRouteSourceFile?: string;
   onOpenScanner?: () => void;
@@ -60,6 +61,7 @@ export const MUNICIPIOS_GUAJIRA: MunicipioGuajira[] = [
 export const MacroFoldersScreen: React.FC<MacroFoldersScreenProps> = ({
   files,
   onAddFiles,
+  onDeleteFiles,
   onInjectRoutes,
   activeRouteSourceFile,
   onOpenScanner,
@@ -168,6 +170,28 @@ export const MacroFoldersScreen: React.FC<MacroFoldersScreenProps> = ({
   const availableYears = Array.from(new Set(files.map((f) => f.year))).sort().reverse();
   const availableMonths = Array.from(new Set(files.map((f) => f.month))).sort();
 
+  const handleDeleteFile = (file: MacroFile) => {
+    if (!onDeleteFiles || !isAdmin) return;
+    const confirmed = window.confirm('¿Eliminar "' + file.name + '" del repositorio de CAVI? Esta acción quitará el archivo del sistema.');
+    if (!confirmed) return;
+    onDeleteFiles([file.id]);
+    onShowToast('Archivo eliminado', 'Se eliminó "' + file.name + '" del repositorio.', 'success');
+  };
+
+  const handleDeleteMacroFolder = (macroFolder: string, label: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    if (!onDeleteFiles || !isAdmin) return;
+    const folderFiles = files.filter((f) => f.macroFolder.toLowerCase() === macroFolder.toLowerCase());
+    if (folderFiles.length === 0) {
+      onShowToast('Carpeta vacía', 'No hay archivos cargados en esta macro-carpeta.', 'info');
+      return;
+    }
+    const confirmed = window.confirm('¿Eliminar la carpeta "' + label + '" y sus ' + folderFiles.length + ' archivo(s) del repositorio de CAVI? Esta acción no se puede deshacer.');
+    if (!confirmed) return;
+    onDeleteFiles(folderFiles.map((f) => f.id));
+    if (selectedMacroFolder.toLowerCase() === macroFolder.toLowerCase()) setSelectedMacroFolder('all');
+    onShowToast('Carpeta eliminada', 'Se eliminaron ' + folderFiles.length + ' archivo(s) de "' + label + '".', 'success');
+  };
   // Filtered files
   const filteredFiles = files.filter((f) => {
     if (selectedMacroFolder !== 'all' && f.macroFolder.toLowerCase() !== selectedMacroFolder.toLowerCase()) {
@@ -794,7 +818,20 @@ FORMATOS COMPATIBLES:
                         {count}
                       </span>
                     </div>
-                    <p className="text-xs font-bold text-[#dae2fd] mt-2 truncate">{mf.label}</p>
+                    <div className="flex items-center justify-between gap-1 mt-2">
+                      <p className="text-xs font-bold text-[#dae2fd] truncate">{mf.label}</p>
+                      {isAdmin && count > 0 && (
+                        <button
+                          type="button"
+                          onClick={(event) => handleDeleteMacroFolder(mf.name, mf.label, event)}
+                          className="w-7 h-7 rounded-lg bg-[#3a1820] hover:bg-[#5b1f2b] text-[#ffb4ab] flex items-center justify-center shrink-0 cursor-pointer border border-[#ffb4ab]/20"
+                          title="Eliminar carpeta y sus archivos"
+                          aria-label="Eliminar carpeta"
+                        >
+                          <span className="material-symbols-outlined text-[16px]">delete</span>
+                        </button>
+                      )}
+                    </div>
                     <p className="text-[10px] text-[#bbcabf] truncate font-mono"> /{mf.name}</p>
                   </button>
                 );
@@ -1038,6 +1075,17 @@ FORMATOS COMPATIBLES:
                             </button>
                           )}
 
+                          {isAdmin && (
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteFile(file)}
+                              className="px-2.5 py-1 rounded-lg bg-[#3a1820] hover:bg-[#5b1f2b] text-[#ffb4ab] text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer border border-[#ffb4ab]/20"
+                              title="Eliminar archivo del repositorio"
+                            >
+                              <span className="material-symbols-outlined text-[15px]">delete</span>
+                              <span>Eliminar</span>
+                            </button>
+                          )}
                           <button
                             type="button"
                             onClick={() => setActiveFileForViewer(file)}
