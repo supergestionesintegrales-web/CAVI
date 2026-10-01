@@ -296,7 +296,6 @@ export const AlertPointsAssignmentPool: React.FC<AlertPointsAssignmentPoolProps>
                 <span>+ Agregar Alerta</span>
               </button>
 
-}
             </div>
           )}
         </div>
