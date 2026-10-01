@@ -345,14 +345,17 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
       const auditor = escapeHtml(pt.auditorName || 'Auditor no definido');
       const typeLabel = escapeHtml(meta.fullLabel || meta.label);
 
-      // Canvas markers keep all PDVs visible without creating hundreds of DOM nodes.
-      const marker = L.circleMarker([pt.lat, pt.lng], {
-        renderer: pointRenderer,
-        radius: 7,
-        color: isCustom ? '#facc15' : '#ffffff',
-        weight: 1.5,
-        fillColor: meta.color,
-        fillOpacity: 0.98,
+      // Marcador HTML por tipo de PDV: visible sobre el mapa y diferenciable por canal.
+      const markerIcon = L.divIcon({
+        className: 'cavi-pdv-marker-wrapper',
+        html: '<div style="width:26px;height:26px;border-radius:50%;background:' + meta.color + ';border:3px solid #fff;box-shadow:0 2px 7px rgba(15,23,42,.38);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:10px;line-height:1;" title="' + typeLabel + '">' + escapeHtml(meta.label) + '</div>',
+        iconSize: [26, 26],
+        iconAnchor: [13, 13],
+        popupAnchor: [0, -14],
+      });
+      const marker = L.marker([pt.lat, pt.lng], {
+        icon: markerIcon,
+        zIndexOffset: isCustom ? 900 : 100,
         bubblingMouseEvents: false,
       });
 
@@ -390,9 +393,6 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
         setSelectedPoint(pt);
         if (onPointSelect) onPointSelect(pt);
       });
-
-      marker.on('mouseover', () => marker.setStyle({ radius: 10, weight: 2.5 }));
-      marker.on('mouseout', () => marker.setStyle({ radius: 8, weight: 1.5 }));
 
       markersLayer.addLayer(marker);
     });
