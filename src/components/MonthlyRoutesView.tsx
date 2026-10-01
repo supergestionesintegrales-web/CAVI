@@ -15,12 +15,13 @@ const MONTH_NAMES = [
   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
 ];
 
-const DAY_NAMES_MAP: Record<number, { key: 'lunes' | 'martes' | 'miércoles' | 'jueves' | 'viernes'; label: string }> = {
+const DAY_NAMES_MAP: Record<number, { key: 'lunes' | 'martes' | 'miércoles' | 'jueves' | 'viernes' | 'sábado'; label: string; isHalfDay?: boolean }> = {
   1: { key: 'lunes', label: 'Lunes' },
   2: { key: 'martes', label: 'Martes' },
   3: { key: 'miércoles', label: 'Miércoles' },
   4: { key: 'jueves', label: 'Jueves' },
   5: { key: 'viernes', label: 'Viernes' },
+  6: { key: 'sábado', label: 'Sábado (Medio Día)', isHalfDay: true },
 };
 
 const LA_GUAJIRA_MUNICIPALITIES = [
@@ -125,9 +126,13 @@ export const MonthlyRoutesView: React.FC<MonthlyRoutesViewProps> = ({
       miércoles: [],
       jueves: [],
       viernes: [],
+      sábado: [],
     };
     filteredSteps.forEach((s) => {
-      if (s.day && acc[s.day]) {
+      const d = (s.day || '').toLowerCase();
+      if (d.includes('sab') || d.includes('sáb')) {
+        acc.sábado.push(s);
+      } else if (s.day && acc[s.day]) {
         acc[s.day].push(s);
       } else {
         // Default distribution if day is not explicitly tagged
@@ -369,7 +374,8 @@ export const MonthlyRoutesView: React.FC<MonthlyRoutesViewProps> = ({
             const dayNum = idx + 1;
             const dateObj = new Date(currentYear, currentMonth, dayNum);
             const dayOfWeek = dateObj.getDay();
-            const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+            const isSunday = dayOfWeek === 0;
+            const isSaturday = dayOfWeek === 6;
             const dayInfo = DAY_NAMES_MAP[dayOfWeek];
             const isToday =
               today.getDate() === dayNum &&
@@ -380,7 +386,7 @@ export const MonthlyRoutesView: React.FC<MonthlyRoutesViewProps> = ({
             const dayStops = dayInfo ? stepsByDayKey[dayInfo.key] || [] : [];
             const dayGpsCount = dayStops.filter((s) => s.hasGps).length;
 
-            if (isWeekend) {
+            if (isSunday) {
               return (
                 <div
                   key={dayNum}
@@ -398,7 +404,7 @@ export const MonthlyRoutesView: React.FC<MonthlyRoutesViewProps> = ({
                     </span>
                   </div>
                   <div className="text-[11px] text-slate-300 dark:text-[#cbd5e1] font-medium leading-tight mt-auto">
-                    Guardia pasiva / Cierre administrativo
+                    Descanso dominical
                   </div>
                 </div>
               );
@@ -413,6 +419,8 @@ export const MonthlyRoutesView: React.FC<MonthlyRoutesViewProps> = ({
                     ? 'bg-[#131b2e] border-[#0088ff] ring-2 ring-[#0088ff]/60 shadow-md'
                     : isToday
                     ? 'bg-[#171f33] border-[#0088ff] text-white shadow-sm ring-1 ring-[#0088ff]/40'
+                    : isSaturday
+                    ? 'bg-[#131b2e] border-amber-500/40 hover:border-amber-400/70 hover:bg-[#181d33]'
                     : 'bg-[#131b2e] border-[#222a3d] hover:border-[#0088ff]/50 hover:bg-[#1a233b]'
                 }`}
               >
@@ -429,6 +437,11 @@ export const MonthlyRoutesView: React.FC<MonthlyRoutesViewProps> = ({
                     {isToday && (
                       <span className="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-[#0088ff] text-white shadow-xs">
                         HOY
+                      </span>
+                    )}
+                    {isSaturday && (
+                      <span className="text-[9px] font-bold px-1 py-0.2 rounded bg-amber-500/25 text-amber-300 border border-amber-400/40">
+                        ½ Día
                       </span>
                     )}
                   </div>

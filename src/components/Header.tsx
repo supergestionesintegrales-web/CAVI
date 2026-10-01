@@ -52,7 +52,7 @@ export const Header: React.FC<HeaderProps> = ({
     { id: 'asignacion-rutas', label: isAuxiliar ? 'Mis Rutas y Agenda' : 'Rutas y Cronograma', icon: 'alt_route' },
     { id: 'arrendamientos', label: 'Arrendamientos & Horarios', icon: 'storefront' },
     { id: 'alertas', label: 'Centro de Alertas', icon: 'notifications_active' },
-    { id: 'archivos-macros', label: 'Configuración', icon: 'settings' },
+    { id: 'archivos-macros', label: 'Configuración', icon: 'settings', adminOnly: true },
   ];
 
   const navItems = allNavItems.filter((item) => !item.adminOnly || !isAuxiliar);
@@ -186,7 +186,7 @@ export const Header: React.FC<HeaderProps> = ({
                     type="button"
                     onClick={() => {
                       onSelectRole?.('auxiliar');
-                      if (activeTab === 'dashboard-cavi') {
+                      if (activeTab === 'dashboard-cavi' || activeTab === 'archivos-macros') {
                         onSelectTab('asignacion-rutas');
                       }
                       setIsRoleDropdownOpen(false);
@@ -210,7 +210,7 @@ export const Header: React.FC<HeaderProps> = ({
                         )}
                       </div>
                       <p className="text-[10px] text-[#bbcabf] mt-0.5">
-                        Auditores (3 activos) · Solo Rutas, Agenda y Configuración Básica (Color, Red, Sensor)
+                        Auditores (3 activos) · Solo Rutas, Agenda y Auditoría en Campo (Sin módulo de Configuración)
                       </p>
                     </div>
                   </button>
@@ -247,7 +247,7 @@ export const Header: React.FC<HeaderProps> = ({
                               <span className="truncate">{aud.name}</span>
                             </div>
                             <span className="text-[10px] opacity-80 shrink-0 font-mono">
-                              Asignado
+                              {aud.zone}
                             </span>
                           </button>
                         );
@@ -259,21 +259,23 @@ export const Header: React.FC<HeaderProps> = ({
             )}
           </div>
 
-          {/* Mobile Config Gear */}
-          <button
-            onClick={() => onSelectTab('archivos-macros')}
-            aria-label="Configuración"
-            title="Configuración"
-            className={`md:hidden w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl transition-all border cursor-pointer ${
-              activeTab === 'archivos-macros'
-                ? 'bg-[#0088ff] text-white border-[#0088ff] shadow-md shadow-[#0088ff]/30'
-                : 'bg-[#131b2e] text-[#dae2fd] hover:bg-[#171f33] border-[#222a3d]'
-            }`}
-          >
-            <span className="material-symbols-outlined text-[19px]">
-              settings
-            </span>
-          </button>
+          {/* Mobile Config Gear (Solo Administradores) */}
+          {!isAuxiliar && (
+            <button
+              onClick={() => onSelectTab('archivos-macros')}
+              aria-label="Configuración"
+              title="Configuración"
+              className={`md:hidden w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl transition-all border cursor-pointer ${
+                activeTab === 'archivos-macros'
+                  ? 'bg-[#0088ff] text-white border-[#0088ff] shadow-md shadow-[#0088ff]/30'
+                  : 'bg-[#131b2e] text-[#dae2fd] hover:bg-[#171f33] border-[#222a3d]'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[19px]">
+                settings
+              </span>
+            </button>
+          )}
 
           {/* Quick Theme Toggle Button (Sol/Luna) */}
           {onToggleTheme && (
@@ -289,21 +291,6 @@ export const Header: React.FC<HeaderProps> = ({
               </span>
             </button>
           )}
-
-          {/* Notification Button */}
-          <button
-            onClick={onOpenNotifications}
-            aria-label="Notificaciones"
-            title="Notificaciones"
-            className="relative w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl bg-[#131b2e] text-[#dae2fd] hover:bg-[#171f33] active:scale-95 transition-all border border-[#222a3d] cursor-pointer"
-          >
-            <span className="material-symbols-outlined text-[19px]">notifications</span>
-            {notificationCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 w-4 h-4 flex items-center justify-center rounded-full bg-[#ffb4ab] text-[#690005] text-[9px] font-bold ring-2 ring-[#0b1326]">
-                {notificationCount}
-              </span>
-            )}
-          </button>
 
           {/* Profile Icon Trigger (Avatar reflects active profile) */}
           <button

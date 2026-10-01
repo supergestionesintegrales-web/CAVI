@@ -49,7 +49,7 @@ export function getStepEffectiveDate(step: RouteStep, referenceDate: Date = new 
     return step.auditDate.slice(0, 10);
   }
 
-  // Map day of week (lunes a viernes) to the current week's dates
+  // Map day of week (lunes a sábado) to the current week's dates
   if (step.day) {
     const dayMap: Record<string, number> = {
       lunes: 1,
@@ -58,6 +58,8 @@ export function getStepEffectiveDate(step: RouteStep, referenceDate: Date = new 
       miercoles: 3,
       jueves: 4,
       viernes: 5,
+      sábado: 6,
+      sabado: 6,
     };
     const targetDay = dayMap[step.day.toLowerCase()];
     if (targetDay !== undefined) {
@@ -98,13 +100,13 @@ export function getDatePresets(referenceDate: Date = new Date()) {
   const now = new Date(referenceDate);
   const todayStr = formatDateToISO(now);
 
-  // This Week (Monday to Friday)
+  // This Week (Monday to Saturday half-day)
   const currentDay = now.getDay();
   const mondayOffset = currentDay === 0 ? -6 : 1 - currentDay;
   const monday = new Date(now);
   monday.setDate(now.getDate() + mondayOffset);
-  const friday = new Date(monday);
-  friday.setDate(monday.getDate() + 4);
+  const saturday = new Date(monday);
+  saturday.setDate(monday.getDate() + 5);
 
   // Next 7 days
   const next7 = new Date(now);
@@ -122,8 +124,8 @@ export function getDatePresets(referenceDate: Date = new Date()) {
     },
     thisWeek: {
       start: formatDateToISO(monday),
-      end: formatDateToISO(friday),
-      label: 'Esta Semana (Lun - Vie)',
+      end: formatDateToISO(saturday),
+      label: 'Esta Semana (Lun - Sáb medio día)',
     },
     next7Days: {
       start: todayStr,

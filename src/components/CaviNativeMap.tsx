@@ -1208,25 +1208,25 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
           );
         })()}
 
-        {/* FLOATING POINT TYPES MAP LEGEND */}
+        {/* FLOATING POINT TYPES MAP LEGEND (CONVENCIONES PDV - ALTO CONSTRASTE Y TEMA CONSISTENTE) */}
         {showLegend && (
-          <div className="cavi-map-legend absolute top-3 right-3 z-[1000] bg-white/98 backdrop-blur-md p-2 rounded-xl border border-slate-200 shadow-xl text-xs w-[min(94vw,430px)] select-none animate-in fade-in">
-            <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-slate-200">
-              <span className="text-[11px] font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-1">
-                <span className="material-symbols-outlined text-[15px] text-[#38bdf8]">category</span>
+          <div className="cavi-map-legend absolute top-3 right-3 z-[1000] bg-[#0f172a]/95 backdrop-blur-md p-3 rounded-2xl border border-[#334155] shadow-2xl text-xs w-[min(94vw,420px)] select-none animate-in fade-in">
+            <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-[#334155]">
+              <span className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-[17px] text-[#38bdf8]">category</span>
                 <span>Convenciones PDV</span>
               </span>
               <button
                 type="button"
                 onClick={() => setShowLegend(false)}
-                className="text-slate-500 hover:text-slate-900 p-0.5 cursor-pointer"
-                title="Minimizar leyenda"
+                className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-[#1e293b] transition-colors cursor-pointer"
+                title="Minimizar convenciones"
               >
-                <span className="material-symbols-outlined text-[15px]">minimize</span>
+                <span className="material-symbols-outlined text-[16px]">close</span>
               </button>
             </div>
 
-            <div className="grid grid-cols-4 gap-1.5">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {Object.values(POINT_TYPE_CONFIG).map((cfg) => {
                 const count = typeCounts[cfg.type] || 0;
                 const isActive = filterChannel === cfg.type;
@@ -1236,25 +1236,31 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
                     key={cfg.type}
                     type="button"
                     onClick={() => setFilterChannel(filterChannel === cfg.type ? 'todos' : cfg.type)}
-                    className={`w-full min-w-0 flex flex-col items-center justify-center gap-1 p-1.5 rounded-lg transition-all text-center cursor-pointer border ${
-                      isActive ? 'bg-blue-50 ring-1 ring-blue-300 shadow-xs border-blue-200' : 'bg-white hover:bg-slate-50 border-slate-100'
+                    className={`w-full min-w-0 flex flex-col items-center justify-center gap-1.5 p-2 rounded-xl transition-all text-center cursor-pointer border ${
+                      isActive
+                        ? 'bg-[#0088ff]/25 ring-2 ring-[#0088ff] border-[#0088ff] shadow-md'
+                        : 'bg-[#1e293b] hover:bg-[#2d3a58] border-[#334155]'
                     }`}
                     title={`Filtrar por ${cfg.fullLabel}`}
                   >
-                    <div className="flex items-center gap-1.5 min-w-0 flex-col">
+                    <div className="flex items-center gap-1 min-w-0 flex-col">
                       <span
-                        className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 shadow-sm"
+                        className="w-8 h-8 rounded-xl flex items-center justify-center text-white shrink-0 shadow-md"
                         style={{ backgroundColor: cfg.color }}
                       >
-                        <span className="material-symbols-outlined text-[15px] leading-none">{cfg.icon}</span>
+                        <span className="material-symbols-outlined text-[17px] leading-none">{cfg.icon}</span>
                       </span>
-                      <span className="text-[10px] font-extrabold text-slate-700 truncate max-w-full">
+                      <span className="text-[11px] font-black text-white truncate max-w-full mt-0.5">
                         {cfg.label}
                       </span>
                     </div>
                     <span
-                      className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-full shrink-0"
-                      style={{ backgroundColor: `${cfg.color}20`, color: cfg.borderColor }}
+                      className="text-[10px] font-mono font-extrabold px-2 py-0.5 rounded-full shrink-0 border"
+                      style={{
+                        backgroundColor: `${cfg.color}25`,
+                        color: cfg.color === '#22D3EE' ? '#38bdf8' : cfg.color === '#C084FC' ? '#e9d5ff' : '#ffffff',
+                        borderColor: `${cfg.color}50`
+                      }}
                     >
                       {count}
                     </span>
@@ -1267,9 +1273,9 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
               <button
                 type="button"
                 onClick={() => setFilterChannel('todos')}
-                className="col-span-4 w-full mt-1.5 pt-1 border-t border-slate-200 text-center text-[9px] font-bold text-blue-600 hover:underline cursor-pointer block"
+                className="w-full mt-2 pt-1.5 border-t border-[#334155] text-center text-[10px] font-bold text-[#38bdf8] hover:text-white cursor-pointer block"
               >
-                Restablecer todos los canales
+                ✕ Mostrar todos los PDV ({allAvailablePoints.length})
               </button>
             )}
           </div>

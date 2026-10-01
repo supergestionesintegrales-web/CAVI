@@ -148,7 +148,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                 type="button"
                 onClick={() => {
                   onSelectRole?.('auxiliar');
-                  onShowToast('Rol Auxiliar Activado', 'Acceso operativo a Rutas, Agenda, Color, Red Comercial y Sensor.', 'info');
+                  onShowToast('Rol Auxiliar Activado', 'Acceso operativo exclusivo a Mis Rutas, Agenda y Auditoría en Terreno.', 'info');
                 }}
                 className={`p-2.5 rounded-xl text-left border transition-all cursor-pointer flex flex-col justify-between ${
                   isAuxiliar
@@ -170,7 +170,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                   )}
                 </div>
                 <p className="text-[10px] mt-1 text-[#bbcabf] leading-tight">
-                  Operativo: Rutas y Agenda. En Config: Color, Red Comercial y Sensor. Sin CAVI ni asignación.
+                  Operativo: Mis Rutas, Agenda de Campo y Registro de Visitas. No tiene acceso a Configuración ni Parámetros.
                 </p>
               </button>
             </div>

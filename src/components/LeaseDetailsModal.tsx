@@ -414,10 +414,7 @@ export const LeaseDetailsModal: React.FC<LeaseDetailsModalProps> = ({
               Novedad de Cierre / Horario
             </button>
           ) : (
-            <span className="text-[11px] text-slate-500 font-medium flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[16px] text-blue-700">visibility</span>
-              Modo Solo Vista (Edición solo Admin)
-            </span>
+            <div />
           )}
 
           <div className="flex items-center gap-2">
@@ -434,7 +431,7 @@ export const LeaseDetailsModal: React.FC<LeaseDetailsModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs font-bold text-slate-900 bg-[#0088ff] hover:bg-[#0070d8] shadow-md shadow-[#0088ff]/30 transition-all cursor-pointer"
+              className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#0088ff] hover:bg-[#0070d8] shadow-md shadow-[#0088ff]/30 transition-all cursor-pointer"
             >
               Cerrar Ficha
             </button>

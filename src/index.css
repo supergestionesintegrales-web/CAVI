@@ -138,6 +138,29 @@
 }
 
 /* ==========================================================================
+   LEAFLET MAP STACKING CONTEXT & HEADER ISOLATION
+   Prevents map controls, markers, tooltips and zoom buttons from ever
+   passing over the top navigation bar when scrolling the page.
+   ========================================================================== */
+.leaflet-container:not(.fixed) {
+  z-index: 10 !important;
+  isolation: isolate !important;
+}
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 15 !important;
+}
+.leaflet-pane {
+  z-index: 12 !important;
+}
+.leaflet-popup {
+  z-index: 18 !important;
+}
+.leaflet-control {
+  z-index: 16 !important;
+}
+
+/* ==========================================================================
    LIGHT THEME (TEMA CLARO / BLANCO) SYSTEM - HIGH CONTRAST & ACCESSIBLE
    Cohesive integration of surfaces, typography, accents, and components.
    ========================================================================== */
@@ -246,35 +269,37 @@ body.light {
    TYPOGRAPHY HIERARCHY IN LIGHT MODE
    ========================================================================== */
 
-/* Primary Headings & Bold Text on Light Cards */
-[data-theme="light"] h1,
-[data-theme="light"] h2,
-[data-theme="light"] h3,
-[data-theme="light"] h4,
-[data-theme="light"] h5,
-[data-theme="light"] h6,
-[data-theme="light"] strong,
-[data-theme="light"] b,
-[data-theme="light"] label,
-.theme-light h1,
-.theme-light h2,
-.theme-light h3,
-.theme-light h4,
-.theme-light h5,
-.theme-light h6,
-.theme-light strong,
-.theme-light b,
-.theme-light label,
-.light h1,
-.light h2,
-.light h3,
-.light h4,
-.light h5,
-.light h6,
-.light strong,
-.light b,
-.light label {
+/* Primary Headings & Bold Text on Light Cards (Excludes modals, dark headers and protected classes) */
+[data-theme="light"] :not(.fixed):not([class*="bg-[#0e172a]"]):not([class*="bg-[#131b2e]"]):not([class*="bg-[#0b1326]"]):not([class*="bg-[#060e20]"]):not(.cavi-map-legend) > h1:not([class*="!text-white"]):not([class*="text-white"]),
+[data-theme="light"] :not(.fixed):not([class*="bg-[#0e172a]"]):not([class*="bg-[#131b2e]"]):not([class*="bg-[#0b1326]"]):not([class*="bg-[#060e20]"]):not(.cavi-map-legend) > h2:not([class*="!text-white"]):not([class*="text-white"]),
+[data-theme="light"] :not(.fixed):not([class*="bg-[#0e172a]"]):not([class*="bg-[#131b2e]"]):not([class*="bg-[#0b1326]"]):not([class*="bg-[#060e20]"]):not(.cavi-map-legend) > h3:not([class*="!text-white"]):not([class*="text-white"]),
+[data-theme="light"] :not(.fixed):not([class*="bg-[#0e172a]"]):not([class*="bg-[#131b2e]"]):not([class*="bg-[#0b1326]"]):not([class*="bg-[#060e20]"]):not(.cavi-map-legend) > h4:not([class*="!text-white"]):not([class*="text-white"]),
+[data-theme="light"] :not(.fixed):not([class*="bg-[#0e172a]"]):not([class*="bg-[#131b2e]"]):not([class*="bg-[#0b1326]"]):not([class*="bg-[#060e20]"]):not(.cavi-map-legend) > h5:not([class*="!text-white"]):not([class*="text-white"]),
+[data-theme="light"] :not(.fixed):not([class*="bg-[#0e172a]"]):not([class*="bg-[#131b2e]"]):not([class*="bg-[#0b1326]"]):not([class*="bg-[#060e20]"]):not(.cavi-map-legend) > h6:not([class*="!text-white"]):not([class*="text-white"]),
+.theme-light :not(.fixed):not([class*="bg-[#0e172a]"]):not([class*="bg-[#131b2e]"]):not([class*="bg-[#0b1326]"]):not([class*="bg-[#060e20]"]):not(.cavi-map-legend) > h1:not([class*="!text-white"]):not([class*="text-white"]),
+.theme-light :not(.fixed):not([class*="bg-[#0e172a]"]):not([class*="bg-[#131b2e]"]):not([class*="bg-[#0b1326]"]):not([class*="bg-[#060e20]"]):not(.cavi-map-legend) > h2:not([class*="!text-white"]):not([class*="text-white"]),
+.theme-light :not(.fixed):not([class*="bg-[#0e172a]"]):not([class*="bg-[#131b2e]"]):not([class*="bg-[#0b1326]"]):not([class*="bg-[#060e20]"]):not(.cavi-map-legend) > h3:not([class*="!text-white"]):not([class*="text-white"]),
+.theme-light :not(.fixed):not([class*="bg-[#0e172a]"]):not([class*="bg-[#131b2e]"]):not([class*="bg-[#0b1326]"]):not([class*="bg-[#060e20]"]):not(.cavi-map-legend) > h4:not([class*="!text-white"]):not([class*="text-white"]),
+.theme-light :not(.fixed):not([class*="bg-[#0e172a]"]):not([class*="bg-[#131b2e]"]):not([class*="bg-[#0b1326]"]):not([class*="bg-[#060e20]"]):not(.cavi-map-legend) > h5:not([class*="!text-white"]):not([class*="text-white"]),
+.theme-light :not(.fixed):not([class*="bg-[#0e172a]"]):not([class*="bg-[#131b2e]"]):not([class*="bg-[#0b1326]"]):not([class*="bg-[#060e20]"]):not(.cavi-map-legend) > h6:not([class*="!text-white"]):not([class*="text-white"]),
+.light :not(.fixed):not([class*="bg-[#0e172a]"]):not([class*="bg-[#131b2e]"]):not([class*="bg-[#0b1326]"]):not([class*="bg-[#060e20]"]):not(.cavi-map-legend) > h1:not([class*="!text-white"]):not([class*="text-white"]),
+.light :not(.fixed):not([class*="bg-[#0e172a]"]):not([class*="bg-[#131b2e]"]):not([class*="bg-[#0b1326]"]):not([class*="bg-[#060e20]"]):not(.cavi-map-legend) > h2:not([class*="!text-white"]):not([class*="text-white"]),
+.light :not(.fixed):not([class*="bg-[#0e172a]"]):not([class*="bg-[#131b2e]"]):not([class*="bg-[#0b1326]"]):not([class*="bg-[#060e20]"]):not(.cavi-map-legend) > h3:not([class*="!text-white"]):not([class*="text-white"]),
+.light :not(.fixed):not([class*="bg-[#0e172a]"]):not([class*="bg-[#131b2e]"]):not([class*="bg-[#0b1326]"]):not([class*="bg-[#060e20]"]):not(.cavi-map-legend) > h4:not([class*="!text-white"]):not([class*="text-white"]),
+.light :not(.fixed):not([class*="bg-[#0e172a]"]):not([class*="bg-[#131b2e]"]):not([class*="bg-[#0b1326]"]):not([class*="bg-[#060e20]"]):not(.cavi-map-legend) > h5:not([class*="!text-white"]):not([class*="text-white"]),
+.light :not(.fixed):not([class*="bg-[#0e172a]"]):not([class*="bg-[#131b2e]"]):not([class*="bg-[#0b1326]"]):not([class*="bg-[#060e20]"]):not(.cavi-map-legend) > h6:not([class*="!text-white"]):not([class*="text-white"]) {
   color: #0f172a !important;
+}
+
+/* Modals and Dark Shells must strictly preserve white headings */
+.fixed h1, .fixed h2, .fixed h3, .fixed h4,
+[role="dialog"] h1, [role="dialog"] h2, [role="dialog"] h3,
+[class*="!text-white"], [class*="!text-white"] * {
+  color: #ffffff !important;
+}
+
+[class*="!text-[#cbd5e1]"], [class*="!text-[#cbd5e1]"] * {
+  color: #cbd5e1 !important;
 }
 
 /* Primary text classes on light surfaces */
@@ -294,12 +319,21 @@ body.light {
 }
 
 /* On standard light surfaces, convert text-white to slate-900 */
-[data-theme="light"] .bg-\[\#131b2e\] > div > p.text-white,
-[data-theme="light"] .bg-\[\#131b2e\] > div > h1.text-white,
-[data-theme="light"] .bg-\[\#131b2e\] > div > h2.text-white,
-[data-theme="light"] .bg-\[\#131b2e\] > div > h3.text-white,
+[data-theme="light"] .bg-\[\#131b2e\] h1.text-white,
+[data-theme="light"] .bg-\[\#131b2e\] h2.text-white,
+[data-theme="light"] .bg-\[\#131b2e\] h3.text-white,
+[data-theme="light"] .bg-\[\#131b2e\] h4.text-white,
+[data-theme="light"] .bg-\[\#131b2e\] p.text-white,
+[data-theme="light"] .bg-\[\#131b2e\] strong.text-white,
+[data-theme="light"] .bg-\[\#131b2e\] span.text-white:not([class*="bg-"]):not([class*="rounded-full"]),
+[data-theme="light"] .bg-\[\#171f33\] h1.text-white,
+[data-theme="light"] .bg-\[\#171f33\] h2.text-white,
+[data-theme="light"] .bg-\[\#171f33\] h3.text-white,
 [data-theme="light"] .bg-\[\#171f33\] p.text-white,
+[data-theme="light"] .bg-\[\#171f33\] strong.text-white,
 [data-theme="light"] .bg-white p.text-white,
+[data-theme="light"] .bg-white h3.text-white,
+[data-theme="light"] .bg-white strong.text-white,
 [data-theme="light"] span.text-white:not([class*="bg-"]):not([class*="rounded-full"]):not([class*="rounded-md"]):not([class*="rounded-lg"]),
 [data-theme="light"] div:not([class*="bg-[#0088ff]"]):not([class*="bg-[#dc2626]"]):not([class*="bg-[#0284c7]"]):not([class*="bg-[#7c3aed]"]):not([class*="bg-[#059669]"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-[#0f172a]"]):not([class*="map-overlay-banner"]) > p.text-white,
 .theme-light div:not([class*="bg-[#0088ff]"]):not([class*="bg-[#dc2626]"]):not([class*="bg-[#0284c7]"]):not([class*="bg-[#7c3aed]"]):not([class*="bg-[#059669]"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-[#0f172a]"]):not([class*="map-overlay-banner"]) > p.text-white,
@@ -1377,40 +1411,21 @@ html:not([data-theme="light"]):not(.theme-light):not(.light) .day-matrix-badge {
   color-scheme: dark;
 }
 
-/* CAVIMAPS legend must keep its own high-contrast palette.
-   Generic light-theme text rules must never turn its labels black. */
+/* CAVIMAPS legend keeps high-contrast dark-glass styling */
+.cavi-map-legend,
 [data-theme="light"] .cavi-map-legend,
 .theme-light .cavi-map-legend,
 .light .cavi-map-legend {
-  background: rgba(15, 23, 42, 0.97) !important;
-  border-color: #475569 !important;
+  background: rgba(15, 23, 42, 0.96) !important;
+  border-color: #334155 !important;
   color: #f8fafc !important;
 }
 
-[data-theme="light"] .cavi-map-legend [class~="text-white"],
-.theme-light .cavi-map-legend [class~="text-white"],
-.light .cavi-map-legend [class~="text-white"] {
-  color: #f8fafc !important;
-}
-
-[data-theme="light"] .cavi-map-legend [class~="text-[#94a3b8]"],
-.theme-light .cavi-map-legend [class~="text-[#94a3b8]"],
-.light .cavi-map-legend [class~="text-[#94a3b8]"] {
-  color: #cbd5e1 !important;
-}
-
-[data-theme="light"] .cavi-map-legend [class*="bg-[#1e293b]"],
-.theme-light .cavi-map-legend [class*="bg-[#1e293b]"],
-.light .cavi-map-legend [class*="bg-[#1e293b]"] {
-  background-color: #1e293b !important;
-}
-
-[data-theme="light"] .cavi-map-legend-toggle,
-.theme-light .cavi-map-legend-toggle,
-.light .cavi-map-legend-toggle {
-  background: rgba(15, 23, 42, 0.97) !important;
-  border-color: #475569 !important;
-  color: #e2e8f0 !important;
+.cavi-map-legend span.text-white,
+[data-theme="light"] .cavi-map-legend span.text-white,
+.cavi-map-legend button,
+[data-theme="light"] .cavi-map-legend button {
+  color: #ffffff !important;
 }
 
 

@@ -17,7 +17,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
     { id: 'asignacion-rutas', label: userRole === 'auxiliar' ? 'Mis Rutas' : 'Rutas & Agenda', icon: 'alt_route' },
     { id: 'arrendamientos', label: 'Arriendos', icon: 'storefront' },
     { id: 'alertas', label: 'Alertas', icon: 'notifications_active' },
-    { id: 'archivos-macros', label: 'Config', icon: 'settings' },
+    { id: 'archivos-macros', label: 'Config', icon: 'settings', adminOnly: true },
   ];
 
   const navItems = allNavItems.filter((item) => !item.adminOnly || userRole === 'administrador');

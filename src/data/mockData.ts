@@ -1,14 +1,47 @@
 import { Auditor, RouteStep, FloatingPoint, CriticalPoint, DaySchedule } from '../types';
 
-export const LOGO_URL = '/Caviperfil.jpg';
+// Crisp, high-definition Vector SVG Logo for CAVI
+export const CAVI_VECTOR_LOGO = `data:image/svg+xml;utf8,${encodeURIComponent(`
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="caviLogoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0088ff"/>
+      <stop offset="50%" stop-color="#0066cc"/>
+      <stop offset="100%" stop-color="#003d82"/>
+    </linearGradient>
+    <linearGradient id="caviRadarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0088ff"/>
+    </linearGradient>
+  </defs>
+  <!-- Background Shield / Hexagon Circle -->
+  <circle cx="50" cy="50" r="48" fill="url(#caviLogoGrad)" stroke="#38bdf8" stroke-width="2.5"/>
+  <circle cx="50" cy="50" r="43" fill="none" stroke="#ffffff" stroke-width="1" stroke-dasharray="3,3" opacity="0.4"/>
+  <!-- Target Rings -->
+  <circle cx="50" cy="50" r="30" fill="none" stroke="#38bdf8" stroke-width="1.5" opacity="0.6"/>
+  <circle cx="50" cy="50" r="16" fill="none" stroke="#ffffff" stroke-width="1" opacity="0.5"/>
+  <!-- Vector Compass / Diamond Core -->
+  <path d="M50 16 L58 45 L87 50 L58 55 L50 84 L42 55 L13 50 L42 45 Z" fill="#ffffff" opacity="0.95"/>
+  <path d="M50 24 L56 46 L78 50 L56 54 L50 76 L44 54 L22 50 L44 46 Z" fill="url(#caviRadarGrad)"/>
+  <!-- Center Core -->
+  <circle cx="50" cy="50" r="6" fill="#ffffff" stroke="#003d82" stroke-width="2"/>
+  <circle cx="50" cy="50" r="2.5" fill="#0088ff"/>
+</svg>
+`)}`;
 
-export const USER_AVATAR = 'https://lh3.googleusercontent.com/aida-public/AB6AXuCY4JQs4rxbRafcfGhS3lfAG64ef9Qd367zYkwTXG6MxfoiePWNBX1eFW0obP9uaGagumqxWGoPsgH9h8_gs8oEKE4fyGmFsyAmPvZ4cm0NXZ_GkC6gAYvYihEJkv8aT8Ov6WgVwJa7yWCafvH5z-2-hZ-1xLXLq2iw-CVQZcwQpMe8rNYo05nndmNlTCn20G0_WXVgqzWN9Hd6qPBakKXdc9p8x0k27o-Jwo39jUBVo0S51VBUBYkR';
+export const LOGO_URL = CAVI_VECTOR_LOGO;
 
-export const SAMUEL_AVATAR = 'https://lh3.googleusercontent.com/aida-public/AB6AXuCyvW6_RFCcFCVSL7hGvqnR81k2Q2Gc9TpTlySrCtBPNT_5Xrl0eE33mOb79Id9psAJwiBZ1lHqtisHXEom8Ot2GWl8iMHiSdl-p91yvnI78kghhMjlCFExbdPkO5mWHuAjskGKV_gI3jw37MpIP1bAmLWglN5Z-TFQpQlHKew0X9jqO3EvJp6fQD_6UvWAw3znSV2VEOQY6q5yHfzKw8PJRdv5zkk7vLoIRdEi180CbkvOaWUyF3FY';
+import {
+  CARTOON_SAMUEL_AVATAR,
+  CARTOON_KLEYDER_AVATAR,
+  CARTOON_JOSE_AVATAR,
+  CARTOON_ADMIN_AVATAR,
+} from './cartoonAvatars';
 
-export const KLEYDER_AVATAR = 'https://lh3.googleusercontent.com/aida-public/AB6AXuC5Ik1NlZAoTX_ao_AB6MZPFrqHgxRwOyIG4cNbtP1MdPXonSAKk2vEvoibY1jK5AKWKuO1iptSJ8-BjJYtYYIhy_z_EWgqQDqURraMYlxgpwTGI7X2lDmuzAFL0c_i6LhHImTv_cSj5J8Rn4kw14xQIV3dj8FA-702DiUzr1tqlJ74H0k9V6SKlrDFGDoTKe0E7GRsGOZgdXTGfEWstl6V83pDoPLA8PiuohEND5LjkiGehYaCDL3U';
-
-export const JOSE_AVATAR = 'https://lh3.googleusercontent.com/aida-public/AB6AXuB7k4fZFf4_ALnUCkykp5d8_EWDcITBbKmOj8XZwNtCtRd1R-h4ZhldiedVXIan_eVpbLifqpL1bG9ztSNNj6mYRK9b9dwQ_Nb9jgzP8obhPVMotcKH71c41c8r61Gj5Vb_2oMjouCrw-mgYyy1XVfWK2kneaAP4HnODkrwLRAPYVwgZbr1uB9_xHyMTBPBZ6L-0MXRMyZTaXstV6Ci8T4MGF-7U1-Sr5QWljtU-mhSuKDN6Lci8wbg';
+export const USER_AVATAR = CARTOON_ADMIN_AVATAR;
+export const SAMUEL_AVATAR = CARTOON_SAMUEL_AVATAR;
+export const KLEYDER_AVATAR = CARTOON_KLEYDER_AVATAR;
+export const JOSE_AVATAR = CARTOON_JOSE_AVATAR;
 
 export const MAP_IMAGE = 'https://lh3.googleusercontent.com/aida-public/AB6AXuBAkVGNnXz9T48sbePuXgGF7lzKxSTPnX72kibPBvzCcCgUc37iM4GL6UfvKIC6TL4lQ2d49FWaMy7pjUP0ATWKcOkDkwY4BHPrJhwP82E1tJBeAADGXw3v2CDPquj_GJAMfABCCroid1EiqWCzQTytunT12QOfFLEOSOlW1uMtOHT_NNwPavAey0LM4dWY06FoCfstS7Lb0PNMVVbc6fFpBhm45D-10bwHy0_OYbYLCHi3_UdI3yYa';
 

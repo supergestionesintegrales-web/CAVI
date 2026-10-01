@@ -16,6 +16,9 @@ import {
   INITIAL_SAMUEL_STEPS,
   INITIAL_FLOATING_POINTS,
   INITIAL_ALERT_POINTS,
+  SAMUEL_AVATAR,
+  KLEYDER_AVATAR,
+  JOSE_AVATAR,
 } from './data/mockData';
 import { INITIAL_MACRO_FILES } from './data/macroFoldersData';
 import { INITIAL_LEASE_POINTS, evaluatePointOpenStatus } from './data/leasePointsData';
@@ -24,6 +27,7 @@ import {
   MASTER_SAMPLE_CANDIDATE_POINTS,
   PointCandidate,
 } from './utils/pointAssignment';
+import { resolvePdvZone, getAssignedAuditorForZone } from './data/zoneAssignments';
 import { Header } from './components/Header';
 import { BottomNav } from './components/BottomNav';
 import { Toast, ToastData } from './components/Toast';
@@ -43,30 +47,8 @@ import { parseLeasePointsFromMacroFiles, parseLeaseSalesFromMacroFiles, generate
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabType>('dashboard-cavi');
   const [userRole, setUserRole] = useState<UserRole>('administrador');
-  const [activeAuditorId, setActiveAuditorId] = useState<string>(() => {
-    try {
-      return localStorage.getItem('cavi_active_auditor_id') || 'aud-1';
-    } catch {
-      return 'aud-1';
-    }
-  });
-  const [auditors, setAuditors] = useState<Auditor[]>(() => {
-    try {
-      const saved = localStorage.getItem('cavi_auditors');
-      return saved ? JSON.parse(saved) : AUDITORS_DATA;
-    } catch {
-      return AUDITORS_DATA;
-    }
-  });
-
-  // Persistir auditor activo y configuración de auditores para que las asignaciones se reflejen en todas las vistas.
-  useEffect(() => {
-    try { localStorage.setItem('cavi_active_auditor_id', activeAuditorId); } catch {}
-  }, [activeAuditorId]);
-
-  useEffect(() => {
-    try { localStorage.setItem('cavi_auditors', JSON.stringify(auditors)); } catch {}
-  }, [auditors]);
+  const [activeAuditorId, setActiveAuditorId] = useState<string>('aud-1');
+  const [auditors, setAuditors] = useState<Auditor[]>(AUDITORS_DATA);
 
   // Local storage persistence for real data
   const [routeSteps, setRouteSteps] = useState<RouteStep[]>(() => {
@@ -168,8 +150,18 @@ export default function App() {
       const activeDaysCount = daysUsed.size > 0 ? daysUsed.size : (visitsTarget > 0 ? 3 : 1);
       const pointsPerDay = visitsTarget > 0 ? Math.round((visitsTarget / activeDaysCount) * 10) / 10 : 8.5;
 
+      const cartoonAvatar =
+        aud.id === 'aud-1'
+          ? SAMUEL_AVATAR
+          : aud.id === 'aud-2'
+          ? KLEYDER_AVATAR
+          : aud.id === 'aud-3'
+          ? JOSE_AVATAR
+          : aud.avatar;
+
       return {
         ...aud,
+        avatar: cartoonAvatar,
         visitsDone,
         visitsTarget,
         pointsPerDay,
@@ -375,17 +367,23 @@ export default function App() {
 
   const handleSelectRole = (role: UserRole) => {
     setUserRole(role);
-    if (role === 'auxiliar' && (activeTab === 'dashboard-cavi' || (activeTab as string) === 'resultados-kpis')) {
+    if (role === 'auxiliar' && (activeTab === 'dashboard-cavi' || activeTab === 'archivos-macros' || (activeTab as string) === 'resultados-kpis')) {
       setActiveTab('asignacion-rutas');
     }
     showToast(
       role === 'administrador' ? 'Rol Administrador Activado' : 'Rol Auxiliar (Auditor) Activado',
       role === 'administrador'
         ? 'Control total del sistema: CAVI, despacho, macros y reportes.'
-        : 'Acceso operativo a Rutas, Agenda y Configuración (Color, Red Comercial y Sensor).',
+        : 'Acceso operativo a Mis Rutas, Agenda y Auditoría en Terreno. Configuración restringida.',
       'info'
     );
   };
+
+  useEffect(() => {
+    if (userRole === 'auxiliar' && (activeTab === 'dashboard-cavi' || activeTab === 'archivos-macros' || (activeTab as string) === 'resultados-kpis')) {
+      setActiveTab('asignacion-rutas');
+    }
+  }, [userRole, activeTab]);
 
   // Visual Theme state ('dark' | 'light')
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
@@ -550,31 +548,41 @@ export default function App() {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  // Assign single floating/alert point to an auditor (by stable auditorId, never by display name).
-  const handleAssignFloatingPoint = (id: string, auditorId: string, day?: string) => {
+  // Assign single floating/alert point to an auditor (with optional target day, strictly matching point's zone)
+  const handleAssignFloatingPoint = (id: string, auditorName?: string, day?: string) => {
     if (userRole !== 'administrador') { showToast('Solo lectura', 'Solo el administrador puede modificar la información.', 'alert'); return; }
     const targetPoint = floatingPoints.find((p) => p.id === id);
     if (!targetPoint) return;
 
     setFloatingPoints((prev) => prev.filter((p) => p.id !== id));
 
-    const matchedAuditor = auditors.find((a) => a.id === auditorId) || auditors[0];
-    if (!matchedAuditor) return;
+    // Strictly resolve point's geographical zone (Norte, Centro, Sur)
+    const pointZone = resolvePdvZone(targetPoint);
+    const zoneAuditor = getAssignedAuditorForZone(pointZone, auditors) || auditors.find((a) => a.zone === pointZone) || auditors[0];
 
-    const validDays: RouteStep['day'][] = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes'];
+    const matchedAuditor =
+      (auditorName &&
+        auditors.find(
+          (a) =>
+            a.name.toLowerCase() === auditorName.toLowerCase() ||
+            a.name.toLowerCase().includes(auditorName.split(' ')[0].toLowerCase())
+        )) ||
+      zoneAuditor;
+
+    const validDays: RouteStep['day'][] = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
     const lowerDay = day ? day.toLowerCase() : '';
     const targetDay: RouteStep['day'] = validDays.find((d) => d === lowerDay) || 'martes';
 
     // Create real route step in the schedule with alert metadata
     const newStep: RouteStep = {
       id: `step-assigned-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
-      time: '10:30 AM',
+      time: targetDay === 'sábado' ? '09:30 AM' : '10:30 AM',
       code: targetPoint.code,
       format: targetPoint.format,
       name: targetPoint.name,
       address: targetPoint.address,
       municipality: targetPoint.municipality || (targetPoint.address.includes('Maicao') ? 'Maicao' : 'Riohacha'),
-      zone: targetPoint.zone || matchedAuditor.zone,
+      zone: pointZone,
       day: targetDay,
       auditorId: matchedAuditor.id,
       auditorName: matchedAuditor.name,
@@ -826,7 +834,7 @@ export default function App() {
           />
         )}
 
-        {activeTab === 'archivos-macros' && (
+        {activeTab === 'archivos-macros' && userRole === 'administrador' && (
           <MacroFoldersScreen
             files={macroFiles}
             onAddFiles={handleAddMacroFiles}
@@ -878,8 +886,8 @@ export default function App() {
       <CriticalPointsModal
         isOpen={isCriticalPointsOpen}
         onClose={() => setIsCriticalPointsOpen(false)}
-        onAssignPoint={(code, auditorId) => {
-          handleAssignFloatingPoint(code, auditorId);
+        onAssignPoint={(code) => {
+          handleAssignFloatingPoint(code);
         }}
       />
 

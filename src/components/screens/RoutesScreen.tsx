@@ -8,6 +8,7 @@ import { WeeklyRoutesMatrix } from '../WeeklyRoutesMatrix';
 import { MonthlyRoutesView } from '../MonthlyRoutesView';
 import { AuditVisitModal } from '../AuditVisitModal';
 import { ActiveAuditorCalendarView } from '../ActiveAuditorCalendarView';
+import { AlertPointsAssignmentPool } from '../AlertPointsAssignmentPool';
 import { parseRoutesFile, downloadRoutesTemplate } from '../../utils/routesExcel';
 import { calculateTotalRouteDistanceKm, formatDistance, estimateTravelTime } from '../../utils/geoUtils';
 import { CAVI_POINTS } from '../../data/caviPointsData';
@@ -66,7 +67,28 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
   const isAdmin = userRole === 'administrador';
   const currentAuditor = auditors.find((a) => a.id === activeAuditorId) || auditors[0];
 
-  const [selectedDay, setSelectedDay] = useState('martes');
+  // Resolve today's date & day key
+  const todayDate = useMemo(() => new Date(), []);
+  const todayDayIndex = todayDate.getDay(); // 0 is Sun, 1 Mon, 2 Tue, 3 Wed, 4 Thu, 5 Fri, 6 Sat
+  const DAY_KEY_MAP: Record<number, string> = {
+    1: 'lunes',
+    2: 'martes',
+    3: 'miércoles',
+    4: 'jueves',
+    5: 'viernes',
+    6: 'sábado',
+  };
+  const todayDayKey = DAY_KEY_MAP[todayDayIndex] || 'lunes';
+  const todayDateFormatted = useMemo(() => {
+    return todayDate.toLocaleDateString('es-CO', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+  }, [todayDate]);
+
+  const [selectedDay, setSelectedDay] = useState<string>(() => todayDayKey);
   const [selectedZone, setSelectedZone] = useState<'Todas' | 'Norte' | 'Centro' | 'Sur'>('Todas');
   // Lists start collapsed by default as requested
   const [poolCollapsed, setPoolCollapsed] = useState(false);
@@ -110,6 +132,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
     if (!step.day) return true;
     const sDay = step.day.toLowerCase();
     const target = day.toLowerCase();
+    if (target === 'sábado' && (sDay.includes('sab') || sDay.includes('sáb'))) return true;
     return sDay.includes(target.slice(0, 3));
   };
 
@@ -341,7 +364,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
       )}
 
       {/* ========================================================================= */}
-      {/* GRAND TACTICAL HERO BANNER: RUTAS Y NAVEGACIÓN DEPARTAMENTAL */}
+      {/* 🚀 GRAND TACTICAL HERO BANNER: RUTAS Y NAVEGACIÓN DEPARTAMENTAL */}
       {/* ========================================================================= */}
       <div className="routes-tactical-shell relative w-full rounded-3xl p-5 sm:p-6 md:p-8 overflow-hidden bg-gradient-to-br from-[#070e1f] via-[#0f1d3b] to-[#070e1f] border border-[#1e345b] shadow-2xl">
         {/* Glowing atmospheric background radial accents */}
@@ -356,8 +379,12 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
           {/* Top Status & System Bar */}
           <div className="flex flex-wrap items-center justify-between gap-2.5 pb-3 border-b border-[#1e2a44]/80">
             <div className="flex items-center gap-2.5 flex-wrap">
+              <span className="px-3 py-1 rounded-full bg-[#0088ff]/25 text-[#38bdf8] border border-[#0088ff]/40 text-xs font-extrabold flex items-center gap-1.5 shadow-sm">
+                <span className="material-symbols-outlined text-[15px]">event</span>
+                <span>📅 Hoy: <strong className="capitalize">{todayDateFormatted}</strong></span>
+              </span>
               <span className="px-2.5 py-0.5 rounded-full bg-[#131b2e] text-[#cbd5e1] border border-[#222a3d] text-[10px] font-medium">
-                La Guajira · 15 Municipios
+                La Guajira · 15 Municipios (Sábados Medio Día Laboral)
               </span>
             </div>
           </div>
@@ -471,7 +498,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                 <option value="todos">Todas las rutas de auditores</option>
                 {auditors.map((a) => (
                   <option key={a.id} value={a.id}>
-                    {a.name}
+                    {a.name} (Zona {a.zone})
                   </option>
                 ))}
               </select>
@@ -488,18 +515,22 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                 { key: 'miércoles', label: 'Mié' },
                 { key: 'jueves', label: 'Jue' },
                 { key: 'viernes', label: 'Vie' },
+                { key: 'sábado', label: 'Sáb (½ Día)', isHalfDay: true },
                 { key: 'semana', label: 'Semana' },
                 { key: 'mes', label: 'Mes' },
                 { key: 'calendario_auditor', label: 'Calendario Auditor' },
               ].map((item) => {
                 const isSelected = selectedDay === item.key;
+                const isToday = item.key === todayDayKey;
                 return (
                   <button
                     key={item.key}
                     type="button"
                     onClick={() => {
                       setSelectedDay(item.key);
-                      if (item.key === 'semana') {
+                      if (item.key === 'sábado') {
+                        onShowToast('Sábado: Medio Día Laboral', 'Jornada parcial de auditoría en terreno (08:00 AM - 12:00 PM).', 'info');
+                      } else if (item.key === 'semana') {
                         onShowToast('Vista Alterna: Semana', 'Visualizando matriz operativa semanal completa.', 'info');
                       } else if (item.key === 'mes') {
                         onShowToast('Vista Mensual de Rutas', 'Visualizando matriz y calendario mensual para La Guajira.', 'info');
@@ -507,12 +538,21 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                         onShowToast('Calendario Auditor Activo', 'Filtrando paradas con selector de rango de fechas.', 'info');
                       }
                     }}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 relative ${
                       isSelected
-                        ? 'bg-[#0088ff] text-white shadow-sm shadow-[#0088ff]/40'
+                        ? 'bg-[#0088ff] text-white shadow-sm shadow-[#0088ff]/40 ring-1 ring-white/30'
+                        : isToday
+                        ? 'bg-[#0088ff]/15 text-[#38bdf8] border border-[#0088ff]/40 hover:bg-[#0088ff]/25'
+                        : item.isHalfDay
+                        ? 'bg-amber-500/10 text-amber-300 border border-amber-500/30 hover:bg-amber-500/20'
                         : 'text-[#bbcabf] hover:text-[#dae2fd]'
                     }`}
                   >
+                    {isToday && (
+                      <span className="text-[8px] font-extrabold px-1 py-0.2 rounded-full bg-[#0088ff] text-white">
+                        HOY
+                      </span>
+                    )}
                     {item.key === 'semana' && (
                       <span className="material-symbols-outlined text-[15px]">view_week</span>
                     )}
@@ -529,19 +569,21 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
             </div>
 
             {/* Zone Selector */}
-            <div className="flex items-center gap-2 shrink-0">
-              <label htmlFor="routes-zone-filter" className="text-xs text-[#94a3b8] font-medium">Zona</label>
-              <select
-                id="routes-zone-filter"
-                value={selectedZone}
-                onChange={(e) => setSelectedZone(e.target.value as typeof selectedZone)}
-                className="bg-[#0b1326] text-white text-xs px-3 py-1.5 rounded-xl border border-[#222a3d] focus:outline-none focus:ring-1 focus:ring-[#0088ff] cursor-pointer min-w-[150px]"
-              >
-                <option value="Todas">Todas</option>
-                <option value="Norte">Norte</option>
-                <option value="Centro">Centro</option>
-                <option value="Sur">Sur</option>
-              </select>
+            <div className="flex items-center gap-1 bg-[#0b1326] p-1 rounded-xl border border-[#222a3d] shrink-0">
+              {(['Todas', 'Norte', 'Centro', 'Sur'] as const).map((zone) => (
+                <button
+                  key={zone}
+                  type="button"
+                  onClick={() => setSelectedZone(zone)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                    selectedZone === zone
+                      ? 'bg-[#0088ff] text-white font-bold shadow-md shadow-[#0088ff]/30'
+                      : 'text-[#cbd5e1] hover:text-white'
+                  }`}
+                >
+                  {zone}
+                </button>
+              ))}
             </div>
           </div>
         </div>
@@ -591,7 +633,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
         /* RESPONSIVE UNIFIED LAYOUT */
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-4 items-stretch">
           {/* MAPA PRINCIPAL */}
-          <div className="w-full bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-lg relative min-h-[520px] flex flex-col">
+          <div className="w-full bg-[#060e20] rounded-2xl overflow-hidden border border-[#222a3d] shadow-lg relative min-h-[520px] flex flex-col">
             <CaviNativeMap
               height="520px"
               initialRouteStops={mapWaypoints}
@@ -608,15 +650,15 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
             />
           </div>
 
-          {/* AUDITORES DE CAMPO · PANEL LATERAL */}
-          <aside className="bg-white rounded-2xl border border-slate-200 shadow-lg p-3 flex flex-col min-h-[520px]">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[#0088ff] text-[19px]">engineering</span>
-                <h2 className="font-bold text-sm text-slate-900">Auditores de Campo</h2>
+          {/* AUDITORES DE CAMPO · PANEL LATERAL CON CARICATURAS REDONDEADAS Y ALTO CONTRASTE */}
+          <aside className="bg-[#131b2e] rounded-2xl border border-[#222a3d] shadow-xl p-3.5 flex flex-col min-h-[520px]">
+            <div className="flex items-center justify-between mb-3 pb-2 border-b border-[#222a3d]">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[#0088ff] text-[20px]">engineering</span>
+                <h2 className="font-bold text-sm text-white">Auditores de Campo</h2>
               </div>
-              <span className="text-[10px] text-slate-500 flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+              <span className="text-[11px] font-semibold text-[#4edea3] flex items-center gap-1.5 bg-[#171f33] px-2 py-0.5 rounded-full border border-[#4edea3]/30">
+                <span className="w-2 h-2 rounded-full bg-[#4edea3] animate-pulse"></span>
                 {filteredAuditors.slice(0, 3).length} en pantalla
               </span>
             </div>
@@ -629,39 +671,57 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                 return (
                   <div
                     key={auditor.id}
-                    className="rounded-xl border border-slate-200 bg-slate-50 p-2.5 shadow-sm hover:border-blue-200 transition-colors"
+                    className="rounded-xl border border-[#222a3d] bg-[#171f33] p-3 shadow-md hover:border-[#0088ff]/60 transition-all"
                   >
-                    <div className="flex items-center gap-2">
-                      <div className="relative shrink-0 w-10 h-10 rounded-full bg-blue-50 border border-blue-200 text-blue-700 flex items-center justify-center text-xs font-extrabold">
-                        {auditor.name.split(' ').map((part) => part[0]).slice(0, 2).join('')}
-                        <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white bg-emerald-400"></span>
+                    <div className="flex items-center gap-3">
+                      {/* Caricatura Redondeada del Auditor */}
+                      <div className="relative shrink-0">
+                        <img
+                          src={auditor.avatar}
+                          alt={auditor.name}
+                          className="w-12 h-12 rounded-full object-cover ring-2 ring-[#0088ff] shadow-md bg-[#0b1326]"
+                        />
+                        <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-[#171f33] bg-[#4edea3]"></span>
                       </div>
+
                       <div className="min-w-0 flex-1">
                         <div className="flex items-start justify-between gap-1">
-                          <span className="font-bold text-xs text-slate-900 leading-tight">{auditor.name}</span>
-                          <span className="text-sm font-bold text-blue-600 shrink-0">
+                          <span className="font-bold text-xs text-white leading-tight truncate">
+                            {auditor.name}
+                          </span>
+                          <span className="text-xs font-bold font-mono text-[#38bdf8] shrink-0 bg-[#0b1326] px-1.5 py-0.5 rounded border border-[#222a3d]">
                             {auditor.visitsDone}/{auditor.visitsTarget}
                           </span>
                         </div>
-                        <div className="text-[10px] text-slate-500 mt-0.5">Auditor</div>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <span className="text-[10px] font-semibold text-[#c0c1ff]">Auditor {auditor.zone}</span>
+                          <span className="text-[9px] px-1.5 py-0.2 rounded bg-[#222a3d] text-[#bbcabf] font-mono">
+                            Zona {auditor.zone}
+                          </span>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-1.5 mt-2">
-                      <div className="flex-1 bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                    <div className="flex items-center gap-2 mt-2.5">
+                      <div className="flex-1 bg-[#222a3d] h-2 rounded-full overflow-hidden">
                         <div className="h-full rounded-full bg-[#0088ff] transition-all" style={{ width: `${progress}%` }} />
                       </div>
-                      <span className="text-[9px] font-bold text-slate-500">{progress}%</span>
+                      <span className="text-[10px] font-bold font-mono text-[#4edea3]">{progress}%</span>
                     </div>
 
-                    <div className="mt-2 pt-2 border-t border-slate-200 flex items-center gap-1.5 text-[10px] text-slate-600">
-                      <span className="material-symbols-outlined text-[14px] text-indigo-500">
-                        {auditor.status === 'completed' ? 'task_alt' : 'alt_route'}
-                      </span>
-                      <span className="truncate">{auditor.statusText}</span>
+                    <div className="mt-2 pt-2 border-t border-[#222a3d] flex items-center justify-between text-[11px] text-[#cbd5e1]">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <span className="material-symbols-outlined text-[15px] text-[#38bdf8] shrink-0">
+                          {auditor.status === 'completed' ? 'task_alt' : 'alt_route'}
+                        </span>
+                        <span className="truncate">{auditor.statusText}</span>
+                      </div>
                     </div>
                     {auditor.currentLocation && (
-                      <div className="text-[9px] text-slate-500 mt-1 truncate">{auditor.currentLocation}</div>
+                      <div className="text-[10px] text-[#94a3b8] mt-1 truncate flex items-center gap-1">
+                        <span className="material-symbols-outlined text-[12px] text-[#38bdf8]">near_me</span>
+                        <span>{auditor.currentLocation}</span>
+                      </div>
                     )}
                   </div>
                 );
@@ -670,6 +730,38 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
           </aside>
         </div>
       )}
+
+      {/* ========================================================================= */}
+      {/* 🚨 BANDEJA DE PUNTOS PRIORIZADOS Y ALERTAS AL FONDO DEL MÓDULO DE RUTAS  */}
+      {/* ========================================================================= */}
+      <AlertPointsAssignmentPool
+        floatingPoints={floatingPoints}
+        steps={steps}
+        auditors={auditors}
+        onAssignPoint={onAssignFloatingPoint}
+        onAutoAssignAll={onAutoAssignAll}
+        onDeletePoint={onDeleteFloatingPoint}
+        onOpenAddModal={() => setIsAddFpOpen(true)}
+        onReloadSampleAlertPoints={onReloadSampleAlertPoints}
+        onShowToast={onShowToast}
+        userRole={userRole}
+        onReassignStepDay={(stepId, day, audId) => {
+          if (onAddRouteStep) {
+            const targetStep = steps.find((s) => s.id === stepId);
+            if (targetStep) {
+              const matchedAud = audId ? auditors.find((a) => a.id === audId) : undefined;
+              onAddRouteStep({
+                ...targetStep,
+                day,
+                auditorId: matchedAud?.id || targetStep.auditorId,
+                auditorName: matchedAud?.name || targetStep.auditorName,
+                status: 'pending',
+                notes: `🚨 Priorizado para visita en ${day.toUpperCase()}`,
+              });
+            }
+          }
+        }}
+      />
 
       {/* Audit Visit Outcome Modal */}
       <AuditVisitModal

@@ -276,10 +276,10 @@ export const AddEditLeaseModal: React.FC<AddEditLeaseModalProps> = ({
               </span>
             </div>
             <div>
-              <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+              <h2 className="text-base sm:text-lg font-bold !text-white flex items-center gap-2">
                 {editingPoint ? 'Editar Inmueble en Arrendamiento' : 'Registrar Nuevo Punto de Arrendamiento'}
               </h2>
-              <p className="text-xs text-[#94a3b8]">
+              <p className="text-xs !text-[#cbd5e1]">
                 Gestión de horarios de apertura/cierre, ubicación geográfica y ficha contractual
               </p>
             </div>

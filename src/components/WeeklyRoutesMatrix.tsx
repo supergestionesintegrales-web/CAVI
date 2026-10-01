@@ -15,12 +15,18 @@ interface WeeklyRoutesMatrixProps {
   userRole?: string;
 }
 
-const DAYS_OF_WEEK: Array<{ key: 'lunes' | 'martes' | 'miércoles' | 'jueves' | 'viernes'; label: string; fullLabel: string }> = [
+const DAYS_OF_WEEK: Array<{
+  key: 'lunes' | 'martes' | 'miércoles' | 'jueves' | 'viernes' | 'sábado';
+  label: string;
+  fullLabel: string;
+  isHalfDay?: boolean;
+}> = [
   { key: 'lunes', label: 'Lun', fullLabel: 'Lunes' },
   { key: 'martes', label: 'Mar', fullLabel: 'Martes' },
   { key: 'miércoles', label: 'Mié', fullLabel: 'Miércoles' },
   { key: 'jueves', label: 'Jue', fullLabel: 'Jueves' },
   { key: 'viernes', label: 'Vie', fullLabel: 'Viernes' },
+  { key: 'sábado', label: 'Sáb', fullLabel: 'Sábado (Medio Día)', isHalfDay: true },
 ];
 
 export const WeeklyRoutesMatrix: React.FC<WeeklyRoutesMatrixProps> = ({
@@ -41,10 +47,40 @@ export const WeeklyRoutesMatrix: React.FC<WeeklyRoutesMatrixProps> = ({
   const [filterAuditor, setFilterAuditor] = useState<string>('todos');
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Current day resolution
+  const todayDate = useMemo(() => new Date(), []);
+  const todayDayIndex = todayDate.getDay(); // 0 is Sun, 1 Mon, 2 Tue, 3 Wed, 4 Thu, 5 Fri, 6 Sat
+  const DAY_INDEX_MAP: Record<number, 'lunes' | 'martes' | 'miércoles' | 'jueves' | 'viernes' | 'sábado'> = {
+    1: 'lunes',
+    2: 'martes',
+    3: 'miércoles',
+    4: 'jueves',
+    5: 'viernes',
+    6: 'sábado',
+  };
+  const todayKey = DAY_INDEX_MAP[todayDayIndex] || 'lunes';
+  const todayFormatted = useMemo(() => {
+    return todayDate.toLocaleDateString('es-CO', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+  }, [todayDate]);
+
   // Normalize step day
   const getStepDay = (step: RouteStep, index: number): string => {
-    if (step.day) return step.day.toLowerCase();
-    const cycle = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes'];
+    if (step.day) {
+      const d = step.day.toLowerCase();
+      if (d.includes('sab') || d.includes('sáb')) return 'sábado';
+      if (d.includes('lun')) return 'lunes';
+      if (d.includes('mar')) return 'martes';
+      if (d.includes('mié') || d.includes('mie')) return 'miércoles';
+      if (d.includes('jue')) return 'jueves';
+      if (d.includes('vie')) return 'viernes';
+      return d;
+    }
+    const cycle = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
     return cycle[index % cycle.length];
   };
 
@@ -56,6 +92,7 @@ export const WeeklyRoutesMatrix: React.FC<WeeklyRoutesMatrixProps> = ({
       miércoles: [],
       jueves: [],
       viernes: [],
+      sábado: [],
     };
 
     steps.forEach((step, idx) => {
@@ -237,14 +274,21 @@ export const WeeklyRoutesMatrix: React.FC<WeeklyRoutesMatrixProps> = ({
           </select>
         </div>
 
-        <span className="text-xs text-slate-600 dark:text-[#94a3b8] font-mono">
-          Mostrando matriz semanal 5 días
-        </span>
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs font-bold text-[#0088ff] dark:text-[#38bdf8] flex items-center gap-1.5 bg-blue-50 dark:bg-[#0088ff]/15 px-2.5 py-1 rounded-xl border border-blue-200 dark:border-[#0088ff]/30">
+            <span className="material-symbols-outlined text-[15px]">event</span>
+            <span>Hoy: <strong className="capitalize">{todayFormatted}</strong></span>
+          </span>
+          <span className="text-xs text-slate-600 dark:text-[#94a3b8] font-mono hidden md:inline">
+            6 Días Laborales (Sábado medio día)
+          </span>
+        </div>
       </div>
 
-      {/* 5-DAY OPERATIONAL MATRIX GRID */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3.5 items-start">
+      {/* 6-DAY OPERATIONAL MATRIX GRID (Lunes a Sábado Medio Día) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3.5 items-start">
         {DAYS_OF_WEEK.map((day) => {
+          const isToday = day.key === todayKey;
           const daySteps = stepsByDay[day.key] || [];
           const dayGpsCount = daySteps.filter((s) => s.hasGps).length;
           const dayCompletedCount = daySteps.filter((s) => s.status === 'completed').length;
@@ -252,36 +296,62 @@ export const WeeklyRoutesMatrix: React.FC<WeeklyRoutesMatrixProps> = ({
           return (
             <div
               key={day.key}
-              className="bg-white dark:bg-[#171f33] border border-slate-200 dark:border-[#222a3d] rounded-2xl overflow-hidden flex flex-col shadow-xs"
+              className={`bg-white dark:bg-[#171f33] border rounded-2xl overflow-hidden flex flex-col shadow-xs transition-all ${
+                isToday
+                  ? 'border-[#0088ff] ring-2 ring-[#0088ff]/60 shadow-lg shadow-[#0088ff]/15'
+                  : 'border-slate-200 dark:border-[#222a3d]'
+              }`}
             >
               {/* Day Header with High-Contrast Dark Text */}
-              <div className="p-3 bg-slate-50 dark:bg-[#0f172a] border-b border-slate-200 dark:border-[#222a3d] flex items-center justify-between day-matrix-header">
-                <div>
-                  <div className="flex items-center gap-1.5">
+              <div
+                className={`p-3 border-b flex flex-col gap-1.5 day-matrix-header ${
+                  isToday
+                    ? 'bg-blue-50/80 dark:bg-[#0f2442] border-[#0088ff]/40'
+                    : day.isHalfDay
+                    ? 'bg-amber-50/60 dark:bg-[#1c1c2e] border-amber-200 dark:border-[#f59e0b]/30'
+                    : 'bg-slate-50 dark:bg-[#0f172a] border-slate-200 dark:border-[#222a3d]'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 flex-wrap">
                     <span className="text-xs font-extrabold text-slate-900 dark:text-white uppercase tracking-wider day-matrix-title">
                       {day.fullLabel}
                     </span>
-                    <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-blue-100 dark:bg-[#0088ff]/25 text-blue-800 dark:text-[#38bdf8] border border-blue-200 dark:border-[#0088ff]/40 day-matrix-badge">
-                      {daySteps.length}
-                    </span>
+                    {isToday && (
+                      <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded-full bg-[#0088ff] text-white shadow-xs animate-pulse">
+                        HOY
+                      </span>
+                    )}
+                    {day.isHalfDay && (
+                      <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-800 dark:text-[#fcd34d] border border-amber-400/40">
+                        ½ Día
+                      </span>
+                    )}
                   </div>
-                  <span className="text-[10px] text-slate-600 dark:text-[#cbd5e1] day-matrix-subtitle block mt-0.5">
-                    {dayGpsCount} con GPS · {dayCompletedCount} completadas
+
+                  <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-blue-100 dark:bg-[#0088ff]/25 text-blue-800 dark:text-[#38bdf8] border border-blue-200 dark:border-[#0088ff]/40 day-matrix-badge">
+                    {daySteps.length}
                   </span>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    onSelectDay(day.key);
-                    onShowToast(`Día ${day.fullLabel}`, `Cambiando a la vista diaria detallada de ${day.fullLabel}.`, 'info');
-                  }}
-                  className="px-2.5 py-1 rounded-lg bg-white hover:bg-slate-100 dark:bg-[#1e293b] dark:hover:bg-[#2d3a58] text-slate-900 dark:text-white text-[10px] font-bold transition-all cursor-pointer border border-slate-300 dark:border-[#334155] day-matrix-btn flex items-center gap-1 shadow-xs"
-                  title={`Abrir vista diaria de ${day.fullLabel}`}
-                >
-                  <span>Ver Día</span>
-                  <span className="material-symbols-outlined text-[12px] text-[#0088ff] dark:text-[#38bdf8]">arrow_forward</span>
-                </button>
+                <div className="flex items-center justify-between text-[10px]">
+                  <span className="text-slate-600 dark:text-[#cbd5e1] day-matrix-subtitle truncate">
+                    {day.isHalfDay ? '8:00 AM - 12:00 PM' : `${dayGpsCount} GPS · ${dayCompletedCount} auditados`}
+                  </span>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onSelectDay(day.key);
+                      onShowToast(`Día ${day.fullLabel}`, `Cambiando a la vista diaria detallada de ${day.fullLabel}.`, 'info');
+                    }}
+                    className="px-2 py-0.5 rounded-lg bg-white hover:bg-slate-100 dark:bg-[#1e293b] dark:hover:bg-[#2d3a58] text-slate-900 dark:text-white text-[10px] font-bold transition-all cursor-pointer border border-slate-300 dark:border-[#334155] day-matrix-btn flex items-center gap-0.5 shadow-xs shrink-0"
+                    title={`Abrir vista diaria de ${day.fullLabel}`}
+                  >
+                    <span>Ver</span>
+                    <span className="material-symbols-outlined text-[11px] text-[#0088ff] dark:text-[#38bdf8]">arrow_forward</span>
+                  </button>
+                </div>
               </div>
 
               {/* Day Steps List */}

@@ -192,17 +192,7 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
 
         {/* Global Action Buttons */}
         <div className="flex items-center gap-2">
-          <button
-            onClick={handleExportExcel}
-            type="button"
-            className="px-3.5 py-2 rounded-xl bg-[#131b2e] hover:bg-[#171f33] border border-[#222a3d] text-xs font-bold text-[#dae2fd] hover:text-white transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
-            title="Descargar informe completo en Excel (.xlsx)"
-          >
-            <span className="material-symbols-outlined text-[17px] text-[#4edea3]">table_view</span>
-            Exportar Excel
-          </button>
-
-          {userRole === 'administrador' ? (
+          {userRole === 'administrador' && (
             <button
               onClick={handleOpenAdd}
               type="button"
@@ -211,11 +201,6 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
               <span className="material-symbols-outlined text-[18px]">add_business</span>
               Nuevo Punto
             </button>
-          ) : (
-            <span className="px-3 py-1.5 rounded-xl bg-[#0f1d2e] text-[#38bdf8] border border-[#0088ff]/30 text-xs font-bold flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[16px]">visibility</span>
-              Modo Solo Vista
-            </span>
           )}
         </div>
       </div>
@@ -573,51 +558,51 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
 
                         {/* Nombre y Dirección */}
                         <div className="mt-2.5">
-                          <h3 className="text-xs sm:text-[13px] font-extrabold text-white leading-snug group-hover:text-[#38bdf8] transition-colors line-clamp-2">
+                          <h3 className="text-xs sm:text-[13px] font-extrabold text-slate-900 dark:text-white leading-snug group-hover:text-[#0088ff] dark:group-hover:text-[#38bdf8] transition-colors line-clamp-2">
                             {pt.name}
                           </h3>
-                          <div className="mt-1 flex items-start gap-1 text-[10px] text-[#94a3b8] leading-tight">
-                            <span className="material-symbols-outlined text-[13px] text-[#38bdf8] shrink-0 mt-0.5">location_on</span>
-                            <span className="line-clamp-2">{pt.address} · <strong className="text-white font-medium">{pt.municipality}</strong></span>
+                          <div className="mt-1 flex items-start gap-1 text-[10px] text-slate-600 dark:text-[#94a3b8] leading-tight">
+                            <span className="material-symbols-outlined text-[13px] text-[#0088ff] dark:text-[#38bdf8] shrink-0 mt-0.5">location_on</span>
+                            <span className="line-clamp-2">{pt.address} · <strong className="text-slate-900 dark:text-white font-semibold">{pt.municipality}</strong></span>
                           </div>
                           {pt.reference && (
-                            <p className="text-[9px] text-[#64748b] italic mt-1 line-clamp-1">Ref: {pt.reference}</p>
+                            <p className="text-[9px] text-slate-500 dark:text-[#64748b] italic mt-1 line-clamp-1">Ref: {pt.reference}</p>
                           )}
                         </div>
 
-                        {/* Cuadrícula de Métricas Clave */}
-                        <div className="mt-3 grid grid-cols-2 gap-2 p-2 rounded-xl bg-[#0b1326]/75 border border-[#222a3d]/90 text-[10px]">
+                        {/* Cuadrícula de Métricas Clave (Alto Contraste y Legibilidad) */}
+                        <div className="mt-3 grid grid-cols-2 gap-2.5 p-2.5 rounded-xl bg-slate-50 dark:bg-[#0e172a] border border-slate-200 dark:border-[#2d3a58] text-[10px] shadow-inner">
                           <div>
-                            <span className="block text-[8px] uppercase tracking-wider text-[#64748b] font-semibold">Canon Mensual</span>
-                            <span className="text-[11px] font-bold font-mono text-[#4edea3] truncate block">{formatCOP(pt.monthlyRent)}</span>
+                            <span className="block text-[9px] uppercase tracking-wider text-slate-600 dark:text-[#94a3b8] font-bold">Canon Mensual</span>
+                            <span className="text-[12px] font-extrabold font-mono text-emerald-600 dark:text-[#4edea3] truncate block mt-0.5">{formatCOP(pt.monthlyRent)}</span>
                           </div>
                           <div>
-                            <span className="block text-[8px] uppercase tracking-wider text-[#64748b] font-semibold">Vigencia</span>
-                            <span className={`text-[10px] font-bold truncate block ${
-                              contract.status === 'valid' ? 'text-[#4edea3]' : contract.status === 'expiring_soon' ? 'text-[#ffb95f]' : 'text-[#ffb4ab]'
+                            <span className="block text-[9px] uppercase tracking-wider text-slate-600 dark:text-[#94a3b8] font-bold">Vigencia</span>
+                            <span className={`text-[11px] font-bold truncate block mt-0.5 ${
+                              contract.status === 'valid' ? 'text-emerald-600 dark:text-[#4edea3]' : contract.status === 'expiring_soon' ? 'text-amber-600 dark:text-[#ffb95f]' : 'text-red-600 dark:text-[#ffb4ab]'
                             }`}>
                               {contract.label}
                             </span>
                           </div>
                           <div>
-                            <span className="block text-[8px] uppercase tracking-wider text-[#64748b] font-semibold">Horario Hoy</span>
-                            <span className="text-[9px] text-white font-medium truncate block">
+                            <span className="block text-[9px] uppercase tracking-wider text-slate-600 dark:text-[#94a3b8] font-bold">Horario Hoy</span>
+                            <span className="text-[11px] text-slate-800 dark:text-[#f8fafc] font-semibold truncate block mt-0.5">
                               {status.todayHours?.isOpen ? `${status.todayHours.open} - ${status.todayHours.close}` : 'Cerrado'}
                             </span>
                           </div>
                           <div>
-                            <span className="block text-[8px] uppercase tracking-wider text-[#64748b] font-semibold">Días Cuenta</span>
-                            <span className="text-[10px] font-bold font-mono text-[#c0c1ff]">
-                              {pt.daysOfAccount !== undefined ? pt.daysOfAccount : 'N/D'}
+                            <span className="block text-[9px] uppercase tracking-wider text-slate-600 dark:text-[#94a3b8] font-bold">Días Cuenta</span>
+                            <span className="text-[11px] font-extrabold font-mono text-[#0088ff] dark:text-[#38bdf8] truncate block mt-0.5">
+                              {pt.daysOfAccount !== undefined ? `${pt.daysOfAccount} días` : 'N/D'}
                             </span>
                           </div>
                         </div>
                       </div>
 
                       {/* Pie de tarjeta: Arrendador, GPS y enlace Ficha */}
-                      <div className="mt-3 pt-2.5 border-t border-[#222a3d] flex items-center justify-between text-[10px]">
+                      <div className="mt-3 pt-2.5 border-t border-slate-200 dark:border-[#222a3d] flex items-center justify-between text-[10px]">
                         <div className="min-w-0 pr-1">
-                          <span className="text-[9px] text-[#64748b] block truncate" title={pt.landlord.name}>
+                          <span className="text-[9px] text-slate-500 dark:text-[#64748b] block truncate" title={pt.landlord.name}>
                             {pt.landlord.name ? `Prop: ${pt.landlord.name}` : `Contrato ${pt.contractNumber || 'N/D'}`}
                           </span>
                         </div>
@@ -628,11 +613,11 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
                             rel="noreferrer"
                             onClick={(e) => e.stopPropagation()}
                             title="Navegar en Google Maps"
-                            className="p-1 rounded-lg bg-[#171f33] hover:bg-[#222a3d] text-[#38bdf8] border border-[#222a3d] transition-colors flex items-center justify-center cursor-pointer"
+                            className="p-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-[#0088ff] dark:bg-[#171f33] dark:hover:bg-[#222a3d] dark:text-[#38bdf8] border border-slate-200 dark:border-[#222a3d] transition-colors flex items-center justify-center cursor-pointer"
                           >
                             <span className="material-symbols-outlined text-[14px]">near_me</span>
                           </a>
-                          <span className="text-[10px] font-bold text-[#0088ff] group-hover:text-[#38bdf8] flex items-center gap-0.5">
+                          <span className="text-[10px] font-bold text-[#0088ff] group-hover:text-blue-700 dark:group-hover:text-[#38bdf8] flex items-center gap-0.5">
                             Ficha
                             <span className="material-symbols-outlined text-[14px]">chevron_right</span>
                           </span>

@@ -1,5 +1,6 @@
 import { Auditor, RouteStep, FloatingPoint, FormatType, AlertCategory } from '../types';
 import { GUAJIRA_73_MONTHLY_POINTS, WORKLOAD_CONSTRAINTS } from '../data/guajiraPointsData';
+import { resolvePdvZone, getAssignedAuditorForZone } from '../data/zoneAssignments';
 
 export { WORKLOAD_CONSTRAINTS, GUAJIRA_73_MONTHLY_POINTS };
 
@@ -182,7 +183,7 @@ export function distributePointsWithAlertPriority(
     return daysB - daysA;
   });
 
-  const validDays: RouteStep['day'][] = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes'];
+  const validDays: RouteStep['day'][] = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
 
   // Track state per auditor
   const auditorLoads: Record<
@@ -203,6 +204,7 @@ export function distributePointsWithAlertPriority(
       miércoles: 0,
       jueves: 0,
       viernes: 0,
+      sábado: 0,
     };
     existingSteps
       .filter((s) => s.auditorId === aud.id)
@@ -221,32 +223,15 @@ export function distributePointsWithAlertPriority(
     };
   });
 
-  // Helper to pick the best auditor for a candidate respecting the 24-25 weekly target
-  const getBestAuditorForZone = (candidateZone: string): Auditor => {
-    // 1. Exact zone matches where auditor has not reached weekly capacity (25 points)
-    const zoneMatches = auditors.filter(
-      (a) => a.zone.toLowerCase() === candidateZone.toLowerCase()
-    );
-
-    const availableZoneAuditors = zoneMatches.filter(
-      (a) => auditorLoads[a.id].assignedSteps.length < WORKLOAD_CONSTRAINTS.WEEKLY_AVG_MAX
-    );
-
-    if (availableZoneAuditors.length > 0) {
-      availableZoneAuditors.sort(
-        (a, b) =>
-          auditorLoads[a.id].assignedSteps.length -
-          auditorLoads[b.id].assignedSteps.length
-      );
-      return availableZoneAuditors[0];
-    }
-
-    // Zone ownership is strict: a PDV never crosses into another auditor's zone.
-    // If the designated auditor is at capacity, the point remains unassigned in this pass.
-    return zoneMatches[0];
+  // Strict Zone Ownership: a PDV ALWAYS belongs to the designated auditor of that zone.
+  const getAuditorForZone = (candidateZone: 'Norte' | 'Centro' | 'Sur'): Auditor => {
+    const matched = getAssignedAuditorForZone(candidateZone, auditors);
+    if (matched) return matched;
+    const directMatch = auditors.find((a) => a.zone.toLowerCase() === candidateZone.toLowerCase());
+    return directMatch || auditors[0];
   };
 
-  // Helper to pick the best day for an auditor respecting the 8-10 points/day rule
+  // Helper to pick the best day for an auditor respecting the 8-10 points/day rule and Saturday half-day (4-5 points max)
   const getBestDayForAuditor = (
     auditorId: string,
     isAlert: boolean
@@ -254,9 +239,9 @@ export function distributePointsWithAlertPriority(
     const loadInfo = auditorLoads[auditorId];
     if (!loadInfo) return 'lunes';
 
-    // Prefer Lunes, Martes, Miércoles to concentrate field audits into 8-10 points/day
+    // Alerts prioritize early weekdays: Lunes, Martes, Miércoles
     const preferredDays: RouteStep['day'][] = ['lunes', 'martes', 'miércoles'];
-    const allDays: RouteStep['day'][] = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes'];
+    const standardWeekdays: RouteStep['day'][] = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes'];
 
     // 1. Fill preferred days up to minimum daily workload (8 points)
     for (const d of preferredDays) {
@@ -272,17 +257,23 @@ export function distributePointsWithAlertPriority(
       }
     }
 
-    // 3. If preferred days are full (10 points each), schedule on Jueves/Viernes
-    for (const d of allDays) {
+    // 3. If preferred days are full, schedule on Jueves / Viernes (up to 10 points)
+    for (const d of standardWeekdays) {
       if (loadInfo.dayCounts[d] < WORKLOAD_CONSTRAINTS.DAILY_MAX_POINTS) {
         return d;
       }
     }
 
+    // 4. Sábado (Laboral Medio Día - capacidad parcial máx 4-5 paradas matutinas)
+    const SATURDAY_HALF_DAY_MAX = 5;
+    if (loadInfo.dayCounts['sábado'] < SATURDAY_HALF_DAY_MAX) {
+      return 'sábado';
+    }
+
     // Fallback: day with least load
-    let minDay = allDays[0];
+    let minDay: RouteStep['day'] = 'lunes';
     let minStops = loadInfo.dayCounts[minDay];
-    for (const d of allDays) {
+    for (const d of standardWeekdays) {
       if (loadInfo.dayCounts[d] < minStops) {
         minStops = loadInfo.dayCounts[d];
         minDay = d;
@@ -291,7 +282,7 @@ export function distributePointsWithAlertPriority(
     return minDay;
   };
 
-  const SCHEDULED_TIME_SLOTS = [
+  const WEEKDAY_TIME_SLOTS = [
     '08:00 AM',
     '08:45 AM',
     '09:30 AM',
@@ -304,16 +295,24 @@ export function distributePointsWithAlertPriority(
     '04:30 PM',
   ];
 
+  const SATURDAY_TIME_SLOTS = [
+    '08:00 AM',
+    '08:45 AM',
+    '09:30 AM',
+    '10:15 AM',
+    '11:00 AM',
+    '11:45 AM',
+  ];
+
   const newlyAssignedSteps: RouteStep[] = [];
 
   // ==========================================
   // PHASE 1: ASSIGN ALL ALERT POINTS FIRST
   // ==========================================
   alertCandidates.forEach((candidate, idx) => {
-    const zone =
-      candidate.zone ||
-      guessZoneFromLocation(candidate.municipality || candidate.address || '');
-    const matchedAuditor = getBestAuditorForZone(zone);
+    // Strictly resolve zone to Norte, Centro, or Sur
+    const zone = resolvePdvZone(candidate);
+    const matchedAuditor = getAuditorForZone(zone);
     const assignedDay =
       candidate.day && validDays.includes(candidate.day)
         ? candidate.day
@@ -324,7 +323,8 @@ export function distributePointsWithAlertPriority(
     loadInfo.alertCount++;
 
     const orderInDay = loadInfo.dayCounts[assignedDay] - 1;
-    const timeStr = SCHEDULED_TIME_SLOTS[orderInDay % SCHEDULED_TIME_SLOTS.length];
+    const slots = assignedDay === 'sábado' ? SATURDAY_TIME_SLOTS : WEEKDAY_TIME_SLOTS;
+    const timeStr = slots[orderInDay % slots.length];
 
     const alertDays = candidate.daysWithoutVisit || 75;
     const alertDesc =
@@ -369,11 +369,9 @@ export function distributePointsWithAlertPriority(
   // PHASE 2: ASSIGN REGULAR POINTS TO COMPLETE EACH AUDITOR'S LOAD (CARGUE)
   // =========================================================================
   regularCandidates.forEach((candidate, idx) => {
-    const zone =
-      candidate.zone ||
-      guessZoneFromLocation(candidate.municipality || candidate.address || '');
-
-    const matchedAuditor = getBestAuditorForZone(zone);
+    // Strictly resolve zone to Norte, Centro, or Sur
+    const zone = resolvePdvZone(candidate);
+    const matchedAuditor = getAuditorForZone(zone);
 
     const assignedDay =
       candidate.day && validDays.includes(candidate.day)
@@ -385,7 +383,8 @@ export function distributePointsWithAlertPriority(
     loadInfo.regularCount++;
 
     const orderInDay = loadInfo.dayCounts[assignedDay] - 1;
-    const timeStr = SCHEDULED_TIME_SLOTS[orderInDay % SCHEDULED_TIME_SLOTS.length];
+    const slots = assignedDay === 'sábado' ? SATURDAY_TIME_SLOTS : WEEKDAY_TIME_SLOTS;
+    const timeStr = slots[orderInDay % slots.length];
 
     const step: RouteStep = {
       id: candidate.id || `step-reg-${Date.now()}-${idx}-${Math.random().toString(36).slice(2, 5)}`,

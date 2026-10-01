@@ -739,16 +739,16 @@ FORMATOS COMPATIBLES:
                       <span>{isProcessing ? 'Procesando...' : 'Subir Carpeta'}</span>
                     </button>
 
-                    {/* 2. Upload Standalone Files Button */}
+                    {/* 2. Upload Standalone Files Button (Alto Contraste Blanco) */}
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
                       disabled={isProcessing}
-                      className="px-3.5 py-2 rounded-xl bg-[#3131c0] hover:bg-[#4343d8] text-white text-xs font-bold flex items-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer disabled:opacity-60"
+                      className="px-3.5 py-2 rounded-xl bg-[#0088ff] hover:bg-[#0070d8] !text-white text-xs font-bold flex items-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer disabled:opacity-60"
                       title="Subir uno o varios archivos sueltos (.xlsx, .csv, .pptx, .pbix, .docx, .pdf)"
                     >
-                      <span className="material-symbols-outlined text-[18px]">upload_file</span>
-                      <span>Subir Archivos Sueltos</span>
+                      <span className="material-symbols-outlined text-[18px] !text-white">upload_file</span>
+                      <span className="!text-white">Subir Archivos Sueltos</span>
                     </button>
                   </>
                 )}

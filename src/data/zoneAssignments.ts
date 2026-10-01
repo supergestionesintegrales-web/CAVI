@@ -26,13 +26,50 @@ function normalize(value: string): string {
   return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
 }
 
-export function resolvePdvZone(point: Pick<CaviPoint, 'subregion' | 'municipality' | 'category'>): CaviZone {
+export function resolvePdvZone(point: {
+  zone?: string;
+  subregion?: string;
+  municipality?: string;
+  address?: string;
+  name?: string;
+  category?: string;
+}): CaviZone {
+  if (point.zone === 'Norte' || point.zone === 'Centro' || point.zone === 'Sur') return point.zone;
   if (point.subregion === 'Norte' || point.subregion === 'Centro' || point.subregion === 'Sur') return point.subregion;
-  const municipality = normalize(point.municipality || '');
-  if (MUNICIPALITY_ZONE[municipality]) return MUNICIPALITY_ZONE[municipality];
-  const text = normalize(`${point.category || ''} ${point.municipality || ''}`);
-  if (text.includes('regional centro') || text.includes('centro')) return 'Centro';
-  if (text.includes('regional sur') || text.includes('sur')) return 'Sur';
+  
+  const muni = normalize(point.municipality || '');
+  if (MUNICIPALITY_ZONE[muni]) return MUNICIPALITY_ZONE[muni];
+
+  const fullText = normalize(`${point.municipality || ''} ${point.address || ''} ${point.name || ''} ${point.category || ''}`);
+  
+  // Sur Check
+  if (
+    fullText.includes('san juan') ||
+    fullText.includes('fonseca') ||
+    fullText.includes('villanueva') ||
+    fullText.includes('molino') ||
+    fullText.includes('urumita') ||
+    fullText.includes('jagua') ||
+    fullText.includes('regional sur') ||
+    fullText.includes('zona sur')
+  ) {
+    return 'Sur';
+  }
+
+  // Centro Check
+  if (
+    fullText.includes('maicao') ||
+    fullText.includes('albania') ||
+    fullText.includes('hatonuevo') ||
+    fullText.includes('barrancas') ||
+    fullText.includes('distraccion') ||
+    fullText.includes('regional centro') ||
+    fullText.includes('zona centro')
+  ) {
+    return 'Centro';
+  }
+
+  // Norte Check (Default to Norte if Riohacha, Manaure, Uribia, Dibulla, etc.)
   return 'Norte';
 }
 

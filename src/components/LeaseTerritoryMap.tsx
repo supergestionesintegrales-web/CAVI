@@ -50,14 +50,14 @@ export const LeaseTerritoryMap: React.FC<LeaseTerritoryMapProps> = ({
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5">
+              <h3 className="text-xs sm:text-sm font-bold !text-white flex items-center gap-1.5">
                 Georreferenciación de Puntos en Arrendamiento
               </h3>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#10b981]/20 text-[#4edea3] border border-[#10b981]/30">
                 CAVIMAPS Integrado
               </span>
             </div>
-            <p className="text-[11px] text-[#94a3b8]">
+            <p className="text-[11px] !text-[#cbd5e1]">
               Visualización satelital y territorial oficial de puntos y rutas en La Guajira con CAVIMAPS
             </p>
           </div>
