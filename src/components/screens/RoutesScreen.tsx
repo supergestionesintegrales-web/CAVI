@@ -39,7 +39,6 @@ interface RoutesScreenProps {
   onClearRouteSteps?: () => void;
   onAddFloatingPoint?: (fp: Omit<FloatingPoint, 'id'>) => void;
   onDeleteFloatingPoint?: (id: string) => void;
-  onReloadSampleAlertPoints?: () => void;
   onReassignRouteStep?: (stepId: string, day: RouteStep['day'], auditorId?: string) => void;
 }
 
@@ -61,7 +60,6 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
   onClearRouteSteps,
   onAddFloatingPoint,
   onDeleteFloatingPoint,
-  onReloadSampleAlertPoints,
   onReassignRouteStep,
 }) => {
   const isAuxiliar = userRole === 'auxiliar';
@@ -233,10 +231,9 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
   // Auxiliar: siempre queda bloqueado a su propia ruta; nunca puede ver la de otro auditor.
   const effectiveAuditorForMap = isAuxiliar ? activeAuditorId : selectedAuditorForMap;
 
-  // Inventario georreferenciado completo: CAVI_POINTS + cualquier PDV nuevo
-  // que llegue por una ruta/Excel y todavía no exista en el catálogo base.
+  // Inventario georreferenciado: solo puntos cargados por el usuario.
   const mapInventoryPoints = useMemo(() => {
-    const base: any[] = [];
+    const base: ActiveRoutePointOption[] = [];
     const seen = new Set<string>();
 
     steps.forEach((step) => {
@@ -712,7 +709,6 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
             onAutoAssignAll={onAutoAssignAll}
             onDeletePoint={onDeleteFloatingPoint}
             onOpenAddModal={() => setIsAddFpOpen(true)}
-            onReloadSampleAlertPoints={onReloadSampleAlertPoints}
             onShowToast={onShowToast}
             userRole={userRole}
             onReassignStepDay={(stepId, day, audId) => {
