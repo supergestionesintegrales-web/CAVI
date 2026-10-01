@@ -4,6 +4,8 @@ import { MACRO_FOLDERS_DEFINITIONS, parseUploadedDirectoryFiles } from '../../da
 import { FileViewerModal } from '../FileViewerModal';
 import { ConfigTopSlider, ConfigSectionId } from '../macro/ConfigTopSlider';
 import { ProcessingProgressBar, UploadProgressState } from '../macro/ProcessingProgressBar';
+import { ImportPointTxtModal } from '../ImportPointTxtModal';
+import { CaviPoint } from '../../types/caviMap';
 
 interface MacroFoldersScreenProps {
   files: MacroFile[];
@@ -83,6 +85,7 @@ export const MacroFoldersScreen: React.FC<MacroFoldersScreenProps> = ({
   const [activeFileForViewer, setActiveFileForViewer] = useState<MacroFile | null>(null);
   const [isDraggingOver, setIsDraggingOver] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isCaviTxtModalOpen, setIsCaviTxtModalOpen] = useState(false);
 
   // Loading & Processing Bar State
   const [uploadProgress, setUploadProgress] = useState<UploadProgressState>({
@@ -481,6 +484,7 @@ FORMATOS COMPATIBLES:
   };
 
   const showMacros = activeConfigSection === 'macros' || activeConfigSection === 'todas';
+  const showCaviTxt = activeConfigSection === 'cavimaps-txt' || activeConfigSection === 'todas';
   const showOperacionesReportes =
     activeConfigSection === 'reportes-operaciones' ||
     activeConfigSection === 'reportes' ||
@@ -518,6 +522,27 @@ FORMATOS COMPATIBLES:
         userRole={userRole}
       />
 
+      {/* CAVIMAPS TXT CONFIGURATION */}
+      {showCaviTxt && (
+        <section className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[#0088ff] text-[24px]">map</span>
+                <h2 className="text-lg font-extrabold text-black">Carga de puntos CAVIMAPS</h2>
+              </div>
+              <p className="text-sm text-slate-600 mt-1">Cargue aquí el archivo <strong>.txt</strong> con los puntos territoriales. CAVI lo procesa y los puntos quedan disponibles en el mapa CAVIMAPS.</p>
+            </div>
+            {isAdmin && (
+              <button type="button" onClick={() => setIsCaviTxtModalOpen(true)} className="shrink-0 px-4 py-2.5 rounded-xl bg-[#0088ff] hover:bg-[#0070d8] text-white text-sm font-bold flex items-center justify-center gap-2 shadow-md cursor-pointer">
+                <span className="material-symbols-outlined text-[18px]">upload_file</span>
+                Cargar archivo .TXT
+              </button>
+            )}
+          </div>
+          <div className="mt-4 rounded-xl bg-[#f0f7ff] border border-[#bfdbfe] p-3 text-xs text-slate-700"><strong className="text-black">Flujo:</strong> Configuración → TXT → Procesar puntos → CAVIMAPS.</div>
+        </section>
+      )}
       {/* GLOBAL PERSISTENT PROGRESS BAR (Visible whenever upload/processing is happening) */}
       <ProcessingProgressBar
         progress={uploadProgress}
@@ -1425,6 +1450,24 @@ FORMATOS COMPATIBLES:
         onClose={() => setActiveFileForViewer(null)}
         onInjectRoutes={onInjectRoutes}
         onShowToast={onShowToast}
+      />
+      <ImportPointTxtModal
+        isOpen={isCaviTxtModalOpen}
+        onClose={() => setIsCaviTxtModalOpen(false)}
+        onShowToast={onShowToast}
+        existingPointsCount={0}
+        onPointsImported={(points: CaviPoint[], mode) => {
+          try {
+            const existingRaw = localStorage.getItem('cavi_user_custom_points');
+            const existing: CaviPoint[] = existingRaw ? JSON.parse(existingRaw) : [];
+            const merged = mode === 'replace' ? points : [...points, ...existing];
+            const unique = Array.from(new Map(merged.map((p) => [p.id + '_' + p.lat.toFixed(6) + '_' + p.lng.toFixed(6), p])).values());
+            localStorage.setItem('cavi_user_custom_points', JSON.stringify(unique));
+            window.dispatchEvent(new CustomEvent('cavi-custom-points-updated'));
+          } catch {
+            onShowToast('Error', 'No fue posible guardar los puntos CAVIMAPS.', 'alert');
+          }
+        }}
       />
     </div>
   );
