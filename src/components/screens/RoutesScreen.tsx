@@ -554,49 +554,6 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
         </div>
       </div>
 
-      {/* ========================================================================= */}
-      {/* 🧭 STATUS & GPS ACTION BAR */}
-      {/* ========================================================================= */}
-      {selectedDay !== 'mes' && selectedDay !== 'semana' && selectedDay !== 'calendario_auditor' && (
-        <div className="flex items-center justify-between flex-wrap gap-2.5 bg-[#131b2e] px-4 py-2.5 rounded-2xl border border-[#222a3d] shadow-sm">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-white flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[18px] text-[#38bdf8]">map</span>
-              <span>Mapa Departamental Claro &amp; Despacho</span>
-            </span>
-            <span className="px-2 py-0.5 rounded-full bg-[#10b981]/20 text-[#4edea3] text-[10px] font-bold border border-[#10b981]/30">
-              CAVIMAPS Claro Activo
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {selectedAuditorForMap !== 'todos' && (
-              <span className="px-2.5 py-1 rounded-lg bg-[#0088ff]/20 text-[#38bdf8] text-xs font-bold flex items-center gap-1">
-                <span>Ruta: {auditors.find(a => a.id === effectiveAuditorForMap)?.name}</span>
-                <button
-                  type="button"
-                  onClick={() => setSelectedAuditorForMap('todos')}
-                  className="hover:text-white cursor-pointer ml-1"
-                  title="Quitar filtro de ruta"
-                >
-                  ✕
-                </button>
-              </span>
-            )}
-
-            <button
-              type="button"
-              onClick={() => setIsGpsModalOpen(true)}
-              className="px-3 py-1.5 rounded-xl bg-[#1e293b] hover:bg-[#2d3a58] text-[#38bdf8] text-xs font-bold border border-[#3b4760] flex items-center gap-1.5 transition-colors cursor-pointer"
-              title="Abrir mapa de pantalla completa"
-            >
-              <span className="material-symbols-outlined text-[16px]">fullscreen</span>
-              <span>Pantalla Completa</span>
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* VISTA MENSUAL, SEMANAL O DIARIA */}
       {selectedDay === 'mes' ? (
         <MonthlyRoutesView
