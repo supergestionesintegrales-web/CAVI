@@ -87,7 +87,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
   }, [customPoints, initialPoints]);
 
   // Map settings state: default to 'streets' (claro/light)
-  const [mapStyle, setMapStyle] = useState<'streets' | 'light' | 'satellite' | 'dark'>('streets');
+  const [mapStyle, setMapStyle] = useState<'streets' | 'light' | 'satellite'>('streets');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [filterRegion, setFilterRegion] = useState<'Todas' | 'Norte' | 'Centro' | 'Sur' | 'Bancario'>('Todas');
   const [filterChannel, setFilterChannel] = useState<string>('todos');
@@ -901,16 +901,6 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
               title="Vista Satelital"
             >
               Satelital
-            </button>
-            <button
-              type="button"
-              onClick={() => setMapStyle('dark')}
-              className={`px-2 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
-                mapStyle === 'dark' ? 'bg-[#0088ff] text-white shadow-xs' : 'text-[#cbd5e1] hover:text-white'
-              }`}
-              title="Modo Nocturno"
-            >
-              Oscuro
             </button>
           </div>
 
