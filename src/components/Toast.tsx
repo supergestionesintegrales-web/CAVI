@@ -22,7 +22,7 @@ export const Toast: React.FC<ToastProps> = ({ toasts, onDismiss, theme }) => {
         document.documentElement.classList.contains('theme-light')));
 
   return (
-    <div className="fixed top-20 left-4 right-4 z-50 pointer-events-none flex flex-col gap-2 max-w-md mx-auto">
+    <div className="fixed top-20 left-4 right-4 z-[1300] pointer-events-none flex flex-col gap-2 max-w-md mx-auto">
       <AnimatePresence>
         {toasts.map((toast) => {
           const isAlert = toast.type === 'alert';

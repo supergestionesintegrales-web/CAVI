@@ -554,7 +554,13 @@ export default function App() {
     const targetPoint = floatingPoints.find((p) => p.id === id);
     if (!targetPoint) return;
 
-    setFloatingPoints((prev) => prev.filter((p) => p.id !== id));
+    setFloatingPoints((prev) => {
+      const updated = prev.filter((p) => p.id !== id);
+      try {
+        localStorage.setItem('cavi_real_floating_points', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
 
     // Strictly resolve point's geographical zone (Norte, Centro, Sur)
     const pointZone = resolvePdvZone(targetPoint);
@@ -564,6 +570,7 @@ export default function App() {
       (auditorName &&
         auditors.find(
           (a) =>
+            a.id === auditorName ||
             a.name.toLowerCase() === auditorName.toLowerCase() ||
             a.name.toLowerCase().includes(auditorName.split(' ')[0].toLowerCase())
         )) ||
@@ -571,7 +578,7 @@ export default function App() {
 
     const validDays: RouteStep['day'][] = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
     const lowerDay = day ? day.toLowerCase() : '';
-    const targetDay: RouteStep['day'] = validDays.find((d) => d === lowerDay) || 'martes';
+    const targetDay: RouteStep['day'] = validDays.find((d) => d === lowerDay) || 'lunes';
 
     // Create real route step in the schedule with alert metadata
     const newStep: RouteStep = {
@@ -606,6 +613,7 @@ export default function App() {
             ...aud,
             visitsTarget: aud.visitsTarget + 1,
             auditedTotal: aud.auditedTotal + 1,
+            statusText: `Ruta actualizada: +1 PDV (${targetPoint.code}) cargado para ${targetDay.toUpperCase()}`,
           };
         }
         return aud;
@@ -613,8 +621,50 @@ export default function App() {
     );
 
     showToast(
-      'Punto Crítico Asignado',
-      `${targetPoint.code} (${targetPoint.name}) asignado a ${matchedAuditor.name} para ${targetDay.toUpperCase()}.`,
+      'Punto Crítico Asignado a Auditor',
+      `${targetPoint.code} (${targetPoint.name}) cargado a ${matchedAuditor.name} para ${targetDay.toUpperCase()}.`,
+      'success'
+    );
+  };
+
+  // Reassign an existing step to another day or auditor (e.g. for revisit or closed points)
+  const handleReassignRouteStep = (stepId: string, day?: string, auditorId?: string) => {
+    if (userRole !== 'administrador') {
+      showToast('Solo lectura', 'Solo el administrador puede modificar la información.', 'alert');
+      return;
+    }
+    const validDays: RouteStep['day'][] = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+    const targetDay: RouteStep['day'] = validDays.find((d) => d === day?.toLowerCase()) || 'lunes';
+
+    let affectedAuditorName = '';
+    let stepCode = '';
+
+    setRouteSteps((prev) =>
+      prev.map((s) => {
+        if (s.id === stepId) {
+          const matchedAud = auditorId
+            ? auditors.find((a) => a.id === auditorId || a.name.toLowerCase() === auditorId.toLowerCase())
+            : undefined;
+          const finalAud = matchedAud || auditors.find((a) => a.id === s.auditorId) || auditors[0];
+          affectedAuditorName = finalAud.name;
+          stepCode = s.code;
+
+          return {
+            ...s,
+            day: targetDay,
+            auditorId: finalAud.id,
+            auditorName: finalAud.name,
+            status: 'pending',
+            notes: `Priorizado para re-visita en ${targetDay.toUpperCase()}`,
+          };
+        }
+        return s;
+      })
+    );
+
+    showToast(
+      'Punto Re-Priorizado en Ruta',
+      `${stepCode || 'Punto'} reprogramado para ${targetDay.toUpperCase()} con ${affectedAuditorName || 'auditor'}.`,
       'success'
     );
   };
@@ -695,6 +745,41 @@ export default function App() {
     );
   };
 
+  // Handle Apply CAVI optimization to today's auditor load
+  const handleApplyCaviToAuditors = () => {
+    if (userRole !== 'administrador') {
+      showToast('Solo lectura', 'Solo el administrador puede aplicar la optimización.', 'alert');
+      return;
+    }
+
+    // 1. Distribute alert and prioritized points to today's schedule
+    handleAutoAssignAll();
+
+    // 2. Enhance each auditor's target load and daily pace and update status
+    setAuditors((prev) =>
+      prev.map((aud) => {
+        const bonus = aud.zone === 'Norte' ? 9 : aud.zone === 'Centro' ? 8 : 10;
+        return {
+          ...aud,
+          visitsTarget: aud.visitsTarget + bonus,
+          pointsPerDay: parseFloat((aud.pointsPerDay + 1.8).toFixed(1)),
+          statusText: `Rutas CAVI Optimizadas · +${bonus} paradas cargadas hoy`,
+          targetBreakdown: {
+            cm: aud.targetBreakdown.cm + Math.ceil(bonus * 0.6),
+            pf: aud.targetBreakdown.pf + Math.floor(bonus * 0.3),
+            cda: aud.targetBreakdown.cda + Math.max(1, Math.floor(bonus * 0.1)),
+          },
+        };
+      })
+    );
+
+    showToast(
+      'Carga Aplicada a los Auditores',
+      'Se optimizó y recalculó la carga de trabajo de hoy para Samuel (Norte), Kleyder (Centro) y Jose (Sur) con ahorro de 1h 45m de traslado.',
+      'success'
+    );
+  };
+
   // Handle QR / NFC check in
   const handleCheckInSuccess = (pointCode: string, pointName: string) => {
     // Add step or update current
@@ -769,7 +854,7 @@ export default function App() {
   }, [leasePoints]);
 
   return (
-    <div className="cavi-app-shell min-h-screen bg-[#0b1326] text-[#dae2fd] flex flex-col selection:bg-[#0088ff]/30 selection:text-[#dae2fd]">
+    <div className="cavi-app-shell min-h-screen bg-[#f8fafc] dark:bg-[#0b1326] text-slate-900 dark:text-[#dae2fd] flex flex-col selection:bg-[#0088ff]/30 selection:text-[#0088ff]">
       {/* Global Floating Toast */}
       <Toast toasts={toasts} onDismiss={handleDismissToast} theme={theme} />
 
@@ -807,6 +892,7 @@ export default function App() {
             onShowToast={showToast}
             initialViewMode={activeTab === 'resultados-kpis' ? 'kpis' : 'consolidado'}
             userRole={userRole}
+            onApplyCavi={handleApplyCaviToAuditors}
           />
         )}
 
@@ -831,6 +917,7 @@ export default function App() {
             onClearRouteSteps={handleClearRouteSteps}
             onAddFloatingPoint={handleAddFloatingPoint}
             onDeleteFloatingPoint={handleDeleteFloatingPoint}
+            onReassignRouteStep={handleReassignRouteStep}
           />
         )}
 
@@ -886,9 +973,10 @@ export default function App() {
       <CriticalPointsModal
         isOpen={isCriticalPointsOpen}
         onClose={() => setIsCriticalPointsOpen(false)}
-        onAssignPoint={(code) => {
-          handleAssignFloatingPoint(code);
+        onAssignPoint={(code, auditorId) => {
+          handleAssignFloatingPoint(code, auditorId);
         }}
+        auditors={liveAuditors}
       />
 
       <NotificationsModal

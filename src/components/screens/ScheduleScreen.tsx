@@ -479,14 +479,6 @@ END:VCALENDAR`;
               <span className="material-symbols-outlined text-[18px]">chevron_right</span>
             </button>
           </div>
-
-          <button
-            onClick={handleExportSchedule}
-            className="px-3 py-1.5 rounded-xl bg-[#0088ff] hover:bg-[#0070d8] text-[#ffffff] text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm active:scale-95 cursor-pointer"
-          >
-            <span className="material-symbols-outlined text-[16px]">download</span>
-            <span className="hidden sm:inline">Exportar .ICS</span>
-          </button>
         </div>
       </div>
 
@@ -556,7 +548,7 @@ END:VCALENDAR`;
                 <span className="font-bold text-sm text-[#dae2fd]">
                   {calendarView === 'month'
                     ? `Planificación: ${MONTH_NAMES[currentMonth]} ${currentYear}`
-                    : `Semana: ${currentWeekDays[0].getDate()} ${MONTH_NAMES[currentWeekDays[0].getMonth()].slice(0, 3)} al ${currentWeekDays[6].getDate()} ${MONTH_NAMES[currentWeekDays[6].getMonth()].slice(0, 3)}`}
+                    : `Semana: ${currentWeekDays?.[0] ? currentWeekDays[0].getDate() : ''} ${currentWeekDays?.[0] ? MONTH_NAMES[currentWeekDays[0].getMonth()]?.slice(0, 3) : ''} al ${currentWeekDays?.[6] ? currentWeekDays[6].getDate() : ''} ${currentWeekDays?.[6] ? MONTH_NAMES[currentWeekDays[6].getMonth()]?.slice(0, 3) : ''}`}
                 </span>
               </div>
               <span className="text-[10px] text-slate-300 dark:text-[#cbd5e1] bg-[#171f33] px-2 py-0.5 rounded-md border border-[#222a3d] font-medium">
@@ -1404,24 +1396,6 @@ END:VCALENDAR`;
               })}
             </div>
           )}
-
-          {/* QUICK EXPORT & COPY ACTIONS */}
-          <div className="p-4 rounded-2xl bg-[#131b2e] border border-[#222a3d] flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="flex items-center gap-2 text-xs text-[#bbcabf]">
-              <span className="material-symbols-outlined text-[18px] text-[#0088ff]">verified_user</span>
-              <span>
-                Planificación certificada para auditorías de terreno en La Guajira ({selectedDay} {MONTH_NAMES[currentMonth]} {currentYear})
-              </span>
-            </div>
-            <button
-              type="button"
-              onClick={handleExportSchedule}
-              className="px-4 py-2 rounded-xl bg-[#0088ff] hover:bg-[#0070d8] text-[#ffffff] text-xs font-bold flex items-center gap-1.5 transition-all shadow-md shadow-[#0088ff]/30 active:scale-95 cursor-pointer self-stretch sm:self-auto justify-center"
-            >
-              <span className="material-symbols-outlined text-[18px]">calendar_add_on</span>
-              <span>Descargar Agenda del Día (.ICS)</span>
-            </button>
-          </div>
           </>
           )}
         </div>

@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *, [data-theme="dark"], [data-theme="dark"] *));
+@custom-variant light (&:where(.light, .light *, [data-theme="light"], [data-theme="light"] *));
 
 @theme {
   --color-surface: #0b1326;
@@ -81,6 +82,14 @@
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: auto;
+  }
+  html.light,
+  html[data-theme="light"],
+  body.light,
+  body[data-theme="light"],
+  body.theme-light {
+    background-color: #f8fafc !important;
+    color: #0f172a !important;
   }
   .pb-safe {
     padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -233,12 +242,46 @@ body.light {
 }
 
 /* Header & Floating Navigation */
+header {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  z-index: 99999 !important;
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
 [data-theme="light"] header,
 .theme-light header,
 .light header {
-  background-color: rgba(255, 255, 255, 0.95) !important;
+  background-color: #ffffff !important;
   border-bottom-color: #e2e8f0 !important;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04) !important;
+  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.06) !important;
+  opacity: 1 !important;
+  z-index: 99999 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+[data-theme="dark"] header,
+.theme-dark header,
+.dark header {
+  background-color: #0b1326 !important;
+  border-bottom-color: #222a3d !important;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.4) !important;
+  opacity: 1 !important;
+  z-index: 99999 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+main {
+  position: relative !important;
+  z-index: 1 !important;
+  isolation: isolate !important;
 }
 
 [data-theme="light"] nav.fixed.bottom-0,
@@ -1045,70 +1088,122 @@ body.light {
 }
 
 /* ==========================================================================
-   DARK THEME (TEMA OSCURO) - GUARANTEED TEXT VISIBILITY & CONTRAST
-   Replaces any dark slate text with bright readable text in Dark Mode.
+   UNIVERSAL CONTRAST ENGINE & DARK/LIGHT MODE TEXT LEGIBILITY:
+   - DONDE EL FONDO SEA CLARO -> EL TEXTO SERÁ NEGRO (#000000 / #0f172a)
+   - DONDE EL FONDO SEA OSCURO -> EL TEXTO SERÁ BLANCO (#ffffff / #f8fafc)
+   - EN MODO OSCURO EL TEXTO DE LAS CONFIGURACIONES Y MAPA: 100% VISIBLE EN NEGRO
    ========================================================================== */
+
+/* 1. DARK BACKGROUNDS: GUARANTEED WHITE TEXT */
 html.dark,
 body.dark,
 [data-theme="dark"],
 html:not([data-theme="light"]):not(.theme-light):not(.light),
 body:not([data-theme="light"]):not(.theme-light):not(.light) {
   background-color: #0b1326;
-  color: #f1f5f9;
-}
-
-/* Guarantee white/bright headings in dark mode */
-html.dark h1, html.dark h2, html.dark h3, html.dark h4, html.dark h5, html.dark h6,
-[data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3, [data-theme="dark"] h4,
-html:not([data-theme="light"]):not(.theme-light):not(.light) h1,
-html:not([data-theme="light"]):not(.theme-light):not(.light) h2,
-html:not([data-theme="light"]):not(.theme-light):not(.light) h3,
-html:not([data-theme="light"]):not(.theme-light):not(.light) h4 {
   color: #ffffff;
 }
 
-/* In dark mode, transform dark slate text to high-contrast white / light slate */
-html.dark .text-slate-900,
-[data-theme="dark"] .text-slate-900,
-html:not([data-theme="light"]):not(.theme-light):not(.light) .text-slate-900 {
+/* Headings on dark canvas */
+html.dark h1:not([class*="text-black"]):not([class*="text-slate-900"]):not(.text-black),
+html.dark h2:not([class*="text-black"]):not([class*="text-slate-900"]):not(.text-black),
+html.dark h3:not([class*="text-black"]):not([class*="text-slate-900"]):not(.text-black),
+html.dark h4:not([class*="text-black"]):not([class*="text-slate-900"]):not(.text-black),
+[data-theme="dark"] h1:not([class*="text-black"]):not([class*="text-slate-900"]):not(.text-black),
+[data-theme="dark"] h2:not([class*="text-black"]):not([class*="text-slate-900"]):not(.text-black),
+[data-theme="dark"] h3:not([class*="text-black"]):not([class*="text-slate-900"]):not(.text-black),
+[data-theme="dark"] h4:not([class*="text-black"]):not([class*="text-slate-900"]):not(.text-black) {
+  color: #ffffff;
+}
+
+/* 2. LIGHT BACKGROUNDS: GUARANTEED BLACK TEXT (EVEN IN DARK MODE) */
+.bg-white,
+.bg-white\/98,
+.bg-white\/95,
+.bg-white\/90,
+.bg-slate-50,
+.bg-slate-100,
+.bg-slate-200,
+.bg-emerald-50,
+.bg-blue-50,
+.bg-amber-50,
+.bg-gray-50,
+.bg-gray-100,
+.bg-\[\#ffffff\],
+.bg-\[\#f8fafc\],
+.bg-\[\#f4f6fb\],
+.cavi-bg-light,
+[data-theme="light"],
+.theme-light,
+.light {
+  color: #000000 !important;
+}
+
+/* All text elements placed over light backgrounds must be deep black */
+.bg-white h1, .bg-white h2, .bg-white h3, .bg-white h4, .bg-white h5, .bg-white h6,
+.bg-white p, .bg-white span:not([class*="text-white"]):not([class*="text-blue-"]):not([class*="text-emerald-"]):not([class*="text-red-"]),
+.bg-white label, .bg-white strong, .bg-white td, .bg-white th,
+.bg-white\/98 h1, .bg-white\/98 h2, .bg-white\/98 h3, .bg-white\/98 h4,
+.bg-white\/98 p, .bg-white\/98 span:not([class*="text-white"]):not([class*="text-blue-"]):not([class*="text-emerald-"]),
+.bg-white\/98 label,
+.bg-slate-50 h1, .bg-slate-50 h2, .bg-slate-50 h3, .bg-slate-50 h4,
+.bg-slate-50 p, .bg-slate-50 span:not([class*="text-white"]):not([class*="text-blue-"]):not([class*="text-emerald-"]),
+.bg-slate-50 label, .bg-slate-50 strong,
+.bg-slate-100 h1, .bg-slate-100 h2, .bg-slate-100 h3, .bg-slate-100 h4,
+.bg-slate-100 p, .bg-slate-100 span:not([class*="text-white"]):not([class*="text-blue-"]):not([class*="text-emerald-"]),
+.bg-slate-100 label, .bg-slate-100 strong,
+.bg-slate-200 h1, .bg-slate-200 h2, .bg-slate-200 h3, .bg-slate-200 h4,
+.bg-slate-200 p, .bg-slate-200 span:not([class*="text-white"]):not([class*="text-blue-"]),
+.bg-slate-200 label,
+.bg-\[\#ffffff\] h1, .bg-\[\#ffffff\] h2, .bg-\[\#ffffff\] h3, .bg-\[\#ffffff\] h4,
+.bg-\[\#ffffff\] p, .bg-\[\#ffffff\] span:not([class*="text-white"]):not([class*="text-blue-"]),
+.bg-\[\#ffffff\] label {
+  color: #000000 !important;
+}
+
+/* 3. INPUTS & SELECTS OVER LIGHT BACKGROUNDS */
+.bg-white input,
+.bg-white select,
+.bg-slate-50 input,
+.bg-slate-50 select,
+.bg-slate-100 input,
+.bg-slate-100 select,
+.bg-\[\#ffffff\] input,
+.bg-\[\#ffffff\] select {
+  color: #000000 !important;
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* 4. CONFIGURACIÓN DEL MAPA & PANELES DE CONFIGURACIÓN */
+.cavi-map-settings-drawer,
+.cavi-map-settings-drawer *,
+[aria-label="Configuración del mapa"],
+.cavi-config-card-light,
+.cavi-config-card-light * {
+  color: #000000 !important;
+}
+.cavi-map-settings-drawer .material-symbols-outlined,
+.cavi-config-card-light .material-symbols-outlined {
+  color: #0088ff !important;
+}
+.cavi-map-settings-drawer button.bg-blue-600 *,
+.cavi-map-settings-drawer .text-white {
   color: #ffffff !important;
 }
 
-html.dark .text-slate-800,
-[data-theme="dark"] .text-slate-800,
-html:not([data-theme="light"]):not(.theme-light):not(.light) .text-slate-800 {
-  color: #f8fafc !important;
-}
-
-html.dark .text-slate-700,
-[data-theme="dark"] .text-slate-700,
-html:not([data-theme="light"]):not(.theme-light):not(.light) .text-slate-700 {
-  color: #e2e8f0 !important;
-}
-
-html.dark .text-slate-600,
-[data-theme="dark"] .text-slate-600,
-html:not([data-theme="light"]):not(.theme-light):not(.light) .text-slate-600 {
-  color: #cbd5e1 !important;
-}
-
-html.dark .text-slate-500,
-[data-theme="dark"] .text-slate-500,
-html:not([data-theme="light"]):not(.theme-light):not(.light) .text-slate-500 {
-  color: #94a3b8 !important;
-}
-
-/* Fix low-contrast palette hexes in Dark Mode */
-html.dark .text-\[\#bbcabf\],
-[data-theme="dark"] .text-\[\#bbcabf\],
-html:not([data-theme="light"]):not(.theme-light):not(.light) .text-\[\#bbcabf\] {
-  color: #cbd5e1 !important;
-}
-
-html.dark .text-\[\#86948a\],
-[data-theme="dark"] .text-\[\#86948a\],
-html:not([data-theme="light"]):not(.theme-light):not(.light) .text-\[\#86948a\] {
-  color: #94a3b8 !important;
+/* 5. TEXTO EN CONTENEDORES OSCUROS ES BLANCO */
+.bg-\[\#0b1326\] h1, .bg-\[\#0b1326\] h2, .bg-\[\#0b1326\] h3, .bg-\[\#0b1326\] h4,
+.bg-\[\#0b1326\] p, .bg-\[\#0b1326\] label,
+.bg-\[\#131b2e\] h1, .bg-\[\#131b2e\] h2, .bg-\[\#131b2e\] h3, .bg-\[\#131b2e\] h4,
+.bg-\[\#131b2e\] p, .bg-\[\#131b2e\] label,
+.bg-\[\#171f33\] h1, .bg-\[\#171f33\] h2, .bg-\[\#171f33\] h3, .bg-\[\#171f33\] h4,
+.bg-\[\#171f33\] p, .bg-\[\#171f33\] label,
+.bg-slate-900 h1, .bg-slate-900 h2, .bg-slate-900 h3, .bg-slate-900 h4,
+.bg-slate-900 p, .bg-slate-900 label,
+.bg-slate-950 h1, .bg-slate-950 h2, .bg-slate-950 h3, .bg-slate-950 h4,
+.bg-slate-950 p, .bg-slate-950 label {
+  color: #ffffff;
 }
 
 /* Cronograma de semana (Weekly matrix & schedule) specific text in dark mode */

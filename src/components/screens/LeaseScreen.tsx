@@ -178,14 +178,14 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
             <span className="material-symbols-outlined text-[#0088ff] text-[28px]">
               storefront
             </span>
-            <h1 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
               Gestión de Puntos en Arrendamiento
             </h1>
             <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#0088ff]/15 text-[#38bdf8] border border-[#0088ff]/30">
               CAVI Real Estate
             </span>
           </div>
-          <p className="text-xs text-[#94a3b8] mt-1">
+          <p className="text-xs text-slate-500 dark:text-[#94a3b8] mt-1">
             Supervisión táctica de apertura y cierre en tiempo real, horarios semanales, geolocalización y contratos de alquiler en La Guajira.
           </p>
         </div>
@@ -208,93 +208,102 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
       {/* TOP KPI CARDS */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         {/* Total Points */}
-        <div className="p-3.5 bg-[#131b2e] rounded-2xl border border-[#222a3d] flex flex-col justify-between shadow-sm">
-          <div className="flex items-center justify-between text-[#94a3b8]">
-            <span className="text-[11px] font-semibold uppercase tracking-wider">Total Inmuebles</span>
-            <span className="material-symbols-outlined text-[18px] text-[#38bdf8]">domain</span>
+        <div className="p-3.5 bg-white dark:bg-[#131b2e] rounded-2xl border border-slate-200 dark:border-[#222a3d] flex flex-col justify-between shadow-xs">
+          <div className="flex items-center justify-between text-slate-500 dark:text-[#94a3b8]">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-600 dark:text-[#94a3b8]">Total Inmuebles</span>
+            <span className="material-symbols-outlined text-[18px] text-[#0088ff] dark:text-[#38bdf8]">domain</span>
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-extrabold text-white font-mono">{metrics.total}</span>
-            <span className="text-[11px] text-[#94a3b8]">puntos arrendados</span>
+            <span className="text-2xl font-extrabold text-slate-900 dark:text-white font-mono">{metrics.total}</span>
+            <span className="text-[11px] text-slate-500 dark:text-[#94a3b8]">puntos arrendados</span>
           </div>
         </div>
 
         {/* Open Now */}
-        <div className="p-3.5 bg-[#131b2e] rounded-2xl border border-[#10b981]/30 flex flex-col justify-between shadow-sm relative overflow-hidden">
-          <div className="flex items-center justify-between text-[#94a3b8]">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#4edea3]">
+        <div className="p-3.5 bg-white dark:bg-[#131b2e] rounded-2xl border border-emerald-200 dark:border-[#10b981]/30 flex flex-col justify-between shadow-xs relative overflow-hidden">
+          <div className="flex items-center justify-between text-emerald-600 dark:text-[#4edea3]">
+            <span className="text-[11px] font-semibold uppercase tracking-wider">
               Abiertos Ahora
             </span>
             <span className="relative flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10b981] opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#10b981]"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
             </span>
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-extrabold text-[#4edea3] font-mono">
+            <span className="text-2xl font-extrabold text-emerald-600 dark:text-[#4edea3] font-mono">
               {metrics.openCount}
             </span>
-            <span className="text-[11px] text-[#4edea3] font-bold">
+            <span className="text-[11px] text-emerald-600 dark:text-[#4edea3] font-bold">
               ({metrics.openPct}% activos)
             </span>
           </div>
         </div>
 
         {/* Closed Now */}
-        <div className="p-3.5 bg-[#131b2e] rounded-2xl border border-[#222a3d] flex flex-col justify-between shadow-sm">
-          <div className="flex items-center justify-between text-[#94a3b8]">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#ffb4ab]">
+        <div className="p-3.5 bg-white dark:bg-[#131b2e] rounded-2xl border border-rose-200 dark:border-[#222a3d] flex flex-col justify-between shadow-xs">
+          <div className="flex items-center justify-between text-rose-500 dark:text-[#ffb4ab]">
+            <span className="text-[11px] font-semibold uppercase tracking-wider">
               Cerrados Ahora
             </span>
-            <span className="material-symbols-outlined text-[18px] text-[#ffb4ab]">lock</span>
+            <span className="material-symbols-outlined text-[18px]">lock</span>
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-extrabold text-white font-mono">{metrics.closedCount}</span>
-            <span className="text-[11px] text-[#94a3b8]">por horario / turno</span>
+            <span className="text-2xl font-extrabold text-rose-600 dark:text-[#ffb4ab] font-mono">{metrics.closedCount}</span>
+            <span className="text-[11px] text-slate-500 dark:text-[#94a3b8]">por horario / turno</span>
           </div>
         </div>
 
         {/* Incidents / Alerts */}
-        <div className="p-3.5 bg-[#131b2e] rounded-2xl border border-[#ffb95f]/30 flex flex-col justify-between shadow-sm">
-          <div className="flex items-center justify-between text-[#94a3b8]">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#ffb95f]">
+        <div className="p-3.5 bg-white dark:bg-[#131b2e] rounded-2xl border border-amber-200 dark:border-[#ffb95f]/30 flex flex-col justify-between shadow-xs">
+          <div className="flex items-center justify-between text-amber-600 dark:text-[#ffb95f]">
+            <span className="text-[11px] font-semibold uppercase tracking-wider">
               Con Novedad / Obras
             </span>
-            <span className="material-symbols-outlined text-[18px] text-[#ffb95f]">warning</span>
+            <span className="material-symbols-outlined text-[18px]">warning</span>
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-extrabold text-[#ffb95f] font-mono">
+            <span className="text-2xl font-extrabold text-amber-600 dark:text-[#ffb95f] font-mono">
               {metrics.incidentCount}
             </span>
-            <span className="text-[11px] text-[#94a3b8]">reportes activos</span>
+            <span className="text-[11px] text-slate-500 dark:text-[#94a3b8]">reportes activos</span>
           </div>
         </div>
 
         {/* Depurado */}
-        <div className="p-3.5 bg-[#131b2e] rounded-2xl border border-[#a855f7]/30 flex flex-col justify-between shadow-sm"><div className="flex items-center justify-between text-[#94a3b8]"><span className="text-[11px] font-semibold uppercase tracking-wider text-[#c084fc]">Depurados</span><span className="material-symbols-outlined text-[18px] text-[#c084fc]">inventory_2</span></div><div className="mt-2 flex items-baseline gap-2"><span className="text-2xl font-extrabold text-[#c084fc] font-mono">{metrics.depuradoCount}</span><span className="text-[11px] text-[#94a3b8]">contratos cerrados</span></div></div>
+        <div className="p-3.5 bg-white dark:bg-[#131b2e] rounded-2xl border border-purple-200 dark:border-[#a855f7]/30 flex flex-col justify-between shadow-xs">
+          <div className="flex items-center justify-between text-purple-600 dark:text-[#c084fc]">
+            <span className="text-[11px] font-semibold uppercase tracking-wider">Depurados</span>
+            <span className="material-symbols-outlined text-[18px]">inventory_2</span>
+          </div>
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="text-2xl font-extrabold text-purple-600 dark:text-[#c084fc] font-mono">{metrics.depuradoCount}</span>
+            <span className="text-[11px] text-slate-500 dark:text-[#94a3b8]">contratos cerrados</span>
+          </div>
+        </div>
 
         {/* Total Rent */}
-        <div className="col-span-2 lg:col-span-1 p-3.5 bg-[#131b2e] rounded-2xl border border-[#222a3d] flex flex-col justify-between shadow-sm">
-          <div className="flex items-center justify-between text-[#94a3b8]">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#c0c1ff]">
+        <div className="col-span-2 lg:col-span-1 p-3.5 bg-white dark:bg-[#131b2e] rounded-2xl border border-slate-200 dark:border-[#222a3d] flex flex-col justify-between shadow-xs">
+          <div className="flex items-center justify-between text-indigo-600 dark:text-[#c0c1ff]">
+            <span className="text-[11px] font-semibold uppercase tracking-wider">
               Canon Consolidado
             </span>
-            <span className="material-symbols-outlined text-[18px] text-[#c0c1ff]">payments</span>
+            <span className="material-symbols-outlined text-[18px]">payments</span>
           </div>
           <div className="mt-2 flex items-baseline gap-1.5">
-            <span className="text-lg sm:text-xl font-extrabold text-white font-mono truncate">
+            <span className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white font-mono truncate">
               {formatCOP(metrics.totalRent)}
             </span>
-            <span className="text-[10px] text-[#94a3b8]">/mes</span>
+            <span className="text-[10px] text-slate-500 dark:text-[#94a3b8]">/mes</span>
           </div>
         </div>
       </div>
 
       {/* FILTER & SEARCH CONTROLS */}
-      <div className="p-3.5 bg-[#131b2e] rounded-2xl border border-[#222a3d] space-y-3">
+      <div className="p-3.5 bg-white dark:bg-[#131b2e] rounded-2xl border border-slate-200 dark:border-[#222a3d] space-y-3 shadow-xs">
         <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
           <div className="relative flex-1">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#94a3b8] text-[18px]">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#94a3b8] text-[18px]">
               search
             </span>
             <input
@@ -302,27 +311,27 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Buscar por código (ARR-RIO-001), nombre, dirección, barrio o arrendador..."
-              className="w-full pl-9 pr-8 py-2 rounded-xl bg-[#171f33] border border-[#2d3449] text-xs text-white placeholder-[#94a3b8] focus:border-[#0088ff] focus:outline-none"
+              className="w-full pl-9 pr-8 py-2 rounded-xl bg-slate-50 dark:bg-[#171f33] border border-slate-300 dark:border-[#2d3449] text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-[#94a3b8] focus:border-[#0088ff] focus:outline-none"
             />
             {searchTerm && (
               <button
                 type="button"
                 onClick={() => setSearchTerm('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#94a3b8] hover:text-white cursor-pointer"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#94a3b8] hover:text-slate-700 dark:hover:text-white cursor-pointer"
               >
                 <span className="material-symbols-outlined text-[16px]">close</span>
               </button>
             )}
           </div>
 
-          <div className="flex items-center gap-1 bg-[#171f33] p-1 rounded-xl border border-[#2d3449] shrink-0 self-start md:self-auto">
+          <div className="flex items-center gap-1 bg-slate-100 dark:bg-[#171f33] p-1 rounded-xl border border-slate-200 dark:border-[#2d3449] shrink-0 self-start md:self-auto">
             <button
               type="button"
               onClick={() => setViewMode('cards')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                 viewMode === 'cards'
                   ? 'bg-[#0088ff] text-white shadow-sm'
-                  : 'text-[#94a3b8] hover:text-white'
+                  : 'text-slate-600 dark:text-[#94a3b8] hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               <span className="material-symbols-outlined text-[16px]">grid_view</span>
@@ -334,7 +343,7 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
               className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                 viewMode === 'map'
                   ? 'bg-[#0088ff] text-white shadow-sm'
-                  : 'text-[#94a3b8] hover:text-white'
+                  : 'text-slate-600 dark:text-[#94a3b8] hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               <span className="material-symbols-outlined text-[16px]">map</span>
@@ -343,15 +352,15 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-[#222a3d]">
+        <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-slate-200 dark:border-[#222a3d]">
           <div className="flex flex-wrap items-center gap-1.5 py-1">
             <button
               type="button"
               onClick={() => setStatusFilter('all')}
               className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 statusFilter === 'all'
-                  ? 'bg-[#222a3d] text-white font-bold'
-                  : 'text-[#94a3b8] hover:text-white hover:bg-[#171f33]'
+                  ? 'bg-slate-200 dark:bg-[#222a3d] text-slate-900 dark:text-white font-bold'
+                  : 'text-slate-600 dark:text-[#94a3b8] hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#171f33]'
               }`}
             >
               Todos ({pointsWithStatus.length})
@@ -361,11 +370,11 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
               onClick={() => setStatusFilter('open')}
               className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer ${
                 statusFilter === 'open'
-                  ? 'bg-[#10b981]/25 text-[#4edea3] font-bold border border-[#10b981]/40'
-                  : 'text-[#94a3b8] hover:text-[#4edea3] hover:bg-[#171f33]'
+                  ? 'bg-emerald-100 text-emerald-800 dark:bg-[#10b981]/25 dark:text-[#4edea3] font-bold border border-emerald-300 dark:border-[#10b981]/40'
+                  : 'text-slate-600 dark:text-[#94a3b8] hover:text-emerald-700 dark:hover:text-[#4edea3] hover:bg-slate-100 dark:hover:bg-[#171f33]'
               }`}
             >
-              <span className="w-2 h-2 rounded-full bg-[#10b981]"></span>
+              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
               Abiertos ({metrics.openCount})
             </button>
             <button
@@ -373,24 +382,35 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
               onClick={() => setStatusFilter('closed')}
               className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer ${
                 statusFilter === 'closed'
-                  ? 'bg-[#ef4444]/25 text-[#ffb4ab] font-bold border border-[#ef4444]/40'
-                  : 'text-[#94a3b8] hover:text-[#ffb4ab] hover:bg-[#171f33]'
+                  ? 'bg-rose-100 text-rose-800 dark:bg-[#ef4444]/25 dark:text-[#ffb4ab] font-bold border border-rose-300 dark:border-[#ef4444]/40'
+                  : 'text-slate-600 dark:text-[#94a3b8] hover:text-rose-700 dark:hover:text-[#ffb4ab] hover:bg-slate-100 dark:hover:bg-[#171f33]'
               }`}
             >
-              <span className="w-2 h-2 rounded-full bg-[#ef4444]"></span>
+              <span className="w-2 h-2 rounded-full bg-rose-500"></span>
               Cerrados ({metrics.closedCount})
             </button>
-            <button type="button" onClick={() => setStatusFilter('depurado')} className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer ${statusFilter === 'depurado' ? 'bg-[#a855f7]/20 text-[#c084fc] font-bold border border-[#a855f7]/40' : 'text-[#94a3b8] hover:text-[#c084fc] hover:bg-[#171f33]'}`}><span className="w-2 h-2 rounded-full bg-[#a855f7]"></span>Depurados ({metrics.depuradoCount})</button>
+            <button
+              type="button"
+              onClick={() => setStatusFilter('depurado')}
+              className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer ${
+                statusFilter === 'depurado'
+                  ? 'bg-purple-100 text-purple-800 dark:bg-[#a855f7]/20 dark:text-[#c084fc] font-bold border border-purple-300 dark:border-[#a855f7]/40'
+                  : 'text-slate-600 dark:text-[#94a3b8] hover:text-purple-700 dark:hover:text-[#c084fc] hover:bg-slate-100 dark:hover:bg-[#171f33]'
+              }`}
+            >
+              <span className="w-2 h-2 rounded-full bg-purple-500"></span>
+              Depurados ({metrics.depuradoCount})
+            </button>
             <button
               type="button"
               onClick={() => setStatusFilter('incidents')}
               className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer ${
                 statusFilter === 'incidents'
-                  ? 'bg-[#f59e0b]/25 text-[#ffb95f] font-bold border border-[#f59e0b]/40'
-                  : 'text-[#94a3b8] hover:text-[#ffb95f] hover:bg-[#171f33]'
+                  ? 'bg-amber-100 text-amber-800 dark:bg-[#f59e0b]/25 dark:text-[#ffb95f] font-bold border border-amber-300 dark:border-[#f59e0b]/40'
+                  : 'text-slate-600 dark:text-[#94a3b8] hover:text-amber-700 dark:hover:text-[#ffb95f] hover:bg-slate-100 dark:hover:bg-[#171f33]'
               }`}
             >
-              <span className="w-2 h-2 rounded-full bg-[#f59e0b]"></span>
+              <span className="w-2 h-2 rounded-full bg-amber-500"></span>
               Con Novedades ({metrics.incidentCount})
             </button>
           </div>
@@ -399,7 +419,7 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
             <select
               value={selectedMunicipality}
               onChange={(e) => setSelectedMunicipality(e.target.value)}
-              className="px-2.5 py-1 rounded-lg bg-[#171f33] border border-[#2d3449] text-xs text-white focus:outline-none"
+              className="px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-[#171f33] border border-slate-300 dark:border-[#2d3449] text-xs text-slate-800 dark:text-white focus:outline-none"
             >
               <option value="all">Todos los Municipios</option>
               {municipalitiesList.map((m) => (
@@ -412,7 +432,7 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
             <select
               value={selectedPropertyType}
               onChange={(e) => setSelectedPropertyType(e.target.value)}
-              className="px-2.5 py-1 rounded-lg bg-[#171f33] border border-[#2d3449] text-xs text-white focus:outline-none"
+              className="px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-[#171f33] border border-slate-300 dark:border-[#2d3449] text-xs text-slate-800 dark:text-white focus:outline-none"
             >
               <option value="all">Todos los Inmuebles</option>
               <option value="Local Comercial">Local Comercial</option>
@@ -438,12 +458,12 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
       {viewMode === 'cards' && (
         <>
           {filteredPoints.length === 0 ? (
-            <div className="p-12 bg-[#131b2e] rounded-2xl border border-[#222a3d] text-center space-y-3">
-              <div className="w-12 h-12 rounded-full bg-[#171f33] text-[#94a3b8] flex items-center justify-center mx-auto">
+            <div className="p-12 bg-white dark:bg-[#131b2e] rounded-2xl border border-slate-200 dark:border-[#222a3d] text-center space-y-3 shadow-xs">
+              <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-[#171f33] text-slate-500 dark:text-[#94a3b8] flex items-center justify-center mx-auto">
                 <span className="material-symbols-outlined text-[28px]">search_off</span>
               </div>
-              <h3 className="text-base font-bold text-white">No se encontraron inmuebles</h3>
-              <p className="text-xs text-[#94a3b8] max-w-sm mx-auto">
+              <h3 className="text-base font-bold text-slate-900 dark:text-white">No se encontraron inmuebles</h3>
+              <p className="text-xs text-slate-500 dark:text-[#94a3b8] max-w-sm mx-auto">
                 No hay puntos de arrendamiento que coincidan con los filtros o el término de búsqueda ingresado.
               </p>
               <button
@@ -454,7 +474,7 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
                   setSelectedMunicipality('all');
                   setSelectedPropertyType('all');
                 }}
-                className="px-4 py-2 rounded-xl text-xs font-bold text-[#0088ff] hover:bg-[#171f33] transition-colors cursor-pointer"
+                className="px-4 py-2 rounded-xl text-xs font-bold text-[#0088ff] hover:bg-slate-100 dark:hover:bg-[#171f33] transition-colors cursor-pointer"
               >
                 Limpiar Filtros
               </button>
@@ -463,13 +483,13 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
             <div className="space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-2 px-1">
                 <div>
-                  <h2 className="text-sm font-extrabold text-white flex items-center gap-2">
+                  <h2 className="text-sm font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
                     <span className="material-symbols-outlined text-[#0088ff] text-[18px]">grid_view</span>
                     Puntos de Arrendamiento · Mosaico (4 Columnas)
                   </h2>
-                  <p className="text-[11px] text-[#94a3b8]">Vista táctica en cuadrícula de 4 columnas con estado operativo, canon, contrato y geolocalización.</p>
+                  <p className="text-[11px] text-slate-500 dark:text-[#94a3b8]">Vista táctica en cuadrícula de 4 columnas con estado operativo, canon, contrato y geolocalización.</p>
                 </div>
-                <span className="text-xs font-bold px-2.5 py-1 rounded-lg bg-[#171f33] border border-[#222a3d] text-[#38bdf8]">
+                <span className="text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-[#171f33] border border-slate-200 dark:border-[#222a3d] text-[#0070d8] dark:text-[#38bdf8]">
                   {filteredPoints.length} de {pointsWithStatus.length} puntos
                 </span>
               </div>
@@ -490,48 +510,48 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
                       tabIndex={0}
                       onClick={() => handleOpenDetails(pt)}
                       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleOpenDetails(pt); }}
-                      className={`group flex flex-col justify-between bg-[#131b2e] rounded-2xl border transition-all duration-200 shadow-sm hover:shadow-xl hover:border-[#0088ff]/60 hover:-translate-y-0.5 cursor-pointer overflow-hidden p-3.5 relative ${
+                      className={`group flex flex-col justify-between bg-white dark:bg-[#131b2e] rounded-2xl border transition-all duration-200 shadow-xs hover:shadow-xl hover:border-[#0088ff]/60 hover:-translate-y-0.5 cursor-pointer overflow-hidden p-3.5 relative ${
                         isInactive
-                          ? 'border-[#a855f7]/40 bg-gradient-to-b from-[#131b2e] to-[#181326]'
+                          ? 'border-purple-200 dark:border-[#a855f7]/40 bg-purple-50/40 dark:bg-gradient-to-b dark:from-[#131b2e] dark:to-[#181326]'
                           : hasIncident
-                          ? 'border-[#ffb95f]/40 bg-gradient-to-b from-[#131b2e] to-[#201a14]'
-                          : 'border-[#222a3d] hover:bg-[#162038]'
+                          ? 'border-amber-200 dark:border-[#ffb95f]/40 bg-amber-50/40 dark:bg-gradient-to-b dark:from-[#131b2e] dark:to-[#201a14]'
+                          : 'border-slate-200 dark:border-[#222a3d] hover:bg-slate-50/80 dark:hover:bg-[#162038]'
                       }`}
                     >
                       {/* Cabecera de la tarjeta: Código + Estado Operativo */}
                       <div>
-                        <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-[#222a3d]">
+                        <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-200 dark:border-[#222a3d]">
                           <div className="flex items-center gap-2 min-w-0">
                             <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
                               isInactive
-                                ? 'bg-[#a855f7]/15 text-[#c084fc] border border-[#a855f7]/30'
+                                ? 'bg-purple-100 text-purple-700 dark:bg-[#a855f7]/15 dark:text-[#c084fc] border border-purple-200 dark:border-[#a855f7]/30'
                                 : status.isOpenNow
-                                ? 'bg-[#10b981]/15 text-[#4edea3] border border-[#10b981]/30'
+                                ? 'bg-emerald-100 text-emerald-700 dark:bg-[#10b981]/15 dark:text-[#4edea3] border border-emerald-200 dark:border-[#10b981]/30'
                                 : hasIncident
-                                ? 'bg-[#ffb95f]/15 text-[#ffb95f] border border-[#ffb95f]/30'
-                                : 'bg-[#ef4444]/15 text-[#ffb4ab] border border-[#ef4444]/30'
+                                ? 'bg-amber-100 text-amber-700 dark:bg-[#ffb95f]/15 dark:text-[#ffb95f] border border-amber-200 dark:border-[#ffb95f]/30'
+                                : 'bg-rose-100 text-rose-700 dark:bg-[#ef4444]/15 dark:text-[#ffb4ab] border border-rose-200 dark:border-[#ef4444]/30'
                             }`}>
                               <span className="material-symbols-outlined text-[18px]">
                                 {isInactive ? 'inventory_2' : status.isOpenNow ? 'storefront' : 'lock'}
                               </span>
                             </div>
-                            <span className="text-[11px] font-mono font-bold px-1.5 py-0.5 rounded bg-[#0b1326] text-[#38bdf8] border border-[#2d3449]">
+                            <span className="text-[11px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-[#0b1326] text-[#0070d8] dark:text-[#38bdf8] border border-slate-200 dark:border-[#2d3449]">
                               {pt.code}
                             </span>
                           </div>
 
                           <div className="shrink-0 flex items-center">
                             {isInactive ? (
-                              <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-[#a855f7]/15 text-[#c084fc] border border-[#a855f7]/30">
+                              <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-purple-100 text-purple-700 dark:bg-[#a855f7]/15 dark:text-[#c084fc] border border-purple-200 dark:border-[#a855f7]/30">
                                 DEPURADO
                               </span>
                             ) : (
                               <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold flex items-center gap-1 border ${
                                 status.isOpenNow
-                                  ? 'bg-[#10b981]/15 text-[#4edea3] border-[#10b981]/30'
-                                  : 'bg-[#ef4444]/15 text-[#ffb4ab] border-[#ef4444]/30'
+                                  ? 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-[#10b981]/15 dark:text-[#4edea3] dark:border-[#10b981]/30'
+                                  : 'bg-rose-100 text-rose-700 border-rose-200 dark:bg-[#ef4444]/15 dark:text-[#ffb4ab] dark:border-[#ef4444]/30'
                               }`}>
-                                <span className={`w-1.5 h-1.5 rounded-full ${status.isOpenNow ? 'bg-[#10b981] animate-pulse' : 'bg-[#ef4444]'}`}></span>
+                                <span className={`w-1.5 h-1.5 rounded-full ${status.isOpenNow ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`}></span>
                                 {status.isOpenNow ? 'ABIERTO' : 'CERRADO'}
                               </span>
                             )}
@@ -540,7 +560,7 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
 
                         {/* Etiquetas contextuales */}
                         <div className="flex flex-wrap items-center gap-1 mt-2.5">
-                          <span className="text-[9px] font-semibold px-2 py-0.5 rounded-md bg-[#171f33] text-[#94a3b8] border border-[#222a3d]">
+                          <span className="text-[9px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 dark:bg-[#171f33] dark:text-[#94a3b8] border border-slate-200 dark:border-[#222a3d]">
                             {pt.propertyType}
                           </span>
                           {hasIncident && !isInactive && (
@@ -571,28 +591,28 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
                         </div>
 
                         {/* Cuadrícula de Métricas Clave (Alto Contraste y Legibilidad) */}
-                        <div className="mt-3 grid grid-cols-2 gap-2.5 p-2.5 rounded-xl bg-slate-50 dark:bg-[#0e172a] border border-slate-200 dark:border-[#2d3a58] text-[10px] shadow-inner">
+                        <div className="mt-3 grid grid-cols-2 gap-2.5 p-2.5 rounded-xl bg-slate-50 dark:bg-[#0e172a] border border-slate-200 dark:border-[#2d3a58] text-[10px] shadow-xs">
                           <div>
-                            <span className="block text-[9px] uppercase tracking-wider text-slate-600 dark:text-[#94a3b8] font-bold">Canon Mensual</span>
-                            <span className="text-[12px] font-extrabold font-mono text-emerald-600 dark:text-[#4edea3] truncate block mt-0.5">{formatCOP(pt.monthlyRent)}</span>
+                            <span className="block text-[9px] uppercase tracking-wider text-slate-500 dark:text-[#94a3b8] font-bold">Canon Mensual</span>
+                            <span className="text-[12px] font-extrabold font-mono text-emerald-700 dark:text-[#4edea3] truncate block mt-0.5">{formatCOP(pt.monthlyRent)}</span>
                           </div>
                           <div>
-                            <span className="block text-[9px] uppercase tracking-wider text-slate-600 dark:text-[#94a3b8] font-bold">Vigencia</span>
+                            <span className="block text-[9px] uppercase tracking-wider text-slate-500 dark:text-[#94a3b8] font-bold">Vigencia</span>
                             <span className={`text-[11px] font-bold truncate block mt-0.5 ${
-                              contract.status === 'valid' ? 'text-emerald-600 dark:text-[#4edea3]' : contract.status === 'expiring_soon' ? 'text-amber-600 dark:text-[#ffb95f]' : 'text-red-600 dark:text-[#ffb4ab]'
+                              contract.status === 'valid' ? 'text-emerald-700 dark:text-[#4edea3]' : contract.status === 'expiring_soon' ? 'text-amber-700 dark:text-[#ffb95f]' : 'text-rose-700 dark:text-[#ffb4ab]'
                             }`}>
                               {contract.label}
                             </span>
                           </div>
                           <div>
-                            <span className="block text-[9px] uppercase tracking-wider text-slate-600 dark:text-[#94a3b8] font-bold">Horario Hoy</span>
+                            <span className="block text-[9px] uppercase tracking-wider text-slate-500 dark:text-[#94a3b8] font-bold">Horario Hoy</span>
                             <span className="text-[11px] text-slate-800 dark:text-[#f8fafc] font-semibold truncate block mt-0.5">
                               {status.todayHours?.isOpen ? `${status.todayHours.open} - ${status.todayHours.close}` : 'Cerrado'}
                             </span>
                           </div>
                           <div>
-                            <span className="block text-[9px] uppercase tracking-wider text-slate-600 dark:text-[#94a3b8] font-bold">Días Cuenta</span>
-                            <span className="text-[11px] font-extrabold font-mono text-[#0088ff] dark:text-[#38bdf8] truncate block mt-0.5">
+                            <span className="block text-[9px] uppercase tracking-wider text-slate-500 dark:text-[#94a3b8] font-bold">Días Cuenta</span>
+                            <span className="text-[11px] font-extrabold font-mono text-[#0070d8] dark:text-[#38bdf8] truncate block mt-0.5">
                               {pt.daysOfAccount !== undefined ? `${pt.daysOfAccount} días` : 'N/D'}
                             </span>
                           </div>

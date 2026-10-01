@@ -49,10 +49,10 @@ export const ConfigTopSlider: React.FC<ConfigTopSliderProps> = ({
     ? [
         {
           id: 'macros',
-          title: 'Macro-Carpetas & Archivos (Solo Vista)',
-          shortTitle: 'Macros (Solo Vista)',
+          title: 'Macro-Carpetas & Archivos',
+          shortTitle: 'Macro-Carpetas',
           icon: 'folder_open',
-          badgeText: `${filesCount} docs · Vista`,
+          badgeText: `${filesCount} docs`,
           badgeColor: 'bg-[#171f33] text-[#38bdf8] border-[#38bdf8]/30',
           description: 'Consulta, lectura y visor de archivos indexados',
           isActiveMatch: activeSection === 'macros',

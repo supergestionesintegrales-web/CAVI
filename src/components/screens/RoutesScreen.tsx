@@ -41,6 +41,7 @@ interface RoutesScreenProps {
   onAddFloatingPoint?: (fp: Omit<FloatingPoint, 'id'>) => void;
   onDeleteFloatingPoint?: (id: string) => void;
   onReloadSampleAlertPoints?: () => void;
+  onReassignRouteStep?: (stepId: string, day: RouteStep['day'], auditorId?: string) => void;
 }
 
 export const RoutesScreen: React.FC<RoutesScreenProps> = ({
@@ -62,10 +63,11 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
   onAddFloatingPoint,
   onDeleteFloatingPoint,
   onReloadSampleAlertPoints,
+  onReassignRouteStep,
 }) => {
   const isAuxiliar = userRole === 'auxiliar';
   const isAdmin = userRole === 'administrador';
-  const currentAuditor = auditors.find((a) => a.id === activeAuditorId) || auditors[0];
+  const currentAuditor = auditors?.find((a) => a.id === activeAuditorId) || auditors?.[0];
 
   // Resolve today's date & day key
   const todayDate = useMemo(() => new Date(), []);
@@ -88,7 +90,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
     });
   }, [todayDate]);
 
-  const [selectedDay, setSelectedDay] = useState<string>(() => todayDayKey);
+  const [selectedDay, setSelectedDay] = useState<string>('semana');
   const [selectedZone, setSelectedZone] = useState<'Todas' | 'Norte' | 'Centro' | 'Sur'>('Todas');
   // Lists start collapsed by default as requested
   const [poolCollapsed, setPoolCollapsed] = useState(false);
@@ -316,6 +318,24 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
 
   const progressPercent = totalStepsCount > 0 ? Math.round((completedStepsCount / totalStepsCount) * 100) : 0;
 
+  // Resumen dinámico según los puntos reales cargados en el sistema
+  const totalLoadedPointsCount = mapInventoryPoints.length;
+
+  const pointsChannelSummary = useMemo(() => {
+    const counts: Record<string, number> = {};
+    mapInventoryPoints.forEach((p) => {
+      const ch = (p.channel || p.category || 'PDV').toUpperCase().trim();
+      counts[ch] = (counts[ch] || 0) + 1;
+    });
+    return counts;
+  }, [mapInventoryPoints]);
+
+  const pointsChannelSummaryText = useMemo(() => {
+    const entries = Object.entries(pointsChannelSummary);
+    if (entries.length === 0) return `${totalLoadedPointsCount} PDV cargados`;
+    return entries.slice(0, 4).map(([ch, cnt]) => `${cnt} ${ch}`).join(' · ');
+  }, [pointsChannelSummary, totalLoadedPointsCount]);
+
   return (
     <div className="flex flex-col w-full space-y-4 md:space-y-5">
       {/* Hidden File Input for Excel/CSV/TXT/KML Import */}
@@ -401,8 +421,8 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                     {isAuxiliar ? 'Mi Hoja de Ruta Táctica y Campo' : 'Centro de Trazado de Rutas y Despacho'}
                   </h1>
                 </div>
-                <p className="text-xs sm:text-sm text-[#94a3b8] mt-1 max-w-3xl leading-relaxed">
-                  Monitoreo georreferenciado de <strong>595+ puntos de venta</strong> (CDA, Puntos Físicos, Centros de Manejo y Bancarios), trazado de rutas GPS, auditoría en terreno y desplazamiento guiado.
+                <p className="text-xs sm:text-sm text-[#cbd5e1] dark:text-[#94a3b8] mt-1 max-w-3xl leading-relaxed">
+                  Monitoreo georreferenciado de <strong>{totalLoadedPointsCount} puntos de auditoría</strong> cargados en el sistema ({pointsChannelSummaryText}), trazado de rutas GPS, auditoría en terreno y desplazamiento guiado.
                 </p>
               </div>
             </div>
@@ -413,15 +433,15 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
             {/* 1. Puntos de Venta */}
             <div className="bg-[#101b33]/90 backdrop-blur-sm border border-[#1e2a44] p-3 sm:p-3.5 rounded-2xl flex flex-col justify-between shadow-sm">
               <div className="flex items-center justify-between text-[#38bdf8]">
-                <span className="text-[11px] font-bold tracking-wide uppercase text-[#94a3b8]">Red Departamental</span>
+                <span className="text-[11px] font-bold tracking-wide uppercase text-[#cbd5e1] dark:text-[#94a3b8]">Red Departamental</span>
                 <span className="material-symbols-outlined text-[18px]">storefront</span>
               </div>
               <div className="mt-1">
                 <span className="text-lg sm:text-xl font-extrabold text-white font-mono">
-                  {CAVI_POINTS.length} PDV
+                  {totalLoadedPointsCount} PDV
                 </span>
-                <p className="text-[10px] text-[#cbd5e1] mt-0.5 truncate">
-                  196 CDA · 168 PF · 92 CM · 139 Banco
+                <p className="text-[10px] text-[#cbd5e1] mt-0.5 break-words leading-tight" title={pointsChannelSummaryText}>
+                  {pointsChannelSummaryText}
                 </p>
               </div>
             </div>
@@ -436,7 +456,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                 <span className="text-lg sm:text-xl font-extrabold text-white font-mono">
                   {mapWaypoints.length} Paradas
                 </span>
-                <p className="text-[10px] text-[#38bdf8] mt-0.5 truncate font-medium">
+                <p className="text-[10px] text-[#38bdf8] mt-0.5 break-words font-medium leading-tight">
                   {selectedDay.toUpperCase()} · {selectedZone === 'Todas' ? 'La Guajira' : selectedZone}
                 </p>
               </div>
@@ -478,7 +498,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                 <span className="text-lg sm:text-xl font-extrabold text-[#fcd34d] font-mono">
                   {formatDistance(routeDistanceKm)}
                 </span>
-                <p className="text-[10px] text-[#cbd5e1] mt-0.5 truncate">
+                <p className="text-[10px] text-[#cbd5e1] mt-0.5 break-words leading-tight">
                   Est. {routeTime} · {filteredAuditors.length} auditores
                 </p>
               </div>
@@ -507,61 +527,35 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
 
           {/* Integrated Day & Zone Segmented Selectors */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2 border-t border-[#1e2a44]/80">
-            {/* Day Selector Tabs */}
-            <div className="flex items-center gap-1 bg-[#0b1326] p-1 rounded-xl border border-[#222a3d] max-w-full overflow-x-auto scrollbar-none">
+            {/* View Selector Tabs: Only Semana, Mes, Calendario Auditor */}
+            <div className="flex items-center gap-1.5 bg-[#0b1326] p-1.5 rounded-2xl border border-[#222a3d] max-w-full overflow-x-auto scrollbar-none">
               {[
-                { key: 'lunes', label: 'Lun' },
-                { key: 'martes', label: 'Mar' },
-                { key: 'miércoles', label: 'Mié' },
-                { key: 'jueves', label: 'Jue' },
-                { key: 'viernes', label: 'Vie' },
-                { key: 'sábado', label: 'Sáb (½ Día)', isHalfDay: true },
-                { key: 'semana', label: 'Semana' },
-                { key: 'mes', label: 'Mes' },
-                { key: 'calendario_auditor', label: 'Calendario Auditor' },
+                { key: 'semana', label: 'Semana', icon: 'view_week', desc: 'Matriz y Hoja de Ruta Semanal' },
+                { key: 'mes', label: 'Mes', icon: 'calendar_month', desc: 'Vista Mensual Departamental' },
+                { key: 'calendario_auditor', label: 'Calendario Auditor', icon: 'date_range', desc: 'Agenda de Campo' },
               ].map((item) => {
                 const isSelected = selectedDay === item.key;
-                const isToday = item.key === todayDayKey;
                 return (
                   <button
                     key={item.key}
                     type="button"
                     onClick={() => {
                       setSelectedDay(item.key);
-                      if (item.key === 'sábado') {
-                        onShowToast('Sábado: Medio Día Laboral', 'Jornada parcial de auditoría en terreno (08:00 AM - 12:00 PM).', 'info');
-                      } else if (item.key === 'semana') {
-                        onShowToast('Vista Alterna: Semana', 'Visualizando matriz operativa semanal completa.', 'info');
+                      if (item.key === 'semana') {
+                        onShowToast('Vista Semanal', 'Visualizando hoja de ruta y matriz semanal.', 'info');
                       } else if (item.key === 'mes') {
-                        onShowToast('Vista Mensual de Rutas', 'Visualizando matriz y calendario mensual para La Guajira.', 'info');
+                        onShowToast('Vista Mensual', 'Visualizando matriz mensual de La Guajira.', 'info');
                       } else if (item.key === 'calendario_auditor') {
-                        onShowToast('Calendario Auditor Activo', 'Filtrando paradas con selector de rango de fechas.', 'info');
+                        onShowToast('Calendario Auditor', 'Agenda interactiva de campo por auditor.', 'info');
                       }
                     }}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 relative ${
+                    className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 ${
                       isSelected
-                        ? 'bg-[#0088ff] text-white shadow-sm shadow-[#0088ff]/40 ring-1 ring-white/30'
-                        : isToday
-                        ? 'bg-[#0088ff]/15 text-[#38bdf8] border border-[#0088ff]/40 hover:bg-[#0088ff]/25'
-                        : item.isHalfDay
-                        ? 'bg-amber-500/10 text-amber-300 border border-amber-500/30 hover:bg-amber-500/20'
-                        : 'text-[#bbcabf] hover:text-[#dae2fd]'
+                        ? 'bg-[#0088ff] text-white shadow-md shadow-[#0088ff]/40 ring-1 ring-white/30'
+                        : 'text-[#bbcabf] hover:text-white hover:bg-[#131b2e]'
                     }`}
                   >
-                    {isToday && (
-                      <span className="text-[8px] font-extrabold px-1 py-0.2 rounded-full bg-[#0088ff] text-white">
-                        HOY
-                      </span>
-                    )}
-                    {item.key === 'semana' && (
-                      <span className="material-symbols-outlined text-[15px]">view_week</span>
-                    )}
-                    {item.key === 'mes' && (
-                      <span className="material-symbols-outlined text-[15px]">calendar_month</span>
-                    )}
-                    {item.key === 'calendario_auditor' && (
-                      <span className="material-symbols-outlined text-[15px]">date_range</span>
-                    )}
+                    <span className="material-symbols-outlined text-[17px]">{item.icon}</span>
                     <span>{item.label}</span>
                   </button>
                 );
@@ -587,29 +581,15 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
         </div>
       </div>
 
-      {/* VISTA MENSUAL, SEMANAL O DIARIA */}
+      {/* VISTA MENSUAL, SEMANAL O CALENDARIO AUDITOR */}
       {selectedDay === 'mes' ? (
         <MonthlyRoutesView
           steps={steps}
           auditors={auditors}
-          onSelectDay={(day) => setSelectedDay(day)}
+          onSelectDay={(day) => setSelectedDay('semana')}
           onOpenAddStep={handleOpenAddStep}
           onOpenGpsModal={() => setIsGpsModalOpen(true)}
           onShowToast={onShowToast}
-        />
-      ) : selectedDay === 'semana' ? (
-        <WeeklyRoutesMatrix
-          steps={steps}
-          auditors={auditors}
-          onToggleStepStatus={onToggleStepStatus}
-          onOpenAuditModal={(step) => setAuditModalStep(step)}
-          onOpenAddStep={handleOpenAddStep}
-          onOpenGpsModal={() => setIsGpsModalOpen(true)}
-          onSelectDay={(day) => setSelectedDay(day)}
-          onUploadMatrix={() => fileInputRef.current?.click()}
-          onDownloadTemplate={downloadRoutesTemplate}
-          onShowToast={onShowToast}
-          userRole={userRole}
         />
       ) : selectedDay === 'calendario_auditor' ? (
         <ActiveAuditorCalendarView
@@ -628,93 +608,102 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
           userRole={userRole}
         />
       ) : (
-        /* RESPONSIVE UNIFIED LAYOUT */
-        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-4 items-stretch">
-          {/* MAPA PRINCIPAL */}
-          <div className="w-full bg-[#060e20] rounded-2xl overflow-hidden border border-[#222a3d] shadow-lg relative min-h-[520px] flex flex-col">
-            <CaviNativeMap
-              height="520px"
-              initialRouteStops={mapWaypoints}
-              routeGroups={mapRouteGroups}
-              showPointCatalog={true}
-              resetRouteOnEmpty
-              onStopArrival={(stop) => {
-                onShowToast(
-                  'Parada Alcanzada',
-                  `Llegada registrada en ${stop.name} (${stop.municipality || 'La Guajira'}).`,
-                  'success'
-                );
-              }}
-            />
-          </div>
-
-          {/* AUDITORES DE CAMPO · PANEL LATERAL CON CARICATURAS REDONDEADAS Y ALTO CONTRASTE */}
-          <aside className="bg-[#131b2e] rounded-2xl border border-[#222a3d] shadow-xl p-3.5 flex flex-col min-h-[520px]">
-            <div className="flex items-center justify-between mb-3 pb-2 border-b border-[#222a3d]">
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-[#0088ff] text-[20px]">engineering</span>
-                <h2 className="font-bold text-sm text-white">Auditores de Campo</h2>
+        /* VISTA UNIFICADA DE SEMANA:
+           1. engineering Auditores de Campo (Tarjetas + Matriz semanal)
+           2. Alertas (puntos por tiempo sin visitar, reprogramados o cerrados)
+           3. Mapa (de último al fondo)
+        */
+        <div className="flex flex-col gap-6 w-full">
+          {/* ========================================================================= */}
+          {/* 1. ENGINEERING AUDITORES DE CAMPO & MATRIZ SEMANAL */}
+          {/* ========================================================================= */}
+          <section className="w-full bg-white dark:bg-[#131b2e] rounded-3xl p-4 sm:p-6 border-2 border-slate-300 dark:border-[#222a3d] shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b-2 border-slate-200 dark:border-[#222a3d]">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-2xl bg-[#0088ff]/15 dark:bg-[#0088ff]/25 text-[#0088ff] dark:text-[#38bdf8] flex items-center justify-center shrink-0">
+                  <span className="material-symbols-outlined text-[28px]">engineering</span>
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h2 className="font-headline font-extrabold text-base sm:text-lg text-slate-900 dark:text-white">
+                      Auditores de Campo · Hoja de Ruta Semanal
+                    </h2>
+                    <span className="px-2.5 py-0.5 rounded-full bg-blue-100 dark:bg-[#0088ff]/20 text-[#0070d8] dark:text-[#38bdf8] text-[11px] font-extrabold border border-blue-200 dark:border-[#0088ff]/30 font-mono">
+                      {steps.length} PDVs en Matriz
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-700 dark:text-slate-300 mt-0.5 font-medium">
+                    Supervisión operativa, distribución de carga y paradas asignadas por zona geográfica en La Guajira.
+                  </p>
+                </div>
               </div>
-              <span className="text-[11px] font-semibold text-[#4edea3] flex items-center gap-1.5 bg-[#171f33] px-2 py-0.5 rounded-full border border-[#4edea3]/30">
-                <span className="w-2 h-2 rounded-full bg-[#4edea3] animate-pulse"></span>
-                {filteredAuditors.slice(0, 3).length} en pantalla
-              </span>
+
+              {isAdmin && (
+                <button
+                  type="button"
+                  onClick={() => handleOpenAddStep(undefined)}
+                  className="px-3.5 py-2 rounded-xl bg-[#0088ff] hover:bg-[#0070d8] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm cursor-pointer self-start sm:self-auto"
+                >
+                  <span className="material-symbols-outlined text-[16px]">add_location</span>
+                  <span>+ Asignar PDV Manual</span>
+                </button>
+              )}
             </div>
 
-            <div className="flex flex-col gap-2.5">
-              {filteredAuditors.slice(0, 3).map((auditor) => {
-                const progress = auditor.visitsTarget > 0
-                  ? Math.min(100, Math.round((auditor.visitsDone / auditor.visitsTarget) * 100))
-                  : 0;
+            {/* Auditores Cards Grid (Samuel - Norte, Kleyder - Centro, Jose - Sur) */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+              {filteredAuditors.map((auditor) => {
+                const audSteps = steps.filter((s) => s.auditorId === auditor.id || (!s.auditorId && auditor.id === 'aud-1'));
+                const completedCount = audSteps.filter((s) => s.status === 'completed').length;
+                const progress = audSteps.length > 0 ? Math.round((completedCount / audSteps.length) * 100) : 0;
+
                 return (
                   <div
                     key={auditor.id}
-                    className="rounded-xl border border-[#222a3d] bg-[#171f33] p-3 shadow-md hover:border-[#0088ff]/60 transition-all"
+                    className="rounded-2xl border-2 border-slate-300 dark:border-[#222a3d] bg-slate-50/70 dark:bg-[#171f33] p-4 flex flex-col justify-between shadow-xs transition-all hover:border-[#0088ff]/60"
                   >
                     <div className="flex items-center gap-3">
-                      {/* Caricatura Redondeada del Auditor */}
                       <div className="relative shrink-0">
                         <img
                           src={auditor.avatar}
                           alt={auditor.name}
-                          className="w-12 h-12 rounded-full object-cover ring-2 ring-[#0088ff] shadow-md bg-[#0b1326]"
+                          className="w-12 h-12 rounded-full object-cover ring-2 ring-[#0088ff] shadow-sm bg-white dark:bg-[#0b1326]"
                         />
-                        <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-[#171f33] bg-[#4edea3]"></span>
+                        <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-white dark:border-[#171f33] bg-emerald-500"></span>
                       </div>
-
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-start justify-between gap-1">
-                          <span className="font-bold text-xs text-white leading-tight truncate">
-                            {auditor.name}
+                        <h3 className="font-headline font-extrabold text-sm text-slate-900 dark:text-white break-words">
+                          {auditor.name}
+                        </h3>
+                        <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                          <span className="px-2 py-0.5 rounded-md bg-slate-200 dark:bg-[#131b2e] text-slate-900 dark:text-[#93c5fd] font-extrabold text-[10px] border border-slate-300 dark:border-[#2d3a58]">
+                            Zona {auditor.zone}
                           </span>
-                          <span className="text-xs font-bold font-mono text-[#38bdf8] shrink-0 bg-[#0b1326] px-1.5 py-0.5 rounded border border-[#222a3d]">
-                            {auditor.visitsDone}/{auditor.visitsTarget}
+                          <span className="text-[10px] font-bold text-slate-600 dark:text-[#cbd5e1]">
+                            {auditor.vehicle || 'Moto Oficial'}
                           </span>
                         </div>
-                        <div className="flex items-center gap-1.5 mt-0.5">
-                          <span className="text-[10px] font-semibold text-[#c0c1ff]">Auditor</span>
-                        </div>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <span className="text-sm font-extrabold font-mono text-slate-900 dark:text-white block">
+                          {completedCount}/{audSteps.length}
+                        </span>
+                        <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 block">
+                          {progress}%
+                        </span>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2 mt-2.5">
-                      <div className="flex-1 bg-[#222a3d] h-2 rounded-full overflow-hidden">
+                      <div className="flex-1 bg-slate-200 dark:bg-[#222a3d] h-2 rounded-full overflow-hidden">
                         <div className="h-full rounded-full bg-[#0088ff] transition-all" style={{ width: `${progress}%` }} />
                       </div>
-                      <span className="text-[10px] font-bold font-mono text-[#4edea3]">{progress}%</span>
+                      <span className="text-[10px] font-bold font-mono text-emerald-700 dark:text-[#4edea3]">{progress}%</span>
                     </div>
 
-                    <div className="mt-2 pt-2 border-t border-[#222a3d] flex items-center justify-between text-[11px] text-[#cbd5e1]">
-                      <div className="flex items-center gap-1.5 min-w-0">
-                        <span className="material-symbols-outlined text-[15px] text-[#38bdf8] shrink-0">
-                          {auditor.status === 'completed' ? 'task_alt' : 'alt_route'}
-                        </span>
-                        <span className="truncate">{auditor.statusText}</span>
-                      </div>
-                    </div>
                     {auditor.currentLocation && (
-                      <div className="text-[10px] text-[#94a3b8] mt-1 truncate flex items-center gap-1">
-                        <span className="material-symbols-outlined text-[12px] text-[#38bdf8]">near_me</span>
+                      <div className="text-[10px] text-slate-600 dark:text-[#94a3b8] mt-2 pt-2 border-t border-slate-200 dark:border-[#222a3d] flex items-center gap-1 break-words">
+                        <span className="material-symbols-outlined text-[13px] text-[#0088ff] shrink-0">near_me</span>
                         <span>{auditor.currentLocation}</span>
                       </div>
                     )}
@@ -722,41 +711,91 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
                 );
               })}
             </div>
-          </aside>
+
+            {/* Matriz Semanal Completa */}
+            <WeeklyRoutesMatrix
+              steps={steps}
+              auditors={auditors}
+              onToggleStepStatus={onToggleStepStatus}
+              onOpenAuditModal={(step) => setAuditModalStep(step)}
+              onOpenAddStep={handleOpenAddStep}
+              onOpenGpsModal={() => setIsGpsModalOpen(true)}
+              onSelectDay={() => setSelectedDay('semana')}
+              onUploadMatrix={() => fileInputRef.current?.click()}
+              onDownloadTemplate={downloadRoutesTemplate}
+              onShowToast={onShowToast}
+              userRole={userRole}
+            />
+          </section>
+
+          {/* ========================================================================= */}
+          {/* 2. ALERTAS DE PUNTOS PRIORIZADOS (LUEGO) */}
+          {/* ========================================================================= */}
+          <AlertPointsAssignmentPool
+            floatingPoints={floatingPoints}
+            steps={steps}
+            auditors={auditors}
+            onAssignPoint={onAssignFloatingPoint}
+            onAutoAssignAll={onAutoAssignAll}
+            onDeletePoint={onDeleteFloatingPoint}
+            onOpenAddModal={() => setIsAddFpOpen(true)}
+            onReloadSampleAlertPoints={onReloadSampleAlertPoints}
+            onShowToast={onShowToast}
+            userRole={userRole}
+            onReassignStepDay={(stepId, day, audId) => {
+              if (onReassignRouteStep) {
+                onReassignRouteStep(stepId, day, audId);
+              } else if (onAddRouteStep) {
+                const targetStep = steps.find((s) => s.id === stepId);
+                if (targetStep) {
+                  const matchedAud = audId ? auditors.find((a) => a.id === audId) : undefined;
+                  onAddRouteStep({
+                    ...targetStep,
+                    day,
+                    auditorId: matchedAud?.id || targetStep.auditorId,
+                    auditorName: matchedAud?.name || targetStep.auditorName,
+                    status: 'pending',
+                    notes: `Priorizado para re-visita en ${day?.toUpperCase() || 'RUTA'}`,
+                  });
+                }
+              }
+            }}
+          />
+
+          {/* ========================================================================= */}
+          {/* 3. MAPA TERRITORIAL DE RUTAS (DE ÚLTIMO) */}
+          {/* ========================================================================= */}
+          <section className="w-full bg-white dark:bg-[#131b2e] rounded-3xl p-4 sm:p-6 border-2 border-slate-300 dark:border-[#222a3d] shadow-sm space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-[#222a3d]">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[#0088ff] text-[22px]">public</span>
+                <h3 className="font-headline font-extrabold text-sm sm:text-base text-slate-900 dark:text-white">
+                  Mapa Territorial de Rutas y Desplazamiento (CAVIMAPS)
+                </h3>
+              </div>
+              <span className="text-[11px] font-bold text-slate-600 dark:text-slate-300">
+                {mapWaypoints.length} Puntos Georreferenciados en Terreno
+              </span>
+            </div>
+            <div className="w-full bg-[#060e20] rounded-2xl overflow-hidden border border-[#222a3d] shadow-md relative min-h-[540px] flex flex-col">
+              <CaviNativeMap
+                height="540px"
+                initialRouteStops={mapWaypoints}
+                routeGroups={mapRouteGroups}
+                showPointCatalog={true}
+                resetRouteOnEmpty
+                onStopArrival={(stop) => {
+                  onShowToast(
+                    'Parada Alcanzada',
+                    `Llegada registrada en ${stop.name} (${stop.municipality || 'La Guajira'}).`,
+                    'success'
+                  );
+                }}
+              />
+            </div>
+          </section>
         </div>
       )}
-
-      {/* ========================================================================= */}
-      {/* BANDEJA DE PUNTOS PRIORIZADOS Y ALERTAS AL FONDO DEL MÓDULO DE RUTAS  */}
-      {/* ========================================================================= */}
-      <AlertPointsAssignmentPool
-        floatingPoints={floatingPoints}
-        steps={steps}
-        auditors={auditors}
-        onAssignPoint={onAssignFloatingPoint}
-        onAutoAssignAll={onAutoAssignAll}
-        onDeletePoint={onDeleteFloatingPoint}
-        onOpenAddModal={() => setIsAddFpOpen(true)}
-        onReloadSampleAlertPoints={onReloadSampleAlertPoints}
-        onShowToast={onShowToast}
-        userRole={userRole}
-        onReassignStepDay={(stepId, day, audId) => {
-          if (onAddRouteStep) {
-            const targetStep = steps.find((s) => s.id === stepId);
-            if (targetStep) {
-              const matchedAud = audId ? auditors.find((a) => a.id === audId) : undefined;
-              onAddRouteStep({
-                ...targetStep,
-                day,
-                auditorId: matchedAud?.id || targetStep.auditorId,
-                auditorName: matchedAud?.name || targetStep.auditorName,
-                status: 'pending',
-                notes: `Priorizado para visita en ${day.toUpperCase()}`,
-              });
-            }
-          }
-        }}
-      />
 
       {/* Audit Visit Outcome Modal */}
       <AuditVisitModal

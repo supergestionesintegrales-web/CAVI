@@ -34,7 +34,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
   if (!isOpen) return null;
 
   const isAuxiliar = userRole === 'auxiliar';
-  const currentAuditor = auditors.find((a) => a.id === activeAuditorId) || auditors[0];
+  const currentAuditor = auditors?.find((a) => a.id === activeAuditorId) || auditors?.[0];
 
   const profileName = isAuxiliar && currentAuditor ? currentAuditor.name : 'Ing. Hernán Gómez';
   const profileRoleTitle = isAuxiliar
@@ -46,7 +46,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md overflow-y-auto">
+      <div className="fixed inset-0 z-[1200] flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md overflow-y-auto">
         <motion.div
           initial={{ opacity: 0, scale: 0.94, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}

@@ -7,18 +7,18 @@ interface CriticalPointsModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAssignPoint: (code: string, auditorId: string) => void;
-  auditors: Auditor[];
+  auditors?: Auditor[];
 }
 
 export const CriticalPointsModal: React.FC<CriticalPointsModalProps> = ({
   isOpen,
   onClose,
   onAssignPoint,
-  auditors,
+  auditors = [],
 }) => {
   const [filterFormat, setFilterFormat] = useState<'ALL' | 'CM' | 'PF' | 'CDA'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedAuditorId, setSelectedAuditorId] = useState(auditors[0]?.id || '');
+  const [selectedAuditorId, setSelectedAuditorId] = useState(auditors?.[0]?.id || '');
 
   if (!isOpen) return null;
 
@@ -33,7 +33,7 @@ export const CriticalPointsModal: React.FC<CriticalPointsModalProps> = ({
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+      <div className="fixed inset-0 z-[1200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
         <motion.div
           initial={{ opacity: 0, scale: 0.94, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}

@@ -15,7 +15,7 @@ export const ImportPointTxtModal: React.FC<ImportPointTxtModalProps> = ({
   onClose,
   onPointsImported,
   onShowToast,
-  existingPointsCount = 595,
+  existingPointsCount = 0,
 }) => {
   const [activeTab, setActiveTab] = useState<'upload' | 'paste' | 'manual'>('upload');
   const [fileContent, setFileContent] = useState<string>('');

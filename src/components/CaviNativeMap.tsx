@@ -359,34 +359,15 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
         bubblingMouseEvents: false,
       });
 
+      // Rich hover tooltip with key summary
       marker.bindTooltip(
-        `<strong>${name}</strong><br/>${typeLabel} · ${municipality}${code ? ` · Cod: <strong>${code}</strong>` : ''}`,
+        `<strong>${name}</strong><br/>${typeLabel} · ${municipality}${code ? ` · Cod: <strong>${code}</strong>` : ''}<br/><span style="font-size:10px;color:#38bdf8;">Zona: ${zone} · ${auditor}</span>`,
         {
           direction: 'top',
           offset: [0, -7],
           opacity: 0.97,
           sticky: true,
         }
-      );
-
-      marker.bindPopup(
-        `
-          <div style="min-width: 220px; font-family: Inter, system-ui, sans-serif;">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px;">
-              <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${meta.color};box-shadow:0 0 0 2px rgba(255,255,255,.85);"></span>
-              <strong style="font-size:14px;color:#0f172a;">${name}</strong>
-            </div>
-            <div style="font-size:12px;color:#475569;line-height:1.55;">
-              <div><strong>Tipo:</strong> ${typeLabel}</div>
-              <div><strong>Municipio:</strong> ${municipality}</div>
-              <div><strong>Zona:</strong> ${zone}</div>
-              <div><strong>Auditor asignado:</strong> ${auditor}</div>
-              ${code ? `<div><strong>Código PDV:</strong> ${code}</div>` : ''}
-              ${isCustom ? '<div style="color:#b45309;"><strong>Origen:</strong> Punto cargado</div>' : ''}
-            </div>
-          </div>
-        `,
-        { closeButton: true, maxWidth: 320 }
       );
 
       marker.on('click', () => {
@@ -891,21 +872,21 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
       <div className="flex-1 min-h-0 relative flex overflow-hidden">
         {/* MAP SETTINGS DRAWER */}
         {isSettingsOpen && (
-          <div className="absolute top-2 right-2 z-40 w-[min(92vw,330px)] max-h-[calc(100%-16px)] overflow-y-auto bg-white/98 backdrop-blur-md border border-slate-200 rounded-xl shadow-2xl p-2.5">
-            <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-200">
+          <div className="cavi-map-settings-drawer absolute top-2 right-2 z-40 w-[min(92vw,330px)] max-h-[calc(100%-16px)] overflow-y-auto bg-white border-2 border-slate-300 rounded-xl shadow-2xl p-2.5 text-black">
+            <div className="flex items-center justify-between pb-2 mb-2 border-b-2 border-slate-200">
               <div>
-                <h3 className="text-xs font-extrabold text-slate-900">Configuración del mapa</h3>
-                <p className="text-[9px] text-slate-500">Herramientas y visualización CAVIMAPS</p>
+                <h3 className="text-xs font-black text-black">Configuración del mapa</h3>
+                <p className="text-[10px] font-bold text-slate-800">Herramientas y visualización CAVIMAPS</p>
               </div>
-              <button type="button" onClick={() => setIsSettingsOpen(false)} className="w-6 h-6 rounded-md hover:bg-slate-100 text-slate-500 flex items-center justify-center cursor-pointer">
-                <span className="material-symbols-outlined text-[16px]">close</span>
+              <button type="button" onClick={() => setIsSettingsOpen(false)} className="w-6 h-6 rounded-md hover:bg-slate-200 text-slate-800 flex items-center justify-center cursor-pointer">
+                <span className="material-symbols-outlined text-[16px] text-black">close</span>
               </button>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 text-black">
               {/* Búsqueda y filtros */}
-              <div className="rounded-lg border border-slate-200 bg-slate-50 p-2">
-                <div className="text-[10px] font-extrabold text-slate-700 mb-1.5 flex items-center gap-1">
+              <div className="rounded-lg border border-slate-300 bg-slate-100 p-2 text-black">
+                <div className="text-[10px] font-black text-black mb-1.5 flex items-center gap-1">
                   <span className="material-symbols-outlined text-[14px] text-blue-600">filter_alt</span>
                   Buscar y filtrar PDV
                 </div>
@@ -914,41 +895,41 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="PDV, código, centro de costo..."
-                  className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-[11px] text-slate-800 outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-[11px] font-bold text-black outline-none focus:ring-1 focus:ring-blue-500"
                 />
-                <div className="grid grid-cols-1 gap-1.5 mt-1.5">
-                  <select value={filterRegion} onChange={(e) => setFilterRegion(e.target.value as any)} className="w-full px-2 py-1.5 rounded-lg border border-slate-200 bg-white text-[11px] text-slate-700 cursor-pointer">
-                    <option value="Todas">Toda La Guajira ({allAvailablePoints.length})</option>
-                    <option value="Norte">Regional Norte</option>
-                    <option value="Centro">Regional Centro</option>
-                    <option value="Sur">Regional Sur</option>
-                    <option value="Bancario">Corresponsalías Bancarias</option>
+                <div className="grid grid-cols-1 gap-1.5 mt-1.5 text-black">
+                  <select value={filterRegion} onChange={(e) => setFilterRegion(e.target.value as any)} className="w-full px-2 py-1.5 rounded-lg border border-slate-300 bg-white text-[11px] font-bold text-black cursor-pointer">
+                    <option value="Todas" className="text-black bg-white">Toda La Guajira ({allAvailablePoints.length})</option>
+                    <option value="Norte" className="text-black bg-white">Regional Norte</option>
+                    <option value="Centro" className="text-black bg-white">Regional Centro</option>
+                    <option value="Sur" className="text-black bg-white">Regional Sur</option>
+                    <option value="Bancario" className="text-black bg-white">Corresponsalías Bancarias</option>
                   </select>
-                  <select value={filterChannel} onChange={(e) => setFilterChannel(e.target.value)} className="w-full px-2 py-1.5 rounded-lg border border-slate-200 bg-white text-[11px] text-slate-700 cursor-pointer">
-                    <option value="todos">Todos los canales ({filteredPoints.length})</option>
-                    <option value="CDA">CDA · Acopio ({typeCounts.CDA})</option>
-                    <option value="PF">PF · Punto Fijo ({typeCounts.PF})</option>
-                    <option value="CM">CM · Tradicional/Tienda ({typeCounts.CM})</option>
-                    <option value="Bancario">Bancario · Corresponsal ({typeCounts.Bancario})</option>
-                    {typeCounts.ETC > 0 && <option value="ETC">ETC · Otros ({typeCounts.ETC})</option>}
+                  <select value={filterChannel} onChange={(e) => setFilterChannel(e.target.value)} className="w-full px-2 py-1.5 rounded-lg border border-slate-300 bg-white text-[11px] font-bold text-black cursor-pointer">
+                    <option value="todos" className="text-black bg-white">Todos los canales ({filteredPoints.length})</option>
+                    <option value="CDA" className="text-black bg-white">CDA · Acopio ({typeCounts.CDA})</option>
+                    <option value="PF" className="text-black bg-white">PF · Punto Fijo ({typeCounts.PF})</option>
+                    <option value="CM" className="text-black bg-white">CM · Tradicional/Tienda ({typeCounts.CM})</option>
+                    <option value="Bancario" className="text-black bg-white">Bancario · Corresponsal ({typeCounts.Bancario})</option>
+                    {typeCounts.ETC > 0 && <option value="ETC" className="text-black bg-white">ETC · Otros ({typeCounts.ETC})</option>}
                   </select>
-                  <select value={selectedMunicipality} onChange={(e) => setSelectedMunicipality(e.target.value)} className="w-full px-2 py-1.5 rounded-lg border border-slate-200 bg-white text-[11px] text-slate-700 cursor-pointer">
-                    <option value="todos">Todos los municipios</option>
-                    {MUNICIPALITIES_GUAJIRA.map((m) => <option key={m} value={m}>{m}</option>)}
+                  <select value={selectedMunicipality} onChange={(e) => setSelectedMunicipality(e.target.value)} className="w-full px-2 py-1.5 rounded-lg border border-slate-300 bg-white text-[11px] font-bold text-black cursor-pointer">
+                    <option value="todos" className="text-black bg-white">Todos los municipios</option>
+                    {MUNICIPALITIES_GUAJIRA.map((m) => <option key={m} value={m} className="text-black bg-white">{m}</option>)}
                   </select>
                 </div>
               </div>
 
               {/* Capas */}
-              <div className="rounded-lg border border-slate-200 bg-slate-50 p-2">
-                <div className="text-[10px] font-extrabold text-slate-700 mb-1.5">Vista del mapa</div>
+              <div className="rounded-lg border border-slate-300 bg-slate-100 p-2 text-black">
+                <div className="text-[10px] font-black text-black mb-1.5">Vista del mapa</div>
                 <div className="grid grid-cols-3 gap-1">
                   {[
                     {key:'streets' as const,label:'Vial',icon:'map'},
                     {key:'light' as const,label:'Positron',icon:'layers'},
                     {key:'satellite' as const,label:'Satélite',icon:'satellite'},
                   ].map((style) => (
-                    <button key={style.key} type="button" onClick={() => setMapStyle(style.key)} className={`px-1.5 py-1.5 rounded-lg border text-[10px] font-bold flex flex-col items-center gap-0.5 cursor-pointer ${mapStyle === style.key ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'}`}>
+                    <button key={style.key} type="button" onClick={() => setMapStyle(style.key)} className={`px-1.5 py-1.5 rounded-lg border text-[10px] font-bold flex flex-col items-center gap-0.5 cursor-pointer ${mapStyle === style.key ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-black border-slate-300 hover:bg-slate-200'}`}>
                       <span className="material-symbols-outlined text-[14px]">{style.icon}</span>{style.label}
                     </button>
                   ))}
@@ -957,25 +938,25 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
 
               {/* Herramientas */}
               <div className="grid grid-cols-2 gap-1.5">
-                <button type="button" onClick={handleSetCurrentGpsAsStart} className="p-2 rounded-lg border border-slate-200 bg-white hover:bg-blue-50 text-slate-700 text-[10px] font-bold flex items-center gap-1.5 cursor-pointer">
+                <button type="button" onClick={handleSetCurrentGpsAsStart} className="p-2 rounded-lg border border-slate-300 bg-white hover:bg-blue-50 text-black text-[10px] font-black flex items-center gap-1.5 cursor-pointer">
                   <span className="material-symbols-outlined text-[15px] text-blue-600">my_location</span> Mi GPS
                 </button>
-                <button type="button" onClick={handleFitGuajiraBounds} className="p-2 rounded-lg border border-slate-200 bg-white hover:bg-blue-50 text-slate-700 text-[10px] font-bold flex items-center gap-1.5 cursor-pointer">
+                <button type="button" onClick={handleFitGuajiraBounds} className="p-2 rounded-lg border border-slate-300 bg-white hover:bg-blue-50 text-black text-[10px] font-black flex items-center gap-1.5 cursor-pointer">
                   <span className="material-symbols-outlined text-[15px] text-blue-600">public</span> La Guajira
                 </button>
-                <button type="button" onClick={handleFitPointBounds} className="p-2 rounded-lg border border-slate-200 bg-white hover:bg-blue-50 text-slate-700 text-[10px] font-bold flex items-center gap-1.5 cursor-pointer">
+                <button type="button" onClick={handleFitPointBounds} className="p-2 rounded-lg border border-slate-300 bg-white hover:bg-blue-50 text-black text-[10px] font-black flex items-center gap-1.5 cursor-pointer">
                   <span className="material-symbols-outlined text-[15px] text-blue-600">location_on</span> Todos los PDV
                 </button>
-                <button type="button" onClick={handleFitRouteBounds} className="p-2 rounded-lg border border-slate-200 bg-white hover:bg-blue-50 text-slate-700 text-[10px] font-bold flex items-center gap-1.5 cursor-pointer">
+                <button type="button" onClick={handleFitRouteBounds} className="p-2 rounded-lg border border-slate-300 bg-white hover:bg-blue-50 text-black text-[10px] font-black flex items-center gap-1.5 cursor-pointer">
                   <span className="material-symbols-outlined text-[15px] text-blue-600">route</span> Enfocar ruta
                 </button>
-                <button type="button" onClick={() => setIsDrawerOpen((open) => !open)} className="p-2 rounded-lg border border-slate-200 bg-white hover:bg-blue-50 text-slate-700 text-[10px] font-bold flex items-center gap-1.5 cursor-pointer">
+                <button type="button" onClick={() => setIsDrawerOpen((open) => !open)} className="p-2 rounded-lg border border-slate-300 bg-white hover:bg-blue-50 text-black text-[10px] font-black flex items-center gap-1.5 cursor-pointer">
                   <span className="material-symbols-outlined text-[15px] text-blue-600">alt_route</span> Ruta ({routeWaypoints.length})
                 </button>
-                <button type="button" onClick={() => setShowLegend((v) => !v)} className="p-2 rounded-lg border border-slate-200 bg-white hover:bg-blue-50 text-slate-700 text-[10px] font-bold flex items-center gap-1.5 cursor-pointer">
+                <button type="button" onClick={() => setShowLegend((v) => !v)} className="p-2 rounded-lg border border-slate-300 bg-white hover:bg-blue-50 text-black text-[10px] font-black flex items-center gap-1.5 cursor-pointer">
                   <span className="material-symbols-outlined text-[15px] text-blue-600">category</span> Leyenda
                 </button>
-                <button type="button" onClick={() => setIsFullscreen((v) => !v)} className="p-2 rounded-lg border border-slate-200 bg-white hover:bg-blue-50 text-slate-700 text-[10px] font-bold flex items-center gap-1.5 cursor-pointer">
+                <button type="button" onClick={() => setIsFullscreen((v) => !v)} className="p-2 rounded-lg border border-slate-300 bg-white hover:bg-blue-50 text-black text-[10px] font-black flex items-center gap-1.5 cursor-pointer">
                   <span className="material-symbols-outlined text-[15px] text-blue-600">{isFullscreen ? 'fullscreen_exit' : 'fullscreen'}</span>
                   {isFullscreen ? 'Salir pantalla completa' : 'Pantalla completa'}
                 </button>
@@ -1149,25 +1130,30 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
                         PDV: {selectedPoint.codePdv}
                       </span>
                     )}
-                    <span className="text-[10px] text-[#38bdf8] font-bold">{selectedPoint.municipality}</span>
+                    <span className="text-[10px] text-[#0088ff] dark:text-[#38bdf8] font-bold">{selectedPoint.municipality}</span>
                   </div>
-                  <h3 className="text-sm font-bold text-slate-900 mt-1 leading-snug truncate">{selectedPoint.name}</h3>
-                  {selectedPoint.address && <p className="text-xs text-slate-600 mt-0.5">{selectedPoint.address}</p>}
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white mt-1 leading-snug truncate">{selectedPoint.name}</h3>
+                  {selectedPoint.address && <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">{selectedPoint.address}</p>}
+                  <div className="mt-1 flex items-center gap-2 text-[10px] text-slate-600 dark:text-slate-400">
+                    <span><strong>Zona:</strong> {selectedPoint.zone || 'La Guajira'}</span>
+                    <span>•</span>
+                    <span><strong>Auditor:</strong> {selectedPoint.assignedAuditorName || 'Samuel Ramos'}</span>
+                  </div>
                   {selectedPoint.costCenter && (
-                    <p className="text-[11px] text-slate-500 mt-0.5">Centro Costo: {selectedPoint.costCenter}</p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Centro Costo: {selectedPoint.costCenter}</p>
                   )}
                 </div>
                 <button
                   type="button"
                   onClick={() => setSelectedPoint(null)}
-                  className="p-1 text-slate-600 hover:text-slate-900 cursor-pointer"
+                  className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer"
                 >
                   <span className="material-symbols-outlined text-[17px]">close</span>
                 </button>
               </div>
 
               {/* Quick Actions for Selected Point */}
-              <div className="mt-3 pt-2.5 border-t border-slate-200 flex items-center gap-1.5 flex-wrap">
+              <div className="mt-3 pt-2.5 border-t border-slate-200 dark:border-slate-700 flex items-center gap-1.5 flex-wrap">
                 <button
                   type="button"
                   onClick={() => handleAddPointToRoute(selectedPoint)}
@@ -1184,7 +1170,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
                       showMapToast(`Enfocado en ${selectedPoint.name} (CAVIMAPS)`);
                     }
                   }}
-                  className="py-1.5 px-2.5 rounded-xl bg-[#1e293b] hover:bg-[#2d3a58] text-[#38bdf8] text-[11px] font-bold flex items-center justify-center gap-1 border border-[#3b4760] transition-colors cursor-pointer"
+                  className="py-1.5 px-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#1e293b] dark:hover:bg-[#2d3a58] text-[#0088ff] dark:text-[#38bdf8] text-[11px] font-bold flex items-center justify-center gap-1 border border-slate-300 dark:border-[#3b4760] transition-colors cursor-pointer"
                   title="Centrar y enfocar en nuestro mapa CAVIMAPS"
                 >
                   <span className="material-symbols-outlined text-[14px]">center_focus_strong</span>
@@ -1197,7 +1183,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
                     navigator.clipboard?.writeText(coords);
                     showMapToast(`Coordenadas GPS copiadas: ${coords}`);
                   }}
-                  className="py-1.5 px-2.5 rounded-xl bg-[#1e293b] hover:bg-[#2d3a58] text-[#dae2fd] text-[11px] font-bold flex items-center justify-center gap-1 border border-[#3b4760] transition-colors cursor-pointer"
+                  className="py-1.5 px-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#1e293b] dark:hover:bg-[#2d3a58] text-slate-700 dark:text-[#dae2fd] text-[11px] font-bold flex items-center justify-center gap-1 border border-slate-300 dark:border-[#3b4760] transition-colors cursor-pointer"
                   title="Copiar coordenadas geográficas"
                 >
                   <span className="material-symbols-outlined text-[14px]">content_copy</span>
@@ -1210,16 +1196,16 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
 
         {/* FLOATING POINT TYPES MAP LEGEND (CONVENCIONES PDV - ALTO CONSTRASTE Y TEMA CONSISTENTE) */}
         {showLegend && (
-          <div className="cavi-map-legend absolute top-3 right-3 z-[1000] bg-[#0f172a]/95 backdrop-blur-md p-3 rounded-2xl border border-[#334155] shadow-2xl text-xs w-[min(94vw,420px)] select-none animate-in fade-in">
-            <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-[#334155]">
-              <span className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[17px] text-[#38bdf8]">category</span>
+          <div className="cavi-map-legend absolute top-3 right-3 z-30 bg-white/95 dark:bg-[#0f172a]/95 backdrop-blur-md p-3 rounded-2xl border border-slate-300 dark:border-[#334155] shadow-2xl text-xs w-[min(94vw,420px)] select-none animate-in fade-in">
+            <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-slate-200 dark:border-[#334155]">
+              <span className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-[17px] text-[#0088ff] dark:text-[#38bdf8]">category</span>
                 <span>Convenciones PDV</span>
               </span>
               <button
                 type="button"
                 onClick={() => setShowLegend(false)}
-                className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-[#1e293b] transition-colors cursor-pointer"
+                className="text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-[#1e293b] transition-colors cursor-pointer"
                 title="Minimizar convenciones"
               >
                 <span className="material-symbols-outlined text-[16px]">close</span>
@@ -1238,8 +1224,8 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
                     onClick={() => setFilterChannel(filterChannel === cfg.type ? 'todos' : cfg.type)}
                     className={`w-full min-w-0 flex flex-col items-center justify-center gap-1.5 p-2 rounded-xl transition-all text-center cursor-pointer border ${
                       isActive
-                        ? 'bg-[#0088ff]/25 ring-2 ring-[#0088ff] border-[#0088ff] shadow-md'
-                        : 'bg-[#1e293b] hover:bg-[#2d3a58] border-[#334155]'
+                        ? 'bg-[#0088ff]/15 ring-2 ring-[#0088ff] border-[#0088ff] shadow-md text-[#0088ff]'
+                        : 'bg-slate-50 hover:bg-slate-100 dark:bg-[#1e293b] dark:hover:bg-[#2d3a58] border-slate-200 dark:border-[#334155]'
                     }`}
                     title={`Filtrar por ${cfg.fullLabel}`}
                   >
@@ -1250,7 +1236,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
                       >
                         <span className="material-symbols-outlined text-[17px] leading-none">{cfg.icon}</span>
                       </span>
-                      <span className="text-[11px] font-black text-white truncate max-w-full mt-0.5">
+                      <span className="text-[11px] font-black text-slate-900 dark:text-white truncate max-w-full mt-0.5">
                         {cfg.label}
                       </span>
                     </div>
@@ -1286,21 +1272,21 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
           <button
             type="button"
             onClick={() => setShowLegend(true)}
-            className="cavi-map-legend-toggle absolute top-3 right-3 z-[1000] bg-[#0b1326]/90 backdrop-blur-md px-2.5 py-1.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center gap-1 shadow-lg cursor-pointer hidden md:flex"
+            className="cavi-map-legend-toggle absolute top-3 right-3 z-30 bg-white/95 dark:bg-[#0b1326]/90 backdrop-blur-md px-2.5 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 text-xs font-bold text-slate-800 dark:text-slate-200 hover:text-[#0088ff] dark:hover:text-white flex items-center gap-1 shadow-lg cursor-pointer hidden md:flex"
             title="Mostrar leyenda de convenciones"
           >
-            <span className="material-symbols-outlined text-[15px] text-[#38bdf8]">category</span>
+            <span className="material-symbols-outlined text-[15px] text-[#0088ff] dark:text-[#38bdf8]">category</span>
             <span>Leyenda PDV</span>
           </button>
         )}
 
         {/* SIDEBAR DRAWER: ROUTE STOPS & SEQUENCE BUILDER */}
         {isDrawerOpen && (
-          <div className="w-72 sm:w-84 bg-white/95 backdrop-blur-md border-l border-slate-200 flex flex-col h-full z-20 shrink-0">
+          <div className="w-72 sm:w-84 bg-white/95 dark:bg-[#131b2e]/95 backdrop-blur-md border-l border-slate-200 dark:border-[#222a3d] flex flex-col h-full z-20 shrink-0">
             {/* Drawer Header */}
-            <div className="p-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+            <div className="p-3 border-b border-slate-200 dark:border-[#222a3d] bg-slate-50 dark:bg-[#0b1326] flex items-center justify-between">
               <div>
-                <span className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1">
+                <span className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1">
                   <span className="material-symbols-outlined text-[16px] text-[#0088ff]">route</span>
                   <span>Ruta Trazada</span>
                 </span>

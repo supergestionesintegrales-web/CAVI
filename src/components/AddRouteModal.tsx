@@ -27,11 +27,11 @@ export const AddRouteModal: React.FC<AddRouteModalProps> = ({
   isOpen,
   onClose,
   onAdd,
-  auditors,
+  auditors = [],
   defaultAuditorId,
   availablePoints = [],
 }) => {
-  const [auditorId, setAuditorId] = useState<string>(defaultAuditorId || auditors[0]?.id || 'aud-1');
+  const [auditorId, setAuditorId] = useState<string>(defaultAuditorId || auditors?.[0]?.id || 'aud-1');
   const [name, setName] = useState('');
   const [code, setCode] = useState('');
   const [format, setFormat] = useState<FormatType>('CM');

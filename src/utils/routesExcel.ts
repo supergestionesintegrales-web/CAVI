@@ -288,7 +288,7 @@ export async function parseRoutesFile(file: File, auditors: Auditor[]): Promise<
   const resultSteps: RouteStep[] = candidates.map((c, index) => {
     const daysCycle: Array<RouteStep['day']> = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes'];
     const finalDay = c.day || daysCycle[index % daysCycle.length];
-    const aud = auditors.find((a) => a.id === c.auditorId) || auditors[index % auditors.length] || auditors[0];
+    const aud = auditors.find((a) => a.id === c.auditorId) || (auditors.length > 0 ? auditors[index % auditors.length] : undefined) || auditors?.[0];
 
     return {
       id: c.id || `step-${Date.now()}-${index}`,

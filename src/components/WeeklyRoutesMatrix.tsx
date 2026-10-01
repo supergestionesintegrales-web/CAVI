@@ -166,12 +166,7 @@ export const WeeklyRoutesMatrix: React.FC<WeeklyRoutesMatrixProps> = ({
                 <span className="material-symbols-outlined text-[17px]">upload_file</span>
                 <span>Cargar Matriz PDV (GPS)</span>
               </button>
-            ) : (
-              <span className="px-3 py-1.5 rounded-xl bg-blue-50 dark:bg-[#0f1d2e] text-[#0088ff] dark:text-[#38bdf8] border border-blue-200 dark:border-[#0088ff]/30 text-xs font-bold flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[16px]">visibility</span>
-                <span>Modo Solo Vista</span>
-              </span>
-            )}
+            ) : null}
 
             <button
               type="button"
@@ -223,7 +218,7 @@ export const WeeklyRoutesMatrix: React.FC<WeeklyRoutesMatrixProps> = ({
           <div className="bg-slate-50 dark:bg-[#0b1326] p-3 rounded-xl border border-slate-200 dark:border-[#222a3d]">
             <span className="text-[11px] text-slate-600 dark:text-[#cbd5e1] block font-medium">Canales Activos</span>
             <span className="text-xs font-bold text-amber-700 dark:text-[#fcd34d] mt-1 block truncate">
-              {channelsSummary.length > 0 ? channelsSummary.map((c) => c[0]).slice(0, 2).join(', ') : 'Pendiente'}
+              {channelsSummary.length > 0 ? channelsSummary.map((c) => c?.[0]).filter(Boolean).slice(0, 2).join(', ') : 'Pendiente'}
             </span>
           </div>
         </div>
@@ -424,18 +419,18 @@ export const WeeklyRoutesMatrix: React.FC<WeeklyRoutesMatrixProps> = ({
                         </div>
 
                         {/* Store Name in Crisp Black */}
-                        <h4 className="text-xs font-bold text-slate-900 dark:text-white leading-tight line-clamp-2">
+                        <h4 className="text-xs font-bold text-slate-900 dark:text-white leading-tight break-words">
                           {step.name}
                         </h4>
 
                         {/* Audit Reason if not audited or revisit */}
                         {isNotAudited && step.auditReason && (
-                          <p className="text-[10px] text-red-700 dark:text-red-400 font-semibold truncate mt-1">
+                          <p className="text-[10px] text-red-700 dark:text-red-400 font-semibold break-words mt-1">
                             No audit: {step.auditReason}
                           </p>
                         )}
                         {isRevisit && step.auditReason && (
-                          <p className="text-[10px] text-purple-700 dark:text-purple-300 font-semibold truncate mt-1">
+                          <p className="text-[10px] text-purple-700 dark:text-purple-300 font-semibold break-words mt-1">
                             Re-visitar: {step.auditReason}
                           </p>
                         )}
@@ -467,7 +462,7 @@ export const WeeklyRoutesMatrix: React.FC<WeeklyRoutesMatrixProps> = ({
                           <span className="material-symbols-outlined text-[13px] text-[#0088ff] shrink-0 mt-0.5">
                             location_on
                           </span>
-                          <span className="line-clamp-2">{step.address}</span>
+                          <span className="break-words leading-tight">{step.address}</span>
                         </p>
 
                         {/* Municipality and Coordinates */}
@@ -482,10 +477,10 @@ export const WeeklyRoutesMatrix: React.FC<WeeklyRoutesMatrixProps> = ({
 
                         {/* Assigned Auditor & Time */}
                         <div className="flex items-center justify-between mt-1.5 pt-1.5 border-t border-slate-200 dark:border-[#222a3d] text-[10px]">
-                          <span className="text-slate-700 dark:text-[#cbd5e1] truncate max-w-[110px] font-medium">
-                            {step.auditorName?.split(' ')[0] || 'Auditor'}
+                          <span className="text-slate-800 dark:text-slate-200 font-bold break-words">
+                            {step.auditorName || 'Auditor'}
                           </span>
-                          <span className="font-mono text-amber-700 dark:text-[#fcd34d] font-bold">
+                          <span className="font-mono text-amber-700 dark:text-[#fcd34d] font-bold shrink-0">
                             {step.time}
                           </span>
                         </div>
@@ -560,7 +555,7 @@ export const WeeklyRoutesMatrix: React.FC<WeeklyRoutesMatrixProps> = ({
                                   ? 'bg-amber-50 text-amber-800 border-amber-200 dark:bg-[#f59e0b]/20 dark:text-[#fde68a] dark:border-amber-500/40 font-bold'
                                   : 'bg-slate-50 text-slate-600 border-slate-200 dark:bg-[#1e293b]/60 dark:text-[#94a3b8] dark:border-[#334155]'
                               }`}
-                              title="Modo Solo Vista: La única persona autorizada para actualizar estados es el Administrador"
+                              title="Estado de auditoría"
                             >
                               <span className="material-symbols-outlined text-[13px]">
                                 {isCompleted ? 'check_circle' : isNotAudited ? 'cancel' : isRevisit ? 'replay' : 'visibility'}

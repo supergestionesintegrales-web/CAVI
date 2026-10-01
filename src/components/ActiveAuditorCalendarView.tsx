@@ -57,7 +57,7 @@ export const ActiveAuditorCalendarView: React.FC<ActiveAuditorCalendarViewProps>
 
   // Active auditor object
   const activeAuditor = useMemo(() => {
-    return auditors.find((a) => a.id === activeAuditorId) || auditors[0];
+    return auditors?.find((a) => a.id === activeAuditorId) || auditors?.[0];
   }, [auditors, activeAuditorId]);
 
   // All steps for this active auditor

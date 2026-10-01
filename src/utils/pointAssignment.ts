@@ -228,7 +228,7 @@ export function distributePointsWithAlertPriority(
     const matched = getAssignedAuditorForZone(candidateZone, auditors);
     if (matched) return matched;
     const directMatch = auditors.find((a) => a.zone.toLowerCase() === candidateZone.toLowerCase());
-    return directMatch || auditors[0];
+    return directMatch || auditors?.[0];
   };
 
   // Helper to pick the best day for an auditor respecting the 8-10 points/day rule and Saturday half-day (4-5 points max)

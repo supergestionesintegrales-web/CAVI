@@ -23,7 +23,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
   const navItems = allNavItems.filter((item) => !item.adminOnly || userRole === 'administrador');
 
   return (
-    <nav className="fixed bottom-0 w-full z-40 pb-safe bg-[#060e20]/95 backdrop-blur-xl border-t border-[#171f33]/80 shadow-[0_-2px_12px_rgba(0,0,0,0.45)] md:hidden">
+    <nav className="fixed bottom-0 w-full z-40 pb-safe bg-white/95 dark:bg-[#060e20]/95 backdrop-blur-xl border-t border-slate-200 dark:border-[#171f33]/80 shadow-md dark:shadow-[0_-2px_12px_rgba(0,0,0,0.45)] md:hidden">
       <div className="max-w-md mx-auto flex justify-around items-center h-16 px-2">
         {navItems.map((item) => {
           const isActive = activeTab === item.id;
@@ -32,7 +32,9 @@ export const BottomNav: React.FC<BottomNavProps> = ({
               key={item.id}
               onClick={() => onSelectTab(item.id)}
               className={`flex flex-col items-center justify-center min-w-[68px] h-12 transition-all relative ${
-                isActive ? 'text-[#0088ff] font-bold scale-105' : 'text-[#bbcabf] hover:text-[#dae2fd]'
+                isActive
+                  ? 'text-[#0088ff] font-bold scale-105'
+                  : 'text-slate-600 dark:text-[#bbcabf] hover:text-[#0088ff] dark:hover:text-[#dae2fd]'
               }`}
             >
               <span className="material-symbols-outlined text-[22px]">

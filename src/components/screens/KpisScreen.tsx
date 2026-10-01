@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo } from 'react';
 import { Auditor } from '../../types';
 
 interface KpisScreenProps {
@@ -6,449 +6,316 @@ interface KpisScreenProps {
   onShowToast: (title: string, message: string) => void;
 }
 
-export const KpisScreen: React.FC<KpisScreenProps> = ({ auditors, onShowToast }) => {
-  const [selectedPeriod, setSelectedPeriod] = useState('Semana Actual');
-  const [selectedAuditors, setSelectedAuditors] = useState('Todos (3)');
-  const [isExporting, setIsExporting] = useState(false);
+export const KpisScreen: React.FC<KpisScreenProps> = ({ auditors }) => {
+  const formatTotals = useMemo(() => {
+    let cm = 0;
+    let pf = 0;
+    let cda = 0;
+    auditors.forEach((a) => {
+      cm += a.targetBreakdown?.cm || 0;
+      pf += a.targetBreakdown?.pf || 0;
+      cda += a.targetBreakdown?.cda || 0;
+    });
+    const total = cm + pf + cda;
+    const visitsTarget = auditors.reduce((acc, a) => acc + (a.visitsTarget || 0), 0);
+    const visitsDone = auditors.reduce((acc, a) => acc + (a.visitsDone || 0), 0);
+    const moraTotal = auditors.reduce((acc, a) => acc + (a.moraPending || 0), 0);
 
-  const handleDownloadExcel = (filename = 'CAVI_Consolidado_Sem42.xlsx') => {
-    setIsExporting(true);
-
-    setTimeout(() => {
-      setIsExporting(false);
-      onShowToast('Generando XLSX', `${filename} listo para guardar`);
-
-      // Generate a realistic downloadable spreadsheet CSV format with Excel MIME
-      const csvContent =
-        'sep=,\n' +
-        'ID,PUNTO_CONTROL,FORMATO,ZONA,DIRECCION,AUDITOR,ESTADO,CUMPLIMIENTO_SLA,TIEMPO_TRASLADO_MIN,HALLAZGOS\n' +
-        'CM-108,Riohacha Centro Comercial,CM,Norte (Riohacha),Calle 15 #7-40 Riohacha,Samuel Ramos Quintero,Completado,100%,18,Sin novedades\n' +
-        'PF-042,Maicao Frontera Plaza,PF,Frontera (Maicao),Calle 16 #10-22 Maicao,Kleyder Rodriguez,En curso,92%,24,Re-visita inventario\n' +
-        'CDA-04,Centro Acopio Riohacha Portuario,CDA,Norte (Riohacha),Vía Santa Marta Km 2 Riohacha,Samuel Ramos Quintero,Completado,98%,15,Conforme\n' +
-        'PF-12,San Juan del Cesar Principal,PF,Sur (San Juan),Cra 5 #8-35 San Juan del Cesar,Jose Aponte,Completado,100%,20,Conforme\n' +
-        'CM-88,Fonseca Plaza Express,CM,Sur (Fonseca),Calle 12 #18-04 Fonseca,Jose Aponte,En curso,95%,12,Check-in GPS verificado\n' +
-        'CM-92,Uribia Capital Indígena,CM,Alta Guajira (Uribia),Plaza Colombia Uribia,Samuel Ramos Quintero,Programado,100%,28,Pendiente\n' +
-        'CDA-33,CDA Minero Barrancas - Cerrejón,CDA,Sur (Barrancas),Km 5 Vía Cerrejón Barrancas,Jose Aponte,Completado,100%,35,Capacidad +500 items ok\n' +
-        'CM-102,Manaure Salinas Market,CM,Norte (Manaure),Calle Central Salinas Manaure,Samuel Ramos Quintero,Completado,100%,19,Alerta superada';
-
-      const blob = new Blob([csvContent], { type: 'application/vnd.ms-excel;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', filename);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    }, 1200);
-  };
+    return {
+      cm,
+      pf,
+      cda,
+      total: total > 0 ? total : visitsTarget,
+      visitsTarget,
+      visitsDone,
+      moraTotal,
+      compliancePct: visitsTarget > 0 ? Math.round((visitsDone / visitsTarget) * 100) : 94.2,
+      score: visitsTarget > 0 ? Math.round((visitsDone / visitsTarget) * 100 * 0.95) : 91.4,
+    };
+  }, [auditors]);
 
   return (
     <div className="flex flex-col w-full space-y-4 md:space-y-5">
       {/* Header section */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 bg-[#131b2e] p-3.5 sm:px-4 rounded-xl border border-[#222a3d]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 bg-white dark:bg-[#131b2e] p-3.5 sm:px-4 rounded-2xl border border-slate-200 dark:border-[#222a3d] shadow-xs">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-[#171f33] flex items-center justify-center text-[#0088ff] shadow-sm">
-            <span className="material-symbols-outlined text-[22px]">query_stats</span>
+          <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-[#171f33] flex items-center justify-center text-[#0088ff] shadow-xs border border-slate-200 dark:border-[#222a3d]">
+            <span className="material-symbols-outlined text-[24px]">query_stats</span>
           </div>
           <div>
-            <h1 className="font-headline font-bold text-base md:text-lg text-[#dae2fd] tracking-tight">
-              Tablero Ejecutivo
+            <h1 className="font-headline font-bold text-base md:text-lg text-slate-900 dark:text-[#dae2fd] tracking-tight">
+              Tablero Ejecutivo &amp; KPIs
             </h1>
-            <p className="text-[11px] text-[#bbcabf]">
-              Corte de ciclo Q3 • Red Departamental La Guajira (Semana 42)
+            <p className="text-[11px] text-slate-500 dark:text-[#bbcabf]">
+              Corte de ciclo operativo Q3 • Red Departamental La Guajira ({formatTotals.total} puntos de auditoría)
             </p>
           </div>
-        </div>
-        <div className="flex items-center gap-2 self-start sm:self-auto">
         </div>
       </div>
 
       {/* 4 Big KPI Metric Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         {/* Cumplimiento */}
-        <div className="bg-[#131b2e] rounded-xl p-3.5 shadow-md flex flex-col justify-between border border-[#222a3d]">
+        <div className="bg-white dark:bg-[#131b2e] rounded-xl p-3.5 shadow-xs flex flex-col justify-between border border-slate-200 dark:border-[#222a3d]">
           <div className="flex items-start justify-between">
-            <span className="text-[10px] text-[#bbcabf] uppercase tracking-wider font-bold">
+            <span className="text-[10px] text-slate-500 dark:text-[#bbcabf] uppercase tracking-wider font-bold">
               Cumplimiento
             </span>
-            <span className="w-6 h-6 rounded-full bg-[#4edea3]/15 flex items-center justify-center text-[#4edea3]">
+            <span className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-[#4edea3]/15 flex items-center justify-center text-emerald-600 dark:text-[#4edea3]">
               <span className="material-symbols-outlined text-[16px]">verified</span>
             </span>
           </div>
           <div className="mt-2">
             <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-headline font-bold text-[#4edea3]">94.2%</span>
-              <span className="text-[10px] text-[#4edea3] flex items-center font-bold">
+              <span className="text-2xl font-headline font-bold text-emerald-600 dark:text-[#4edea3]">{formatTotals.compliancePct}%</span>
+              <span className="text-[10px] text-emerald-600 dark:text-[#4edea3] flex items-center font-bold">
                 <span className="material-symbols-outlined text-[12px]">trending_up</span>
-                +3.4%
+                Real
               </span>
             </div>
-            <p className="text-[10px] text-[#bbcabf] mt-0.5 leading-tight">
-              74 de 78 visitas ejecutadas esta semana
+            <p className="text-[10px] text-slate-500 dark:text-[#bbcabf] mt-0.5 leading-tight">
+              {formatTotals.visitsDone} de {formatTotals.visitsTarget} visitas ejecutadas
             </p>
           </div>
-          <div className="w-full bg-[#2d3449] rounded-full h-1.5 mt-2.5 overflow-hidden">
-            <div className="bg-[#4edea3] h-full rounded-full" style={{ width: '94.2%' }} />
+          <div className="w-full bg-slate-200 dark:bg-[#2d3449] rounded-full h-1.5 mt-2.5 overflow-hidden">
+            <div className="bg-emerald-500 dark:bg-[#4edea3] h-full rounded-full" style={{ width: `${formatTotals.compliancePct}%` }} />
           </div>
         </div>
 
         {/* Efectividad Ruta */}
-        <div className="bg-[#131b2e] rounded-xl p-3.5 shadow-md flex flex-col justify-between border border-[#222a3d]">
+        <div className="bg-white dark:bg-[#131b2e] rounded-xl p-3.5 shadow-xs flex flex-col justify-between border border-slate-200 dark:border-[#222a3d]">
           <div className="flex items-start justify-between">
-            <span className="text-[10px] text-[#bbcabf] uppercase tracking-wider font-bold">
+            <span className="text-[10px] text-slate-500 dark:text-[#bbcabf] uppercase tracking-wider font-bold">
               Efectividad Ruta
             </span>
-            <span className="w-6 h-6 rounded-full bg-[#c0c1ff]/15 flex items-center justify-center text-[#c0c1ff]">
+            <span className="w-6 h-6 rounded-full bg-indigo-100 dark:bg-[#c0c1ff]/15 flex items-center justify-center text-indigo-600 dark:text-[#c0c1ff]">
               <span className="material-symbols-outlined text-[16px]">navigation</span>
             </span>
           </div>
           <div className="mt-2">
             <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-headline font-bold text-[#dae2fd]">91.8%</span>
-              <span className="text-[10px] text-[#4edea3] flex items-center font-bold">-22%</span>
+              <span className="text-2xl font-headline font-bold text-slate-900 dark:text-[#dae2fd]">98.2%</span>
+              <span className="text-[10px] text-[#0088ff] flex items-center font-bold">CAVI</span>
             </div>
-            <p className="text-[10px] text-[#bbcabf] mt-0.5 leading-tight">
-              Tiempos de traslado optimizados vía CAVI
+            <p className="text-[10px] text-slate-500 dark:text-[#bbcabf] mt-0.5 leading-tight">
+              Tiempos de traslado optimizados vía algoritmo
             </p>
           </div>
-          <div className="w-full bg-[#2d3449] rounded-full h-1.5 mt-2.5 overflow-hidden">
-            <div className="bg-[#c0c1ff] h-full rounded-full" style={{ width: '91.8%' }} />
+          <div className="w-full bg-slate-200 dark:bg-[#2d3449] rounded-full h-1.5 mt-2.5 overflow-hidden">
+            <div className="bg-[#0088ff] dark:bg-[#c0c1ff] h-full rounded-full" style={{ width: '98.2%' }} />
           </div>
         </div>
 
         {/* Cobertura Q3 */}
-        <div className="bg-[#131b2e] rounded-xl p-3.5 shadow-md flex flex-col justify-between border border-[#222a3d]">
+        <div className="bg-white dark:bg-[#131b2e] rounded-xl p-3.5 shadow-xs flex flex-col justify-between border border-slate-200 dark:border-[#222a3d]">
           <div className="flex items-start justify-between">
-            <span className="text-[10px] text-[#bbcabf] uppercase tracking-wider font-bold">
-              Cobertura Q3
+            <span className="text-[10px] text-slate-500 dark:text-[#bbcabf] uppercase tracking-wider font-bold">
+              Cobertura Red
             </span>
-            <span className="w-6 h-6 rounded-full bg-[#ffb95f]/15 flex items-center justify-center text-[#ffb95f]">
+            <span className="w-6 h-6 rounded-full bg-amber-100 dark:bg-[#ffb95f]/15 flex items-center justify-center text-amber-600 dark:text-[#ffb95f]">
               <span className="material-symbols-outlined text-[16px]">domain</span>
             </span>
           </div>
           <div className="mt-2">
             <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-headline font-bold text-[#ffb95f]">81.3%</span>
+              <span className="text-2xl font-headline font-bold text-amber-600 dark:text-[#ffb95f]">
+                {formatTotals.visitsDone}
+              </span>
+              <span className="text-[10px] text-slate-500 dark:text-[#bbcabf]">puntos</span>
             </div>
-            <p className="text-[10px] text-[#bbcabf] mt-0.5 leading-tight">
-              493 de 606 puntos auditados en ciclo actual
+            <p className="text-[10px] text-slate-500 dark:text-[#bbcabf] mt-0.5 leading-tight">
+              {formatTotals.visitsDone} de {formatTotals.total} puntos auditados en ciclo
             </p>
           </div>
-          <div className="w-full bg-[#2d3449] rounded-full h-1.5 mt-2.5 overflow-hidden">
-            <div className="bg-[#ffb95f] h-full rounded-full" style={{ width: '81.3%' }} />
+          <div className="w-full bg-slate-200 dark:bg-[#2d3449] rounded-full h-1.5 mt-2.5 overflow-hidden">
+            <div className="bg-amber-500 dark:bg-[#ffb95f] h-full rounded-full" style={{ width: `${formatTotals.total > 0 ? Math.round((formatTotals.visitsDone / formatTotals.total) * 100) : 80}%` }} />
           </div>
         </div>
 
         {/* Hallazgos Críticos */}
-        <div className="bg-[#131b2e] rounded-xl p-3.5 shadow-md flex flex-col justify-between border border-[#222a3d]">
+        <div className="bg-white dark:bg-[#131b2e] rounded-xl p-3.5 shadow-xs flex flex-col justify-between border border-slate-200 dark:border-[#222a3d]">
           <div className="flex items-start justify-between">
-            <span className="text-[10px] text-[#bbcabf] uppercase tracking-wider font-bold">
-              Hallazgos Críticos
+            <span className="text-[10px] text-slate-500 dark:text-[#bbcabf] uppercase tracking-wider font-bold">
+              Puntos en Mora
             </span>
-            <span className="w-6 h-6 rounded-full bg-[#ffb4ab]/20 flex items-center justify-center text-[#ffb4ab] animate-pulse">
+            <span className="w-6 h-6 rounded-full bg-rose-100 dark:bg-[#ffb4ab]/20 flex items-center justify-center text-rose-600 dark:text-[#ffb4ab]">
               <span className="material-symbols-outlined text-[16px]">warning</span>
             </span>
           </div>
           <div className="mt-2">
             <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-headline font-bold text-[#ffb4ab]">18</span>
-              <span className="text-[10px] text-[#ffb4ab] font-bold">Re-visita</span>
+              <span className="text-2xl font-headline font-bold text-rose-600 dark:text-[#ffb4ab]">{formatTotals.moraTotal}</span>
+              <span className="text-[10px] text-rose-600 dark:text-[#ffb4ab] font-bold">Pendientes</span>
             </div>
-            <p className="text-[10px] text-[#bbcabf] mt-0.5 leading-tight">
-              Requieren re-inspección inmediata (&lt;48h)
+            <p className="text-[10px] text-slate-500 dark:text-[#bbcabf] mt-0.5 leading-tight">
+              Requieren re-inspección o visita prioritaria
             </p>
           </div>
-          <div className="w-full bg-[#2d3449] rounded-full h-1.5 mt-2.5 overflow-hidden">
-            <div className="bg-[#ffb4ab] h-full rounded-full" style={{ width: '23%' }} />
+          <div className="w-full bg-slate-200 dark:bg-[#2d3449] rounded-full h-1.5 mt-2.5 overflow-hidden">
+            <div className="bg-rose-500 dark:bg-[#ffb4ab] h-full rounded-full" style={{ width: formatTotals.moraTotal > 0 ? '25%' : '0%' }} />
           </div>
         </div>
       </div>
 
-      {/* RESPONSIVE 2-COLUMN GRID */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-        {/* LEFT COLUMN: Desempeño de Auditores & Desglose por Formato */}
-        <div className="lg:col-span-7 xl:col-span-7 space-y-4">
-          {/* Desempeño de Auditores */}
-      <div className="bg-[#131b2e] rounded-xl p-4 shadow-md border border-[#222a3d]">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-[#0088ff] text-[20px]">badge</span>
-            <h2 className="font-headline font-bold text-sm text-[#dae2fd]">
-              Desempeño de Auditores
-            </h2>
-          </div>
-          <span className="text-[11px] text-[#bbcabf]">Promedio: 9.1 pts/d</span>
-        </div>
+      {/* 2-COLUMN BALANCED WORKSPACE */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-5 items-start">
+        {/* Desempeño de Auditores Individual */}
+        <div className="lg:col-span-7 space-y-4">
+          <div className="bg-white dark:bg-[#131b2e] rounded-2xl p-4 shadow-xs border border-slate-200 dark:border-[#222a3d]">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[#0088ff] text-[20px]">badge</span>
+                <h2 className="font-headline font-bold text-sm text-slate-900 dark:text-[#dae2fd]">
+                  Desempeño Individual de Auditores
+                </h2>
+              </div>
+              <span className="text-[11px] text-slate-500 dark:text-[#bbcabf]">Promedio: 9.1 pts/d</span>
+            </div>
 
-        <div className="flex flex-col gap-3">
-          {auditors.map((auditor) => (
-            <div
-              key={auditor.id}
-              className="bg-[#171f33] rounded-xl p-3 shadow-sm border border-[#222a3d]"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <img
-                    className="w-9 h-9 rounded-full object-cover ring-1 ring-[#4edea3]/40"
-                    alt={auditor.name}
-                    src={auditor.avatar}
-                    referrerPolicy="no-referrer"
-                  />
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-xs font-bold text-[#dae2fd] truncate">
-                        {auditor.name}
-                      </span>
-                      <span className="px-1.5 py-0.5 rounded bg-[#222a3d] text-[#bbcabf] text-[10px]">
-                        {auditor.zone}
-                      </span>
+            <div className="flex flex-col gap-3">
+              {auditors.map((auditor) => (
+                <div
+                  key={auditor.id}
+                  className="bg-slate-50 dark:bg-[#171f33] rounded-xl p-3 shadow-xs border border-slate-200 dark:border-[#222a3d]"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <img
+                        className="w-9 h-9 rounded-full object-cover ring-1 ring-[#0088ff]/40"
+                        alt={auditor.name}
+                        src={auditor.avatar}
+                        referrerPolicy="no-referrer"
+                      />
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-bold text-slate-900 dark:text-[#dae2fd] truncate">
+                            {auditor.name}
+                          </span>
+                          <span className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-[#222a3d] text-slate-700 dark:text-[#bbcabf] text-[10px]">
+                            {auditor.zone}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-500 dark:text-[#bbcabf]">
+                          {auditor.pointsPerDay} pts/día • {auditor.auditedTotal} auditados
+                        </p>
+                      </div>
                     </div>
-                    <p className="text-[11px] text-[#bbcabf]">
-                      {auditor.pointsPerDay} pts/día • {auditor.auditedTotal} auditados
-                    </p>
+                    <div className="text-right shrink-0">
+                      <span className="text-xs font-headline font-bold text-[#0088ff]">
+                        {auditor.effectiveness}%
+                      </span>
+                      <p className="text-[10px] text-[#0088ff]/80">Efectividad</p>
+                    </div>
+                  </div>
+
+                  <div className="w-full bg-slate-200 dark:bg-[#2d3449] rounded-full h-2 mt-2 overflow-hidden">
+                    <div
+                      className="bg-[#0088ff] h-full rounded-full"
+                      style={{ width: `${auditor.effectiveness}%` }}
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2 mt-2 pt-2 border-t border-slate-200 dark:border-[#222a3d]">
+                    <span className="px-2 py-0.5 rounded bg-slate-200 dark:bg-[#222a3d] text-[10px] font-code-metric text-indigo-700 dark:text-[#e1e0ff]">
+                      {auditor.targetBreakdown.cm} CM
+                    </span>
+                    <span className="px-2 py-0.5 rounded bg-slate-200 dark:bg-[#222a3d] text-[10px] font-code-metric text-amber-700 dark:text-[#ffb95f]">
+                      {auditor.targetBreakdown.pf} PF
+                    </span>
+                    <span className="px-2 py-0.5 rounded bg-slate-200 dark:bg-[#222a3d] text-[10px] font-code-metric text-blue-700 dark:text-[#c0c1ff]">
+                      {auditor.targetBreakdown.cda} CDA
+                    </span>
+                    <span className="text-[11px] text-slate-500 dark:text-[#bbcabf] ml-auto flex items-center gap-1">
+                      {auditor.moraPending > 0 ? (
+                        <>
+                          <span className="material-symbols-outlined text-[13px] text-[#ffb95f]">
+                            schedule
+                          </span>
+                          <span>{auditor.moraPending} pend</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="material-symbols-outlined text-[13px] text-[#4edea3]">
+                            verified
+                          </span>
+                          <span>0 mora</span>
+                        </>
+                      )}
+                    </span>
                   </div>
                 </div>
-                <div className="text-right shrink-0">
-                  <span className="text-xs font-headline font-bold text-[#4edea3]">
-                    {auditor.effectiveness}%
-                  </span>
-                  <p className="text-[10px] text-[#4edea3]/80">Efectividad</p>
-                </div>
-              </div>
-
-              <div className="w-full bg-[#2d3449] rounded-full h-2 mt-2 overflow-hidden">
-                <div
-                  className="bg-[#4edea3] h-full rounded-full"
-                  style={{ width: `${auditor.effectiveness}%` }}
-                />
-              </div>
-
-              <div className="flex items-center gap-2 mt-2 pt-2 border-t border-[#222a3d]">
-                <span className="px-2 py-0.5 rounded bg-[#222a3d] text-[10px] font-code-metric text-[#e1e0ff]">
-                  {auditor.targetBreakdown.cm} CM
-                </span>
-                <span className="px-2 py-0.5 rounded bg-[#222a3d] text-[10px] font-code-metric text-[#ffb95f]">
-                  {auditor.targetBreakdown.pf} PF
-                </span>
-                <span className="px-2 py-0.5 rounded bg-[#222a3d] text-[10px] font-code-metric text-[#c0c1ff]">
-                  {auditor.targetBreakdown.cda} CDA
-                </span>
-                <span className="text-[11px] text-[#bbcabf] ml-auto flex items-center gap-1">
-                  {auditor.moraPending > 0 ? (
-                    <>
-                      <span className="material-symbols-outlined text-[13px] text-[#ffb95f]">
-                        schedule
-                      </span>
-                      <span>{auditor.moraPending} pend</span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="material-symbols-outlined text-[13px] text-[#4edea3]">
-                        verified
-                      </span>
-                      <span>0 mora</span>
-                    </>
-                  )}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Desglose por Formato */}
-      <div className="bg-[#131b2e] rounded-xl p-4 shadow-md border border-[#222a3d]">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-[#c0c1ff] text-[20px]">
-              pie_chart
-            </span>
-            <h2 className="font-headline font-bold text-sm text-[#dae2fd]">
-              Desglose por Formato
-            </h2>
-          </div>
-          <span className="font-code-metric text-xs text-[#4edea3]">Score: 91.4/100</span>
-        </div>
-
-        <div className="grid grid-cols-3 gap-2">
-          {/* CM */}
-          <div className="bg-[#171f33] rounded-xl p-2.5 flex flex-col items-center text-center border border-[#222a3d]">
-            <span className="px-2 py-0.5 rounded bg-[#222a3d] text-[#e1e0ff] text-[11px] font-bold">
-              CM
-            </span>
-            <span className="text-base font-headline font-bold text-[#dae2fd] mt-1">391</span>
-            <span className="text-[10px] text-[#bbcabf]">Compumueble</span>
-            <span className="font-code-metric text-xs text-[#4edea3] mt-2">92.8%</span>
-            <span className="text-[9px] text-[#bbcabf]">Conforme</span>
-          </div>
-
-          {/* PF */}
-          <div className="bg-[#171f33] rounded-xl p-2.5 flex flex-col items-center text-center border border-[#222a3d]">
-            <span className="px-2 py-0.5 rounded bg-[#222a3d] text-[#ffb95f] text-[11px] font-bold">
-              PF
-            </span>
-            <span className="text-base font-headline font-bold text-[#dae2fd] mt-1">176</span>
-            <span className="text-[10px] text-[#bbcabf]">Punto Físico</span>
-            <span className="font-code-metric text-xs text-[#4edea3] mt-2">89.4%</span>
-            <span className="text-[9px] text-[#bbcabf]">Conforme</span>
-          </div>
-
-          {/* CDA */}
-          <div className="bg-[#171f33] rounded-xl p-2.5 flex flex-col items-center text-center border border-[#222a3d]">
-            <span className="px-2 py-0.5 rounded bg-[#222a3d] text-[#c0c1ff] text-[11px] font-bold">
-              CDA
-            </span>
-            <span className="text-base font-headline font-bold text-[#dae2fd] mt-1">39</span>
-            <span className="text-[10px] text-[#bbcabf]">Acopio</span>
-            <span className="font-code-metric text-xs text-[#ffb95f] mt-2">86.1%</span>
-            <span className="text-[9px] text-[#bbcabf]">Conforme</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {/* RIGHT COLUMN: Exportación de Reportes & Histórico */}
-    <div className="lg:col-span-5 xl:col-span-5 space-y-4 lg:sticky lg:top-22">
-      {/* Exportación de Reportes Ejecutivos */}
-      <div className="bg-[#131b2e] rounded-xl p-4 shadow-xl relative overflow-hidden border border-[#222a3d]">
-        <div className="flex items-center gap-2.5 mb-3">
-          <div className="w-8 h-8 rounded-lg bg-[#0088ff]/20 flex items-center justify-center text-[#0088ff]">
-            <span className="material-symbols-outlined text-[20px]">table_view</span>
-          </div>
-          <div className="flex flex-col min-w-0">
-            <h2 className="font-headline font-bold text-sm text-[#dae2fd]">
-              Exportación de Reportes Ejecutivos
-            </h2>
-            <p className="text-[11px] text-[#bbcabf]">Formato oficial con dinámicas integradas</p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-2 mb-3">
-          <div className="bg-[#171f33] rounded-lg p-2 flex flex-col border border-[#222a3d]">
-            <label className="text-[10px] text-[#bbcabf] mb-0.5">Período</label>
-            <div className="flex items-center justify-between text-[#dae2fd] text-xs">
-              <select
-                value={selectedPeriod}
-                onChange={(e) => setSelectedPeriod(e.target.value)}
-                className="bg-transparent text-xs text-[#dae2fd] focus:outline-none w-full cursor-pointer"
-              >
-                <option value="Semana Actual" className="bg-[#131b2e]">Semana Actual (42)</option>
-                <option value="Semana Anterior" className="bg-[#131b2e]">Semana Anterior (41)</option>
-                <option value="Mes Octubre" className="bg-[#131b2e]">Mes Octubre</option>
-                <option value="Q3 Completo" className="bg-[#131b2e]">Q3 Completo</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="bg-[#171f33] rounded-lg p-2 flex flex-col border border-[#222a3d]">
-            <label className="text-[10px] text-[#bbcabf] mb-0.5">Auditores</label>
-            <div className="flex items-center justify-between text-[#dae2fd] text-xs">
-              <select
-                value={selectedAuditors}
-                onChange={(e) => setSelectedAuditors(e.target.value)}
-                className="bg-transparent text-xs text-[#dae2fd] focus:outline-none w-full cursor-pointer"
-              >
-                <option value="Todos (3)" className="bg-[#131b2e]">Todos (3)</option>
-                <option value="Samuel Ramos" className="bg-[#131b2e]">Samuel Ramos</option>
-                <option value="Kleyder Rodriguez" className="bg-[#131b2e]">Kleyder Rodriguez</option>
-                <option value="Jose Aponte" className="bg-[#131b2e]">Jose Aponte</option>
-              </select>
+              ))}
             </div>
           </div>
         </div>
 
-        <div className="bg-[#171f33] rounded-lg p-3 mb-3 border border-[#222a3d]">
-          <div className="flex items-center gap-1.5 text-[#c0c1ff] mb-1.5 text-xs font-semibold">
-            <span className="material-symbols-outlined text-[16px]">info</span>
-            <span>Contenido del archivo .XLSX:</span>
-          </div>
-          <ul className="text-[11px] text-[#bbcabf] space-y-1">
-            <li className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#0088ff]" />
-              606 puntos con timestamp de última visita y geolocalización.
-            </li>
-            <li className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#0088ff]" />
-              18 hallazgos críticos desglosados (CM, PF, CDA).
-            </li>
-            <li className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#c0c1ff]" />
-              Alertas predictivas CAVI y registro de kilometraje optimizado.
-            </li>
-          </ul>
-        </div>
-
-        <button
-          onClick={() => handleDownloadExcel()}
-          disabled={isExporting}
-          className="w-full h-12 bg-[#0088ff] hover:bg-[#0070d8] text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-[#0088ff]/25 active:scale-[0.98] transition-all cursor-pointer"
-        >
-          {isExporting ? (
-            <>
-              <span className="material-symbols-outlined text-[20px] animate-spin">sync</span>
-              <span>Compilando datos ejecutivos...</span>
-            </>
-          ) : (
-            <>
-              <span className="material-symbols-outlined text-[20px]">download</span>
-              <span>Descargar Reporte en Excel (.XLSX)</span>
-            </>
-          )}
-        </button>
-
-        {/* Histórico de Descargas */}
-        <div className="mt-4 pt-3 border-t border-[#222a3d]">
-          <span className="text-[10px] text-[#bbcabf] uppercase tracking-wider block mb-2 font-semibold">
-            Histórico de Descargas
-          </span>
-          <div className="space-y-1.5">
-            <div className="bg-[#171f33] rounded-lg px-3 py-2 flex items-center justify-between border border-[#222a3d]">
-              <div className="flex items-center gap-2 min-w-0">
-                <span className="material-symbols-outlined text-[#0088ff] text-[18px]">
-                  description
+        {/* Desglose por Formato de Establecimiento */}
+        <div className="lg:col-span-5 space-y-4">
+          <div className="bg-white dark:bg-[#131b2e] rounded-2xl p-4 shadow-xs border border-slate-200 dark:border-[#222a3d]">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-[#0088ff] text-[20px]">
+                  pie_chart
                 </span>
-                <div className="min-w-0 truncate">
-                  <span className="text-xs text-[#dae2fd] truncate block font-medium">
-                    CAVI_Consolidado_Sem41.xlsx
-                  </span>
-                  <span className="text-[10px] text-[#bbcabf] block">12 Oct 2024 • 4.2 MB</span>
-                </div>
+                <h2 className="font-headline font-bold text-sm text-slate-900 dark:text-[#dae2fd]">
+                  Desglose por Formato
+                </h2>
               </div>
-              <button
-                onClick={() => handleDownloadExcel('CAVI_Consolidado_Sem41.xlsx')}
-                aria-label="Descargar Sem 41"
-                className="w-8 h-8 rounded-lg bg-[#222a3d] hover:bg-[#2d3449] flex items-center justify-center text-[#0088ff] active:scale-95 transition-all cursor-pointer"
-              >
-                <span className="material-symbols-outlined text-[16px]">file_download</span>
-              </button>
+              <span className="font-code-metric text-xs text-[#0088ff]">Score: {formatTotals.score}/100</span>
             </div>
 
-            <div className="bg-[#171f33] rounded-lg px-3 py-2 flex items-center justify-between border border-[#222a3d]">
-              <div className="flex items-center gap-2 min-w-0">
-                <span className="material-symbols-outlined text-[#0088ff] text-[18px]">
-                  description
+            <div className="grid grid-cols-3 gap-2">
+              {/* CM */}
+              <div className="bg-slate-50 dark:bg-[#171f33] rounded-xl p-2.5 flex flex-col items-center text-center border border-slate-200 dark:border-[#222a3d]">
+                <span className="px-2 py-0.5 rounded bg-slate-200 dark:bg-[#222a3d] text-slate-800 dark:text-[#e1e0ff] text-[11px] font-bold">
+                  CM
                 </span>
-                <div className="min-w-0 truncate">
-                  <span className="text-xs text-[#dae2fd] truncate block font-medium">
-                    CAVI_Q3_Auditoria_Completa.xlsx
-                  </span>
-                  <span className="text-[10px] text-[#bbcabf] block">30 Sep 2024 • 11.8 MB</span>
-                </div>
+                <span className="text-base font-headline font-bold text-slate-900 dark:text-[#dae2fd] mt-1">{formatTotals.cm}</span>
+                <span className="text-[10px] text-slate-500 dark:text-[#bbcabf]">Compumueble</span>
+                <span className="font-code-metric text-xs text-[#0088ff] mt-2">92.8%</span>
+                <span className="text-[9px] text-slate-500 dark:text-[#bbcabf]">Conforme</span>
               </div>
-              <button
-                onClick={() => handleDownloadExcel('CAVI_Q3_Auditoria_Completa.xlsx')}
-                aria-label="Descargar Q3"
-                className="w-8 h-8 rounded-lg bg-[#222a3d] hover:bg-[#2d3449] flex items-center justify-center text-[#0088ff] active:scale-95 transition-all cursor-pointer"
-              >
-                <span className="material-symbols-outlined text-[16px]">file_download</span>
-              </button>
+
+              {/* PF */}
+              <div className="bg-slate-50 dark:bg-[#171f33] rounded-xl p-2.5 flex flex-col items-center text-center border border-slate-200 dark:border-[#222a3d]">
+                <span className="px-2 py-0.5 rounded bg-slate-200 dark:bg-[#222a3d] text-amber-700 dark:text-[#ffb95f] text-[11px] font-bold">
+                  PF
+                </span>
+                <span className="text-base font-headline font-bold text-slate-900 dark:text-[#dae2fd] mt-1">{formatTotals.pf}</span>
+                <span className="text-[10px] text-slate-500 dark:text-[#bbcabf]">Punto Físico</span>
+                <span className="font-code-metric text-xs text-[#0088ff] mt-2">89.4%</span>
+                <span className="text-[9px] text-slate-500 dark:text-[#bbcabf]">Conforme</span>
+              </div>
+
+              {/* CDA */}
+              <div className="bg-slate-50 dark:bg-[#171f33] rounded-xl p-2.5 flex flex-col items-center text-center border border-slate-200 dark:border-[#222a3d]">
+                <span className="px-2 py-0.5 rounded bg-slate-200 dark:bg-[#222a3d] text-indigo-700 dark:text-[#c0c1ff] text-[11px] font-bold">
+                  CDA
+                </span>
+                <span className="text-base font-headline font-bold text-slate-900 dark:text-[#dae2fd] mt-1">{formatTotals.cda}</span>
+                <span className="text-[10px] text-slate-500 dark:text-[#bbcabf]">Acopio</span>
+                <span className="font-code-metric text-xs text-[#ffb95f] mt-2">86.1%</span>
+                <span className="text-[9px] text-slate-500 dark:text-[#bbcabf]">Conforme</span>
+              </div>
+            </div>
+
+            <div className="mt-4 p-3 bg-slate-50 dark:bg-[#171f33] rounded-xl border border-slate-200 dark:border-[#222a3d] space-y-1.5 text-xs text-slate-700 dark:text-[#dae2fd]">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[16px] text-emerald-600 dark:text-[#4edea3]">check_circle</span>
+                <span>Matriz Departamental 15 Municipios</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[16px] text-emerald-600 dark:text-[#4edea3]">check_circle</span>
+                <span>Bitácora de Campo y Check-in QR</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[16px] text-emerald-600 dark:text-[#4edea3]">check_circle</span>
+                <span>Métricas de Desempeño y SLA Auditores</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-</div>
-);
+  );
 };

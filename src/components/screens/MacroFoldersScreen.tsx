@@ -495,28 +495,6 @@ FORMATOS COMPATIBLES:
 
   return (
     <div className="flex flex-col w-full space-y-4 md:space-y-5">
-      {/* Role Notice Banner for Non-Admin */}
-      {!isAdmin && (
-        <div className="p-3 rounded-xl bg-[#0f1d2e] border border-[#0088ff]/30 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-sm">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#0088ff]/20 flex items-center justify-center text-[#38bdf8] shrink-0">
-              <span className="material-symbols-outlined text-[18px]">visibility</span>
-            </div>
-            <div>
-              <p className="text-xs font-bold text-[#dae2fd]">
-                Modo Solo Vista ({userRole === 'auxiliar' ? 'Auxiliar / Auditor' : userRole})
-              </p>
-              <p className="text-[11px] text-[#bbcabf]">
-                La única persona autorizada para cargar información, editar o actualizar es el Administrador. Visualizando archivos macro, telemetría y configuración.
-              </p>
-            </div>
-          </div>
-          <span className="px-2.5 py-0.5 rounded-full bg-[#060e20] text-[#38bdf8] text-[10px] font-semibold border border-[#0088ff]/30 self-start sm:self-auto shrink-0">
-            Solo Consulta
-          </span>
-        </div>
-      )}
-
       {/* Hidden File Inputs: Directory Picker & Standalone Files Picker */}
       <input
         type="file"
@@ -628,24 +606,30 @@ FORMATOS COMPATIBLES:
               }}
               className={`p-4 rounded-xl border text-left flex items-center justify-between transition-all cursor-pointer ${
                 theme === 'light'
-                  ? 'bg-[#ffffff] border-[#059669] shadow-[0_0_20px_rgba(5,150,105,0.2)] ring-1 ring-[#059669]/60'
-                  : 'bg-[#131b2e] border-[#222a3d] hover:border-[#4edea3]/50 opacity-75 hover:opacity-100'
+                  ? 'bg-white border-2 border-emerald-600 shadow-[0_0_20px_rgba(5,150,105,0.2)] ring-2 ring-emerald-500/60 text-black'
+                  : 'bg-[#131b2e] border-[#222a3d] hover:border-[#4edea3]/50 opacity-75 hover:opacity-100 text-[#dae2fd]'
               }`}
             >
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-[#f4f6fb] flex items-center justify-center text-[#0284c7] border border-[#cbd5e1] shadow-inner">
+                <div className="w-11 h-11 rounded-xl bg-[#f4f6fb] flex items-center justify-center text-[#0284c7] border border-[#cbd5e1] shadow-inner shrink-0">
                   <span className="material-symbols-outlined text-[24px]">light_mode</span>
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-[#dae2fd]">Modo Claro (Diurno / Vial)</p>
-                  <p className="text-[11px] text-[#bbcabf] mt-0.5">Alto contraste para luz solar directa en La Guajira</p>
-                  <span className="text-[10px] text-[#0284c7] font-medium">Fácil lectura de señalética y hojas de ruta</span>
+                  <p className={`text-xs font-bold ${theme === 'light' ? 'text-black font-extrabold' : 'text-[#dae2fd]'}`}>
+                    Modo Claro (Diurno / Vial)
+                  </p>
+                  <p className={`text-[11px] ${theme === 'light' ? 'text-slate-900 font-medium' : 'text-[#bbcabf]'} mt-0.5`}>
+                    Alto contraste para luz solar directa en La Guajira
+                  </p>
+                  <span className={`text-[10px] ${theme === 'light' ? 'text-blue-700 font-bold' : 'text-[#0284c7] font-medium'}`}>
+                    Fácil lectura de señalética y hojas de ruta
+                  </span>
                 </div>
               </div>
               <span
                 className={`px-2.5 py-1 rounded-lg text-[10px] font-bold shrink-0 ${
                   theme === 'light'
-                    ? 'bg-[#d1fae5] text-[#065f46] border border-[#a7f3d0]'
+                    ? 'bg-emerald-100 text-emerald-900 border border-emerald-300 font-extrabold'
                     : 'bg-[#222a3d] text-[#bbcabf]'
                 }`}
               >
@@ -719,12 +703,6 @@ FORMATOS COMPATIBLES:
 
               {/* ACTION BUTTONS: FOLDER UPLOAD + STANDALONE FILES UPLOAD + GUIDE */}
               <div className="flex items-center gap-2 flex-wrap self-start lg:self-center shrink-0">
-                {!isAdmin && (
-                  <span className="px-3 py-1.5 rounded-xl bg-[#0f1d2e] text-[#38bdf8] border border-[#0088ff]/30 text-xs font-bold flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-[16px]">visibility</span>
-                    <span>Modo Solo Vista (Carga solo Admin)</span>
-                  </span>
-                )}
                 {isAdmin && (
                   <>
                     {/* 1. Upload Folder Button */}

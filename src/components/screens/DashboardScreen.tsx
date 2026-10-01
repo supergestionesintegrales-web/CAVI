@@ -13,6 +13,7 @@ interface DashboardScreenProps {
   onShowToast: (title: string, message: string, type?: 'success' | 'info' | 'alert') => void;
   initialViewMode?: 'consolidado' | 'operativo' | 'kpis';
   userRole?: UserRole;
+  onApplyCavi?: () => void;
 }
 
 export const DashboardScreen: React.FC<DashboardScreenProps> = ({
@@ -27,6 +28,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
   onShowToast,
   initialViewMode = 'consolidado',
   userRole = 'administrador',
+  onApplyCavi,
 }) => {
   const isAdmin = userRole === 'administrador';
   const [viewMode, setViewMode] = useState<'consolidado' | 'operativo' | 'kpis'>(initialViewMode);
@@ -53,12 +55,16 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
     setTimeout(() => {
       setIsApplyingCavi(false);
       setCaviApplied(true);
-      onShowToast(
-        'CAVI Aplicado con Éxito',
-        'Se recalcularon 27 rutas departamentales ahorrando 1h 45m de traslado en Troncal del Caribe (Zona Norte)',
-        'success'
-      );
-    }, 900);
+      if (onApplyCavi) {
+        onApplyCavi();
+      } else {
+        onShowToast(
+          'CAVI Aplicado con Éxito',
+          'Se recalcularon 27 rutas departamentales ahorrando 1h 45m de traslado en Troncal del Caribe (Zona Norte)',
+          'success'
+        );
+      }
+    }, 700);
   };
 
   const handleDownloadExcel = (filename = 'CAVI_Consolidado_Sem42.xlsx') => {
@@ -99,50 +105,54 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
   const avgEffectiveness = totalVisitsTarget > 0 ? Math.round((totalVisitsDone / totalVisitsTarget) * 100) : 100;
   const alertCount = auditors.filter((a) => a.hasAlert).length;
 
+  const formatBreakdown = React.useMemo(() => {
+    let cm = 0;
+    let pf = 0;
+    let cda = 0;
+    auditors.forEach((aud) => {
+      cm += aud.targetBreakdown?.cm || 0;
+      pf += aud.targetBreakdown?.pf || 0;
+      cda += aud.targetBreakdown?.cda || 0;
+    });
+    const total = cm + pf + cda;
+    return {
+      cm,
+      pf,
+      cda,
+      total,
+      score: total > 0 ? (totalVisitsTarget > 0 ? Math.round((totalVisitsDone / totalVisitsTarget) * 100) : 91.4) : 91.4,
+    };
+  }, [auditors, totalVisitsTarget, totalVisitsDone]);
+
   return (
     <div className="flex flex-col w-full space-y-4 md:space-y-5">
-      {/* Role Notice Banner for Non-Admin */}
-      {!isAdmin && (
-        <div className="p-3 rounded-xl bg-[#0f1d2e] border border-[#0088ff]/30 flex items-center justify-between gap-3 shadow-xs">
-          <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-[18px] text-[#0088ff]">visibility</span>
-            <span className="text-xs font-semibold text-[#dae2fd]">
-              Modo Solo Vista ({userRole === 'auxiliar' ? 'Auxiliar / Auditor' : userRole}): La única persona autorizada para cargar información o editar es el Administrador.
-            </span>
-          </div>
-          <span className="px-2 py-0.5 rounded-full bg-[#0088ff]/15 text-[#38bdf8] text-[10px] font-bold border border-[#0088ff]/30 shrink-0">
-            Solo Consulta
-          </span>
-        </div>
-      )}
-
       {/* HEADER SECTION: UNIFIED TITLE & SUB-VIEW SWITCHER */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-[#131b2e] p-3.5 sm:p-4 md:p-5 rounded-2xl border border-[#222a3d] shadow-sm overflow-hidden">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white dark:bg-[#131b2e] p-3.5 sm:p-4 md:p-5 rounded-2xl border border-slate-200 dark:border-[#222a3d] shadow-sm overflow-hidden">
         <div className="flex items-center gap-3 min-w-0 flex-1">
-          <div className="w-10 h-10 rounded-xl bg-[#171f33] flex items-center justify-center text-[#0088ff] shadow-inner border border-[#222a3d] shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-[#171f33] flex items-center justify-center text-[#0088ff] shadow-inner border border-slate-200 dark:border-[#222a3d] shrink-0">
             <span className="material-symbols-outlined text-[24px]">auto_awesome_mosaic</span>
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="font-headline font-bold text-base sm:text-lg text-[#dae2fd] tracking-tight">
+              <h1 className="font-headline font-bold text-base sm:text-lg text-slate-900 dark:text-[#dae2fd] tracking-tight">
                 Dashboard &amp; KPIs
               </h1>
             </div>
-            <p className="text-[11px] text-[#bbcabf] mt-0.5 leading-tight">
+            <p className="text-[11px] text-slate-500 dark:text-[#bbcabf] mt-0.5 leading-tight">
               Control Operativo en Terreno &amp; Analítica Departamental • La Guajira (Semana 42)
             </p>
           </div>
         </div>
 
         {/* VIEW MODE TOGGLE PILLS */}
-        <div className="flex items-center gap-1 bg-[#0b1326] p-1 rounded-xl border border-[#222a3d] self-start lg:self-center max-w-full overflow-x-auto scrollbar-none shrink-0">
+        <div className="flex items-center gap-1 bg-slate-100 dark:bg-[#0b1326] p-1 rounded-xl border border-slate-200 dark:border-[#222a3d] self-start lg:self-center max-w-full overflow-x-auto scrollbar-none shrink-0">
           <button
             type="button"
             onClick={() => setViewMode('consolidado')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer inline-flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
               viewMode === 'consolidado'
                 ? 'bg-[#0088ff] text-[#ffffff] shadow-sm shadow-[#0088ff]/30'
-                : 'text-[#bbcabf] hover:text-[#dae2fd]'
+                : 'text-slate-600 dark:text-[#bbcabf] hover:text-[#0088ff] dark:hover:text-[#dae2fd]'
             }`}
           >
             <span className="material-symbols-outlined text-[15px]">dashboard</span>
@@ -154,7 +164,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer inline-flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
               viewMode === 'operativo'
                 ? 'bg-[#0088ff] text-[#ffffff] shadow-sm shadow-[#0088ff]/30'
-                : 'text-[#bbcabf] hover:text-[#dae2fd]'
+                : 'text-slate-600 dark:text-[#bbcabf] hover:text-[#0088ff] dark:hover:text-[#dae2fd]'
             }`}
           >
             <span className="material-symbols-outlined text-[15px]">alt_route</span>
@@ -166,7 +176,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer inline-flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
               viewMode === 'kpis'
                 ? 'bg-[#0088ff] text-[#ffffff] shadow-sm shadow-[#0088ff]/30'
-                : 'text-[#bbcabf] hover:text-[#dae2fd]'
+                : 'text-slate-600 dark:text-[#bbcabf] hover:text-[#0088ff] dark:hover:text-[#dae2fd]'
             }`}
           >
             <span className="material-symbols-outlined text-[15px]">insights</span>
@@ -178,9 +188,9 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
       {/* TOP MASTER KPI METRIC CARDS (DYNAMIC TO REAL DATA) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         {/* Cumplimiento Semanal */}
-        <div className="bg-[#131b2e] rounded-xl p-3.5 shadow-md flex flex-col justify-between border border-[#222a3d]">
+        <div className="bg-white dark:bg-[#131b2e] rounded-xl p-3.5 shadow-xs flex flex-col justify-between border border-slate-200 dark:border-[#222a3d]">
           <div className="flex items-start justify-between">
-            <span className="text-[10px] text-[#cbd5e1] uppercase tracking-wider font-bold">
+            <span className="text-[10px] text-slate-500 dark:text-[#cbd5e1] uppercase tracking-wider font-bold">
               Cumplimiento
             </span>
             <span className="w-6 h-6 rounded-full bg-[#0088ff]/15 flex items-center justify-center text-[#0088ff]">
@@ -195,19 +205,19 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                 Real
               </span>
             </div>
-            <p className="text-[10px] text-[#cbd5e1] mt-0.5 leading-tight">
+            <p className="text-[10px] text-slate-500 dark:text-[#cbd5e1] mt-0.5 leading-tight">
               {totalVisitsDone} de {totalVisitsTarget} visitas ejecutadas
             </p>
           </div>
-          <div className="w-full bg-[#2d3449] rounded-full h-1.5 mt-2.5 overflow-hidden">
+          <div className="w-full bg-slate-200 dark:bg-[#2d3449] rounded-full h-1.5 mt-2.5 overflow-hidden">
             <div className="bg-[#0088ff] h-full rounded-full" style={{ width: `${avgEffectiveness}%` }} />
           </div>
         </div>
 
         {/* Efectividad Ruta */}
-        <div className="bg-[#131b2e] rounded-xl p-3.5 shadow-md flex flex-col justify-between border border-[#222a3d]">
+        <div className="bg-white dark:bg-[#131b2e] rounded-xl p-3.5 shadow-xs flex flex-col justify-between border border-slate-200 dark:border-[#222a3d]">
           <div className="flex items-start justify-between">
-            <span className="text-[10px] text-[#cbd5e1] uppercase tracking-wider font-bold">
+            <span className="text-[10px] text-slate-500 dark:text-[#cbd5e1] uppercase tracking-wider font-bold">
               Efectividad Ruta
             </span>
             <span className="w-6 h-6 rounded-full bg-[#c0c1ff]/15 flex items-center justify-center text-[#c0c1ff]">
@@ -216,24 +226,24 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
           </div>
           <div className="mt-2">
             <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-headline font-bold text-white">
+              <span className="text-2xl font-headline font-bold text-slate-900 dark:text-white">
                 {totalVisitsTarget > 0 ? '98.2%' : '100%'}
               </span>
               <span className="text-[10px] text-[#0088ff] flex items-center font-bold">CAVI</span>
             </div>
-            <p className="text-[10px] text-[#cbd5e1] mt-0.5 leading-tight">
+            <p className="text-[10px] text-slate-500 dark:text-[#cbd5e1] mt-0.5 leading-tight">
               Tiempos de traslado optimizados vía CAVI
             </p>
           </div>
-          <div className="w-full bg-[#2d3449] rounded-full h-1.5 mt-2.5 overflow-hidden">
-            <div className="bg-[#c0c1ff] h-full rounded-full" style={{ width: totalVisitsTarget > 0 ? '98%' : '100%' }} />
+          <div className="w-full bg-slate-200 dark:bg-[#2d3449] rounded-full h-1.5 mt-2.5 overflow-hidden">
+            <div className="bg-[#0088ff] dark:bg-[#c0c1ff] h-full rounded-full" style={{ width: totalVisitsTarget > 0 ? '98%' : '100%' }} />
           </div>
         </div>
 
         {/* Cobertura Departamental */}
-        <div className="bg-[#131b2e] rounded-xl p-3.5 shadow-md flex flex-col justify-between border border-[#222a3d]">
+        <div className="bg-white dark:bg-[#131b2e] rounded-xl p-3.5 shadow-xs flex flex-col justify-between border border-slate-200 dark:border-[#222a3d]">
           <div className="flex items-start justify-between">
-            <span className="text-[10px] text-[#cbd5e1] uppercase tracking-wider font-bold">
+            <span className="text-[10px] text-slate-500 dark:text-[#cbd5e1] uppercase tracking-wider font-bold">
               Cobertura Red
             </span>
             <span className="w-6 h-6 rounded-full bg-[#ffb95f]/15 flex items-center justify-center text-[#ffb95f]">
@@ -245,21 +255,21 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
               <span className="text-2xl font-headline font-bold text-[#ffb95f]">
                 {totalVisitsDone}
               </span>
-              <span className="text-[10px] text-[#cbd5e1]">puntos</span>
+              <span className="text-[10px] text-slate-500 dark:text-[#cbd5e1]">puntos</span>
             </div>
-            <p className="text-[10px] text-[#cbd5e1] mt-0.5 leading-tight">
+            <p className="text-[10px] text-slate-500 dark:text-[#cbd5e1] mt-0.5 leading-tight">
               {totalVisitsDone} de {totalVisitsTarget} puntos auditados
             </p>
           </div>
-          <div className="w-full bg-[#2d3449] rounded-full h-1.5 mt-2.5 overflow-hidden">
+          <div className="w-full bg-slate-200 dark:bg-[#2d3449] rounded-full h-1.5 mt-2.5 overflow-hidden">
             <div className="bg-[#ffb95f] h-full rounded-full" style={{ width: `${totalVisitsTarget > 0 ? Math.round((totalVisitsDone / totalVisitsTarget) * 100) : 0}%` }} />
           </div>
         </div>
 
         {/* Hallazgos Críticos */}
-        <div className="bg-[#131b2e] rounded-xl p-3.5 shadow-md flex flex-col justify-between border border-[#222a3d]">
+        <div className="bg-white dark:bg-[#131b2e] rounded-xl p-3.5 shadow-xs flex flex-col justify-between border border-slate-200 dark:border-[#222a3d]">
           <div className="flex items-start justify-between">
-            <span className="text-[10px] text-[#cbd5e1] uppercase tracking-wider font-bold">
+            <span className="text-[10px] text-slate-500 dark:text-[#cbd5e1] uppercase tracking-wider font-bold">
               Alertas en Terreno
             </span>
             <span className="w-6 h-6 rounded-full bg-[#ffb4ab]/20 flex items-center justify-center text-[#ffb4ab]">
@@ -268,15 +278,15 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
           </div>
           <div className="mt-2">
             <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-headline font-bold text-[#ffb4ab]">{alertCount}</span>
-              <span className="text-[10px] text-[#ffb4ab] font-bold">En tiempo real</span>
+              <span className="text-2xl font-headline font-bold text-rose-600 dark:text-[#ffb4ab]">{alertCount}</span>
+              <span className="text-[10px] text-rose-600 dark:text-[#ffb4ab] font-bold">Activas</span>
             </div>
-            <p className="text-[10px] text-[#cbd5e1] mt-0.5 leading-tight">
-              {alertCount > 0 ? `${alertCount} alertas activas en terreno` : 'Sin novedades críticas'}
+            <p className="text-[10px] text-slate-500 dark:text-[#cbd5e1] mt-0.5 leading-tight">
+              Puntos con mora o re-inspección pendiente
             </p>
           </div>
-          <div className="w-full bg-[#2d3449] rounded-full h-1.5 mt-2.5 overflow-hidden">
-            <div className="bg-[#ffb4ab] h-full rounded-full" style={{ width: alertCount > 0 ? '35%' : '0%' }} />
+          <div className="w-full bg-slate-200 dark:bg-[#2d3449] rounded-full h-1.5 mt-2.5 overflow-hidden">
+            <div className="bg-rose-500 dark:bg-[#ffb4ab] h-full rounded-full" style={{ width: alertCount > 0 ? '30%' : '0%' }} />
           </div>
         </div>
       </div>
@@ -316,21 +326,21 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
       )}
 
       {/* SECCIÓN ARRENDAMIENTOS QUICK CARD */}
-      <div className="bg-[#131b2e] rounded-xl p-3.5 shadow-md border border-[#222a3d] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="bg-white dark:bg-[#131b2e] rounded-xl p-3.5 shadow-xs border border-slate-200 dark:border-[#222a3d] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-10 h-10 rounded-xl bg-[#0088ff]/15 text-[#0088ff] flex items-center justify-center shrink-0">
             <span className="material-symbols-outlined text-[22px]">storefront</span>
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="text-xs sm:text-sm font-bold text-white">
+              <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
                 Gestión de Puntos en Arrendamiento
               </h3>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#10b981]/20 text-[#4edea3] border border-[#10b981]/30">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#10b981]/20 text-[#10b981] dark:text-[#4edea3] border border-[#10b981]/30">
                 {leaseOpenCount} Abiertos Ahora
               </span>
             </div>
-            <p className="text-[11px] text-[#94a3b8] mt-0.5">
+            <p className="text-[11px] text-slate-500 dark:text-[#bbcabf] mt-0.5">
               Supervisión de {leasePointsCount} inmuebles comerciales en La Guajira, horarios de apertura y cierre, y geolocalización.
             </p>
           </div>
@@ -587,12 +597,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                       </>
                     )}
                   </button>
-                ) : (
-                  <div className="w-full h-11 flex items-center justify-center gap-2 rounded-xl font-bold text-xs bg-[#171f33] text-[#bbcabf] border border-[#222a3d] select-none">
-                    <span className="material-symbols-outlined text-[16px] text-[#0088ff]">visibility</span>
-                    <span>Modo Vista · Optimización Admin</span>
-                  </div>
-                )}
+                ) : null}
 
                 <button
                   onClick={onOpenCriticalPoints}
@@ -634,22 +639,22 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
         {(viewMode === 'consolidado' || viewMode === 'kpis') && (
           <div className={`${viewMode === 'consolidado' ? 'lg:col-span-7 xl:col-span-7' : 'lg:col-span-7'} space-y-4`}>
             {/* Desempeño de Auditores Individual */}
-            <div className="bg-[#131b2e] rounded-xl p-4 shadow-md border border-[#222a3d]">
+            <div className="bg-white dark:bg-[#131b2e] rounded-xl p-4 shadow-xs border border-slate-200 dark:border-[#222a3d]">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <span className="material-symbols-outlined text-[#0088ff] text-[20px]">badge</span>
-                  <h2 className="font-headline font-bold text-sm text-[#dae2fd]">
+                  <h2 className="font-headline font-bold text-sm text-slate-900 dark:text-[#dae2fd]">
                     Desempeño Individual de Auditores
                   </h2>
                 </div>
-                <span className="text-[11px] text-[#bbcabf]">Promedio: 9.1 pts/d</span>
+                <span className="text-[11px] text-slate-500 dark:text-[#bbcabf]">Promedio: 9.1 pts/d</span>
               </div>
 
               <div className="flex flex-col gap-3">
                 {auditors.map((auditor) => (
                   <div
                     key={auditor.id}
-                    className="bg-[#171f33] rounded-xl p-3 shadow-sm border border-[#222a3d]"
+                    className="bg-slate-50 dark:bg-[#171f33] rounded-xl p-3 shadow-xs border border-slate-200 dark:border-[#222a3d]"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2.5 min-w-0">
@@ -661,14 +666,14 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                         />
                         <div className="min-w-0">
                           <div className="flex items-center gap-1.5">
-                            <span className="text-xs font-bold text-[#dae2fd] truncate">
+                            <span className="text-xs font-bold text-slate-900 dark:text-[#dae2fd] truncate">
                               {auditor.name}
                             </span>
-                            <span className="px-1.5 py-0.5 rounded bg-[#222a3d] text-[#bbcabf] text-[10px]">
+                            <span className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-[#222a3d] text-slate-700 dark:text-[#bbcabf] text-[10px]">
                               {auditor.zone}
                             </span>
                           </div>
-                          <p className="text-[11px] text-[#bbcabf]">
+                          <p className="text-[11px] text-slate-500 dark:text-[#bbcabf]">
                             {auditor.pointsPerDay} pts/día • {auditor.auditedTotal} auditados
                           </p>
                         </div>
@@ -681,24 +686,24 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                       </div>
                     </div>
 
-                    <div className="w-full bg-[#2d3449] rounded-full h-2 mt-2 overflow-hidden">
+                    <div className="w-full bg-slate-200 dark:bg-[#2d3449] rounded-full h-2 mt-2 overflow-hidden">
                       <div
                         className="bg-[#0088ff] h-full rounded-full"
                         style={{ width: `${auditor.effectiveness}%` }}
                       />
                     </div>
 
-                    <div className="flex items-center gap-2 mt-2 pt-2 border-t border-[#222a3d]">
-                      <span className="px-2 py-0.5 rounded bg-[#222a3d] text-[10px] font-code-metric text-[#e1e0ff]">
+                    <div className="flex items-center gap-2 mt-2 pt-2 border-t border-slate-200 dark:border-[#222a3d]">
+                      <span className="px-2 py-0.5 rounded bg-slate-200 dark:bg-[#222a3d] text-[10px] font-code-metric text-indigo-700 dark:text-[#e1e0ff]">
                         {auditor.targetBreakdown.cm} CM
                       </span>
-                      <span className="px-2 py-0.5 rounded bg-[#222a3d] text-[10px] font-code-metric text-[#ffb95f]">
+                      <span className="px-2 py-0.5 rounded bg-slate-200 dark:bg-[#222a3d] text-[10px] font-code-metric text-amber-700 dark:text-[#ffb95f]">
                         {auditor.targetBreakdown.pf} PF
                       </span>
-                      <span className="px-2 py-0.5 rounded bg-[#222a3d] text-[10px] font-code-metric text-[#c0c1ff]">
+                      <span className="px-2 py-0.5 rounded bg-slate-200 dark:bg-[#222a3d] text-[10px] font-code-metric text-blue-700 dark:text-[#c0c1ff]">
                         {auditor.targetBreakdown.cda} CDA
                       </span>
-                      <span className="text-[11px] text-[#bbcabf] ml-auto flex items-center gap-1">
+                      <span className="text-[11px] text-slate-500 dark:text-[#bbcabf] ml-auto flex items-center gap-1">
                         {auditor.moraPending > 0 ? (
                           <>
                             <span className="material-symbols-outlined text-[13px] text-[#ffb95f]">
@@ -722,51 +727,51 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
             </div>
 
             {/* Desglose por Formato de Establecimiento */}
-            <div className="bg-[#131b2e] rounded-xl p-4 shadow-md border border-[#222a3d]">
+            <div className="bg-white dark:bg-[#131b2e] rounded-xl p-4 shadow-xs border border-slate-200 dark:border-[#222a3d]">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-[#c0c1ff] text-[20px]">
+                  <span className="material-symbols-outlined text-[#0088ff] dark:text-[#c0c1ff] text-[20px]">
                     pie_chart
                   </span>
-                  <h2 className="font-headline font-bold text-sm text-[#dae2fd]">
+                  <h2 className="font-headline font-bold text-sm text-slate-900 dark:text-[#dae2fd]">
                     Desglose por Formato
                   </h2>
                 </div>
-                <span className="font-code-metric text-xs text-[#0088ff]">Score: 91.4/100</span>
+                <span className="font-code-metric text-xs text-[#0088ff]">Score: {formatBreakdown.score}%</span>
               </div>
 
               <div className="grid grid-cols-3 gap-2">
                 {/* CM */}
-                <div className="bg-[#171f33] rounded-xl p-2.5 flex flex-col items-center text-center border border-[#222a3d]">
-                  <span className="px-2 py-0.5 rounded bg-[#222a3d] text-[#e1e0ff] text-[11px] font-bold">
+                <div className="bg-slate-50 dark:bg-[#171f33] rounded-xl p-2.5 flex flex-col items-center text-center border border-slate-200 dark:border-[#222a3d]">
+                  <span className="px-2 py-0.5 rounded bg-slate-200 dark:bg-[#222a3d] text-slate-800 dark:text-[#e1e0ff] text-[11px] font-bold">
                     CM
                   </span>
-                  <span className="text-base font-headline font-bold text-[#dae2fd] mt-1">391</span>
-                  <span className="text-[10px] text-[#bbcabf]">Compumueble</span>
-                  <span className="font-code-metric text-xs text-[#0088ff] mt-2">92.8%</span>
-                  <span className="text-[9px] text-[#bbcabf]">Conforme</span>
+                  <span className="text-base font-headline font-bold text-slate-900 dark:text-[#dae2fd] mt-1">{formatBreakdown.cm}</span>
+                  <span className="text-[10px] text-slate-500 dark:text-[#bbcabf]">Compumueble</span>
+                  <span className="font-code-metric text-xs text-[#0088ff] mt-2">{formatBreakdown.score}%</span>
+                  <span className="text-[9px] text-slate-500 dark:text-[#bbcabf]">Conforme</span>
                 </div>
 
                 {/* PF */}
-                <div className="bg-[#171f33] rounded-xl p-2.5 flex flex-col items-center text-center border border-[#222a3d]">
-                  <span className="px-2 py-0.5 rounded bg-[#222a3d] text-[#ffb95f] text-[11px] font-bold">
+                <div className="bg-slate-50 dark:bg-[#171f33] rounded-xl p-2.5 flex flex-col items-center text-center border border-slate-200 dark:border-[#222a3d]">
+                  <span className="px-2 py-0.5 rounded bg-slate-200 dark:bg-[#222a3d] text-amber-700 dark:text-[#ffb95f] text-[11px] font-bold">
                     PF
                   </span>
-                  <span className="text-base font-headline font-bold text-[#dae2fd] mt-1">176</span>
-                  <span className="text-[10px] text-[#bbcabf]">Punto Físico</span>
+                  <span className="text-base font-headline font-bold text-slate-900 dark:text-[#dae2fd] mt-1">{formatBreakdown.pf}</span>
+                  <span className="text-[10px] text-slate-500 dark:text-[#bbcabf]">Punto Físico</span>
                   <span className="font-code-metric text-xs text-[#0088ff] mt-2">89.4%</span>
-                  <span className="text-[9px] text-[#bbcabf]">Conforme</span>
+                  <span className="text-[9px] text-slate-500 dark:text-[#bbcabf]">Conforme</span>
                 </div>
 
                 {/* CDA */}
-                <div className="bg-[#171f33] rounded-xl p-2.5 flex flex-col items-center text-center border border-[#222a3d]">
-                  <span className="px-2 py-0.5 rounded bg-[#222a3d] text-[#c0c1ff] text-[11px] font-bold">
+                <div className="bg-slate-50 dark:bg-[#171f33] rounded-xl p-2.5 flex flex-col items-center text-center border border-slate-200 dark:border-[#222a3d]">
+                  <span className="px-2 py-0.5 rounded bg-slate-200 dark:bg-[#222a3d] text-indigo-700 dark:text-[#c0c1ff] text-[11px] font-bold">
                     CDA
                   </span>
-                  <span className="text-base font-headline font-bold text-[#dae2fd] mt-1">39</span>
-                  <span className="text-[10px] text-[#bbcabf]">Acopio</span>
+                  <span className="text-base font-headline font-bold text-slate-900 dark:text-[#dae2fd] mt-1">{formatBreakdown.cda}</span>
+                  <span className="text-[10px] text-slate-500 dark:text-[#bbcabf]">Acopio</span>
                   <span className="font-code-metric text-xs text-[#ffb95f] mt-2">86.1%</span>
-                  <span className="text-[9px] text-[#bbcabf]">Conforme</span>
+                  <span className="text-[9px] text-slate-500 dark:text-[#bbcabf]">Conforme</span>
                 </div>
               </div>
             </div>
