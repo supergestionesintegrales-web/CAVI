@@ -308,7 +308,7 @@ export async function parseRoutesFile(file: File, auditors: Auditor[]): Promise<
       auditorId: aud.id,
       auditorName: aud.name,
       zone: c.zone,
-      notes: c.alertDescription ? `🚨 Prioridad Alerta: ${c.alertDescription}` : undefined,
+      notes: c.alertDescription ? ` Prioridad Alerta: ${c.alertDescription}` : undefined,
       daysWithoutVisit: c.daysWithoutVisit,
       alertCategory: (c.alertCategory as AlertCategory | undefined) || (c.daysWithoutVisit && c.daysWithoutVisit >= 60 ? 'sin_visita_2_3_meses' : undefined),
       alertDescription: c.alertDescription,
