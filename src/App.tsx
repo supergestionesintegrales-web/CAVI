@@ -725,7 +725,7 @@ export default function App() {
   }, [leasePoints]);
 
   return (
-    <div className="min-h-screen bg-[#0b1326] text-[#dae2fd] flex flex-col selection:bg-[#0088ff]/30 selection:text-[#dae2fd]">
+    <div className="cavi-app-shell min-h-screen bg-[#0b1326] text-[#dae2fd] flex flex-col selection:bg-[#0088ff]/30 selection:text-[#dae2fd]">
       {/* Global Floating Toast */}
       <Toast toasts={toasts} onDismiss={handleDismissToast} theme={theme} />
 
