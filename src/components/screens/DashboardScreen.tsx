@@ -609,73 +609,29 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
         {/* RIGHT COLUMN (OR FULL WIDTH): AUDITORES EN TERRENO + REPORTES EXCEL */}
         {(viewMode === 'consolidado' || viewMode === 'operativo') && (
           <div className={`${viewMode === 'consolidado' ? 'lg:col-span-5 xl:col-span-5' : 'lg:col-span-12'} space-y-4`}>
-            {/* AUDITORES EN TERRENO (LIVE OPERATIONS) */}
-            <div className="flex flex-col space-y-2.5">
+            {/* AUDITORES DE CAMPO: MOSAICO COMPACTO */}
+            <div className="rounded-2xl bg-[#131b2e] p-4 shadow-md border border-[#222a3d]">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <span className="material-symbols-outlined text-[#0088ff] text-[20px]">
                     engineering
                   </span>
                   <h2 className="font-headline font-bold text-sm text-[#dae2fd]">
-                    Auditores en Terreno Hoy
+                    Auditores de Campo
                   </h2>
                 </div>
                 <span className="text-[11px] text-[#bbcabf] flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-[#4edea3] animate-pulse"></span>
-                  3 activos
+                  3 en pantalla
                 </span>
               </div>
 
-              {/* FILTER CHIPS */}
-              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none max-w-full">
-                <button
-                  onClick={() => setActiveFilter('all')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold shrink-0 whitespace-nowrap transition-all cursor-pointer ${
-                    activeFilter === 'all'
-                      ? 'bg-[#0088ff] text-white font-bold shadow-sm shadow-[#0088ff]/30'
-                      : 'bg-[#222a3d] text-[#bbcabf] hover:bg-[#2d3449]'
-                  }`}
-                >
-                  Todos (3)
-                </button>
-                <button
-                  onClick={() => setActiveFilter('progress')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold shrink-0 whitespace-nowrap transition-all cursor-pointer ${
-                    activeFilter === 'progress'
-                      ? 'bg-[#0088ff] text-white font-bold shadow-sm shadow-[#0088ff]/30'
-                      : 'bg-[#222a3d] text-[#bbcabf] hover:bg-[#2d3449]'
-                  }`}
-                >
-                  En Curso (2)
-                </button>
-                <button
-                  onClick={() => setActiveFilter('completed')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold shrink-0 whitespace-nowrap transition-all cursor-pointer ${
-                    activeFilter === 'completed'
-                      ? 'bg-[#0088ff] text-white font-bold shadow-sm shadow-[#0088ff]/30'
-                      : 'bg-[#222a3d] text-[#bbcabf] hover:bg-[#2d3449]'
-                  }`}
-                >
-                  Completados (1)
-                </button>
-                <button
-                  onClick={() => setActiveFilter('alert')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold shrink-0 whitespace-nowrap transition-all cursor-pointer ${
-                    activeFilter === 'alert'
-                      ? 'bg-[#0088ff] text-white font-bold shadow-sm shadow-[#0088ff]/30'
-                      : 'bg-[#222a3d] text-[#bbcabf] hover:bg-[#2d3449]'
-                  }`}
-                >
-                  Alertas CAVI (1)
-                </button>
-              </div>
-
               {/* AUDITOR ROSTER CARDS */}
-              <div className="flex flex-col space-y-2.5">
-                {filteredAuditors.map((auditor) => (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {filteredAuditors.slice(0, 3).map((auditor) => (
                   <div
                     key={auditor.id}
-                    className="flex flex-col p-3.5 rounded-xl bg-[#131b2e] space-y-2 shadow-sm border border-[#222a3d] hover:border-[#3131c0]/50 transition-colors"
+                    className="flex flex-col p-3.5 rounded-xl bg-[#171f33] space-y-2 shadow-sm border border-[#222a3d] hover:border-[#0088ff]/50 transition-colors min-w-0"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2.5 min-w-0">
@@ -691,7 +647,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                           ></span>
                         </div>
                         <div className="flex flex-col min-w-0">
-                          <span className="font-bold text-xs text-[#dae2fd] truncate">
+                          <span className="font-bold text-xs text-[#dae2fd] break-words leading-snug">
                             {auditor.name}
                           </span>
                           <span className="text-[11px] text-[#bbcabf]">
@@ -726,7 +682,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                     </div>
 
                     {/* Footer info */}
-                    <div className="flex items-center justify-between pt-1 text-[11px] text-[#bbcabf] border-t border-[#222a3d]/50">
+                    <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-[11px] text-[#bbcabf] border-t border-[#222a3d]/50">
                       <span className="flex items-center gap-1 text-[#c0c1ff]">
                         <span className="material-symbols-outlined text-[13px]">
                           {auditor.status === 'completed' ? 'task_alt' : 'alt_route'}
