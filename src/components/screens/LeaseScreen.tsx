@@ -178,14 +178,14 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
             <span className="material-symbols-outlined text-[#0088ff] text-[28px]">
               storefront
             </span>
-            <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-extrabold text-black tracking-tight">
               Gestión de Puntos en Arrendamiento
             </h1>
-            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#0088ff]/15 text-[#38bdf8] border border-[#0088ff]/30">
+            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#eaf4ff] text-black border border-[#bfdbfe]">
               CAVI Real Estate
             </span>
           </div>
-          <p className="text-xs text-slate-500 dark:text-[#94a3b8] mt-1">
+          <p className="text-xs text-black mt-1">
             Supervisión táctica de apertura y cierre en tiempo real, horarios semanales, geolocalización y contratos de alquiler en La Guajira.
           </p>
         </div>
