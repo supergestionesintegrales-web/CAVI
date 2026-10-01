@@ -51,36 +51,35 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
           initial={{ opacity: 0, scale: 0.94, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.94, y: 15 }}
-          className="w-full max-w-6xl bg-[#131b2e] border border-[#2d3449] rounded-2xl p-5 shadow-2xl flex flex-col text-[#dae2fd]"
+          className="w-full max-w-6xl bg-white border border-slate-200 rounded-2xl p-5 shadow-2xl flex flex-col text-slate-800"
         >
-          <div className="flex items-center justify-between pb-3 border-b border-[#222a3d]">
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-[#0088ff]">notifications_active</span>
-              <h3 className="font-bold text-base text-[#dae2fd]">Alertas de Campo</h3>
+          <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+            <div className="flex items-center">
+              <h3 className="font-bold text-base text-slate-900">Centro de Alertas</h3>
             </div>
             <button
               onClick={onClose}
-              className="text-[#bbcabf] hover:text-white p-1 rounded-lg transition-colors cursor-pointer"
+              className="text-slate-500 hover:text-slate-900 p-1 rounded-lg transition-colors cursor-pointer"
             >
               <span className="material-symbols-outlined text-[18px]">close</span>
             </button>
           </div>
 
-          <div className="py-3 max-h-[70vh] overflow-y-auto pr-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
-            {notifications.length === 0 ? <div className="text-xs text-[#bbcabf] text-center py-8">No hay alertas generadas por actualizaciones de datos.</div> : notifications.map((n) => (
+          <div className="py-3 max-h-[70vh] overflow-y-auto pr-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 items-stretch">
+            {notifications.length === 0 ? <div className="text-xs text-slate-500 text-center py-8">No hay alertas generadas por actualizaciones de datos.</div> : notifications.map((n) => (
               <div
                 key={n.id}
                 data-notification-card="true"
-                className="push-notification-item p-3 rounded-xl bg-[#171f33] border border-[#222a3d] flex flex-col gap-1 relative shadow-sm"
+                className="push-notification-item min-w-0 p-3 rounded-xl bg-white border border-slate-200 flex flex-col gap-1 relative shadow-sm"
               >
                 <div className="flex items-center justify-between text-xs">
                   <span
                     className={`font-bold flex items-center gap-1.5 ${
                       n.type === 'cavi'
-                        ? 'text-[#c0c1ff]'
+                        ? 'text-indigo-700'
                         : n.type === 'urgent'
-                        ? 'text-[#ffb4ab]'
-                        : 'text-[#ffb95f]'
+                        ? 'text-red-600'
+                        : 'text-amber-600'
                     }`}
                   >
                     <span className="material-symbols-outlined text-[15px]">
@@ -88,14 +87,14 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
                     </span>
                     {n.title}
                   </span>
-                  <span className="text-[10px] text-[#bbcabf] notification-time">{n.time}</span>
+                  <span className="text-[10px] text-slate-500 notification-time">{n.time}</span>
                 </div>
-                <p className="text-xs text-[#dae2fd] leading-relaxed notification-text">{n.message}</p>
+                <p className="text-xs text-slate-700 leading-relaxed notification-text">{n.message}</p>
               </div>
             ))}
           </div>
 
-          <div className="pt-3 border-t border-[#222a3d] flex items-center justify-between">
+          <div className="pt-3 border-t border-slate-200 flex items-center justify-between">
             <button
               onClick={onMarkAllRead}
               className="text-xs text-[#0088ff] hover:underline font-semibold cursor-pointer"
@@ -104,7 +103,7 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
             </button>
             <button
               onClick={onClose}
-              className="px-3.5 py-1.5 rounded-lg bg-[#222a3d] hover:bg-[#2d3449] text-xs font-semibold text-[#dae2fd] transition-colors"
+              className="px-3.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs font-semibold text-slate-700 transition-colors"
             >
               Entendido
             </button>
