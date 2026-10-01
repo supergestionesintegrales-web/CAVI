@@ -340,10 +340,10 @@ export const GpsTerritoryModal: React.FC<GpsTerritoryModalProps> = ({
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-base sm:text-lg font-headline font-bold text-[#0047AB] tracking-wide>
+                <h1 className="text-base sm:text-lg font-headline font-bold text-[#0047AB] tracking-wide">
                   CAVIMAPS · Red Departamental La Guajira
                 </h1>
-                <span className="px-2.5 py-0.5 rounded-full bg-[#eaf4ff] text-[#0047AB] text-[11px] font-bold border border-[#bfdbfe]" style={{ color: '#ffffff' }}>
+                <span className="px-2.5 py-0.5 rounded-full bg-[#eaf4ff] text-[#0047AB] text-[11px] font-bold border border-[#bfdbfe]">
                   15 Municipios Monitoreados
                 </span>
                 <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-[#064e3b] text-[#6ee7b7] text-[10px] font-bold">
