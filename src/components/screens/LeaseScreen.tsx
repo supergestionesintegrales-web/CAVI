@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react';
 import { LeasePoint, UserRole, LeaseOperatingStatus, LeaseIncident } from '../../types';
-import type { LeaseDataAlert } from '../../utils/dataReconciliation';
 import {
   evaluatePointOpenStatus,
   formatCOP,
@@ -29,7 +28,6 @@ interface LeaseScreenProps {
   onResolveIncident?: (pointId: string, incidentId: string, notes: string) => void;
   onShowToast: (title: string, message: string, type?: 'info' | 'success' | 'warning' | 'error') => void;
   userRole?: UserRole;
-  alerts?: LeaseDataAlert[];
 }
 
 export const LeaseScreen: React.FC<LeaseScreenProps> = ({
@@ -41,7 +39,6 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
   onResolveIncident,
   onShowToast,
   userRole = 'administrador',
-  alerts = [],
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'open' | 'closed' | 'incidents' | 'depurado'>('all');
@@ -58,10 +55,6 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
 
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [detailsPoint, setDetailsPoint] = useState<LeasePoint | null>(null);
-  const [selectedAlert, setSelectedAlert] = useState<LeaseDataAlert | null>(null);
-  const [alertSeverityFilter, setAlertSeverityFilter] = useState<'all' | 'urgent' | 'warning' | 'info'>('all');
-  const [alertTypeFilter, setAlertTypeFilter] = useState<'all' | LeaseDataAlert['type']>('all');
-  const [alertSearch, setAlertSearch] = useState('');
 
   const now = new Date();
   const pointsWithStatus = useMemo(() => {
