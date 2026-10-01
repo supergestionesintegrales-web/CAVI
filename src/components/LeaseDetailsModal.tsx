@@ -47,9 +47,9 @@ export const LeaseDetailsModal: React.FC<LeaseDetailsModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-sm overflow-y-auto animate-in fade-in duration-200">
-      <div className="relative w-full max-w-2xl bg-[#0e172a] border border-[#222a3d] rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+      <div className="relative w-full max-w-2xl bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
         {/* Header */}
-        <div className="px-5 py-4 border-b border-[#222a3d] flex items-center justify-between bg-[#131b2e]">
+        <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
           <div className="flex items-center gap-3">
             <div
               className={`w-11 h-11 rounded-2xl flex items-center justify-center ${
@@ -64,17 +64,17 @@ export const LeaseDetailsModal: React.FC<LeaseDetailsModalProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-[#171f33] text-[#38bdf8] border border-[#2d3449]">
+                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-white text-blue-700 border border-slate-200">
                   {point.code}
                 </span>
-                <span className="text-xs text-[#94a3b8] font-semibold">{point.propertyType}</span>
+                <span className="text-xs text-slate-500 font-semibold">{point.propertyType}</span>
               </div>
-              <h2 className="text-base sm:text-lg font-bold text-white mt-0.5">{point.name}</h2>
+              <h2 className="text-base sm:text-lg font-bold text-slate-900 mt-0.5">{point.name}</h2>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-[#94a3b8] hover:text-white hover:bg-[#222a3d] transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
           >
             <span className="material-symbols-outlined text-[20px]">close</span>
           </button>
@@ -101,22 +101,22 @@ export const LeaseDetailsModal: React.FC<LeaseDetailsModalProps> = ({
             </span>
             <div>
               <div className="text-xs font-bold uppercase tracking-wider">{status.statusBadgeText}</div>
-              <div className="text-xs text-white/90">{status.statusDescription}</div>
+              <div className="text-xs text-slate-900/90">{status.statusDescription}</div>
             </div>
           </div>
           <div className="text-right">
-            <div className="text-xs font-semibold text-white/80">{status.timeContext}</div>
-            <div className="text-[10px] text-white/60">Horario oficial CAVI</div>
+            <div className="text-xs font-semibold text-slate-900/80">{status.timeContext}</div>
+            <div className="text-[10px] text-slate-900/60">Horario oficial CAVI</div>
           </div>
         </div>
 
         {/* Body content */}
         <div className="p-5 overflow-y-auto space-y-4 flex-1 text-xs">
           {/* Ubicación Geográfica */}
-          <div className="p-4 bg-[#131b2e] rounded-xl border border-[#222a3d] space-y-3">
+          <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="font-bold text-white flex items-center gap-1.5 text-xs">
-                <span className="material-symbols-outlined text-[18px] text-[#38bdf8]">pin_drop</span>
+              <span className="font-bold text-slate-900 flex items-center gap-1.5 text-xs">
+                <span className="material-symbols-outlined text-[18px] text-blue-700">pin_drop</span>
                 Ubicación Geográfica y Navegación
               </span>
               <div className="flex items-center gap-1.5 flex-wrap">
@@ -124,7 +124,7 @@ export const LeaseDetailsModal: React.FC<LeaseDetailsModalProps> = ({
                   href={mapsUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="px-2.5 py-1 rounded-lg bg-[#0088ff]/15 hover:bg-[#0088ff]/25 text-[#38bdf8] font-bold text-[11px] flex items-center gap-1 transition-colors border border-[#0088ff]/30 cursor-pointer"
+                  className="px-2.5 py-1 rounded-lg bg-[#0088ff]/15 hover:bg-[#0088ff]/25 text-blue-700 font-bold text-[11px] flex items-center gap-1 transition-colors border border-[#0088ff]/30 cursor-pointer"
                 >
                   <span className="material-symbols-outlined text-[14px]">map</span>
                   Punto GPS
@@ -133,7 +133,7 @@ export const LeaseDetailsModal: React.FC<LeaseDetailsModalProps> = ({
                   href={wazeUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="px-2.5 py-1 rounded-lg bg-[#3131c0]/20 hover:bg-[#3131c0]/30 text-[#c0c1ff] font-bold text-[11px] flex items-center gap-1 transition-colors border border-[#3131c0]/40 cursor-pointer"
+                  className="px-2.5 py-1 rounded-lg bg-[#3131c0]/20 hover:bg-[#3131c0]/30 text-indigo-700 font-bold text-[11px] flex items-center gap-1 transition-colors border border-[#3131c0]/40 cursor-pointer"
                 >
                   <span className="material-symbols-outlined text-[14px]">navigation</span>
                   Waze
@@ -141,41 +141,41 @@ export const LeaseDetailsModal: React.FC<LeaseDetailsModalProps> = ({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[#cbd5e1]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-slate-700">
               <div>
-                <span className="text-[#94a3b8] block text-[11px]">Dirección Completa:</span>
-                <span className="font-bold text-white">{point.address}</span>
+                <span className="text-slate-500 block text-[11px]">Dirección Completa:</span>
+                <span className="font-bold text-slate-900">{point.address}</span>
               </div>
               <div>
-                <span className="text-[#94a3b8] block text-[11px]">Municipio y Departamento:</span>
-                <span className="font-bold text-white">
+                <span className="text-slate-500 block text-[11px]">Municipio y Departamento:</span>
+                <span className="font-bold text-slate-900">
                   {point.municipality}, {point.department} ({point.neighborhood})
                 </span>
               </div>
             </div>
 
             {point.reference && (
-              <div className="p-2.5 bg-[#171f33] rounded-lg border border-[#2d3449] text-[11px] text-[#94a3b8]">
-                <strong className="text-[#cbd5e1]">Referencia / Hito:</strong> {point.reference}
+              <div className="p-2.5 bg-white rounded-lg border border-slate-200 text-[11px] text-slate-500">
+                <strong className="text-slate-700">Referencia / Hito:</strong> {point.reference}
               </div>
             )}
 
-            <div className="flex items-center justify-between text-[11px] text-[#94a3b8] pt-1">
+            <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1">
               <span>Coordenadas GPS:</span>
-              <span className="font-mono text-[#38bdf8]">
+              <span className="font-mono text-blue-700">
                 Lat: {point.lat.toFixed(5)}, Lng: {point.lng.toFixed(5)}
               </span>
             </div>
           </div>
 
           {/* Horarios Semanales */}
-          <div className="p-4 bg-[#131b2e] rounded-xl border border-[#222a3d] space-y-3">
+          <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="font-bold text-white flex items-center gap-1.5 text-xs">
+              <span className="font-bold text-slate-900 flex items-center gap-1.5 text-xs">
                 <span className="material-symbols-outlined text-[18px] text-[#ffb95f]">schedule</span>
                 Horarios Semanales de Apertura y Cierre
               </span>
-              <span className="text-[11px] text-[#94a3b8]">
+              <span className="text-[11px] text-slate-500">
                 {point.schedule.holidayNote || 'Cerrado festivos'}
               </span>
             </div>
@@ -188,8 +188,8 @@ export const LeaseDetailsModal: React.FC<LeaseDetailsModalProps> = ({
                     key={key}
                     className={`p-2.5 rounded-xl border text-center ${
                       dayHours.isOpen
-                        ? 'bg-[#171f33] border-[#2d3449] text-white'
-                        : 'bg-[#0b1326]/60 border-[#222a3d] text-[#64748b]'
+                        ? 'bg-white border-slate-200 text-slate-900'
+                        : 'bg-slate-100 border-slate-300 text-slate-700'
                     }`}
                   >
                     <div className="font-bold text-[11px] mb-1">{label}</div>
@@ -205,7 +205,7 @@ export const LeaseDetailsModal: React.FC<LeaseDetailsModalProps> = ({
                         )}
                       </>
                     ) : (
-                      <div className="text-xs text-[#94a3b8] italic">Cerrado</div>
+                      <div className="text-xs text-slate-500 italic">Cerrado</div>
                     )}
                   </div>
                 );
@@ -214,42 +214,42 @@ export const LeaseDetailsModal: React.FC<LeaseDetailsModalProps> = ({
           </div>
 
           {/* Ficha Contractual y Financiera */}
-          <div className="p-4 bg-[#131b2e] rounded-xl border border-[#222a3d] space-y-3">
-            <span className="font-bold text-white flex items-center gap-1.5 text-xs">
+          <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+            <span className="font-bold text-slate-900 flex items-center gap-1.5 text-xs">
               <span className="material-symbols-outlined text-[18px] text-[#4edea3]">description</span>
               Ficha del Contrato de Arrendamiento
             </span>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className="p-2.5 bg-[#171f33] rounded-lg border border-[#2d3449]">
-                <span className="text-[10px] text-[#94a3b8] block uppercase">Canon Mensual</span>
+              <div className="p-2.5 bg-white rounded-lg border border-slate-200">
+                <span className="text-[10px] text-slate-500 block uppercase">Canon Mensual</span>
                 <span className="text-sm font-bold text-[#4edea3] font-mono">
                   {formatCOP(point.monthlyRent)}
                 </span>
               </div>
-              <div className="p-2.5 bg-[#171f33] rounded-lg border border-[#2d3449]">
-                <span className="text-[10px] text-[#94a3b8] block uppercase">Administración</span>
-                <span className="text-sm font-bold text-white font-mono">
+              <div className="p-2.5 bg-white rounded-lg border border-slate-200">
+                <span className="text-[10px] text-slate-500 block uppercase">Administración</span>
+                <span className="text-sm font-bold text-slate-900 font-mono">
                   {point.adminFee ? formatCOP(point.adminFee) : 'Incluida / $0'}
                 </span>
               </div>
-              <div className="p-2.5 bg-[#171f33] rounded-lg border border-[#2d3449]">
-                <span className="text-[10px] text-[#94a3b8] block uppercase">Área Inmueble</span>
-                <span className="text-sm font-bold text-white font-mono">{point.areaSqMeters} m²</span>
+              <div className="p-2.5 bg-white rounded-lg border border-slate-200">
+                <span className="text-[10px] text-slate-500 block uppercase">Área Inmueble</span>
+                <span className="text-sm font-bold text-slate-900 font-mono">{point.areaSqMeters} m²</span>
               </div>
-              <div className="p-2.5 bg-[#171f33] rounded-lg border border-[#2d3449]">
-                <span className="text-[10px] text-[#94a3b8] block uppercase">Días de Cuenta</span>
-                <span className="text-sm font-bold text-[#c0c1ff] font-mono">{point.daysOfAccount !== undefined ? point.daysOfAccount : 'N/D'}</span>
+              <div className="p-2.5 bg-white rounded-lg border border-slate-200">
+                <span className="text-[10px] text-slate-500 block uppercase">Días de Cuenta</span>
+                <span className="text-sm font-bold text-indigo-700 font-mono">{point.daysOfAccount !== undefined ? point.daysOfAccount : 'N/D'}</span>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[#cbd5e1] pt-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-slate-700 pt-1">
               <div>
-                <span className="text-[#94a3b8] text-[11px] block">N° Contrato:</span>
-                <span className="font-mono font-bold text-white">{point.contractNumber}</span>
+                <span className="text-slate-500 text-[11px] block">N° Contrato:</span>
+                <span className="font-mono font-bold text-slate-900">{point.contractNumber}</span>
               </div>
               <div>
-                <span className="text-[#94a3b8] text-[11px] block">Vigencia:</span>
+                <span className="text-slate-500 text-[11px] block">Vigencia:</span>
                 <span
                   className={`font-semibold ${
                     contract.status === 'valid'
@@ -266,10 +266,10 @@ export const LeaseDetailsModal: React.FC<LeaseDetailsModalProps> = ({
           </div>
 
           {/* Actividad Comercial / Giros */}
-          <div className="p-4 bg-[#131b2e] rounded-xl border border-[#222a3d] space-y-3">
+          <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
             <div className="flex items-center justify-between gap-2">
-              <span className="font-bold text-white flex items-center gap-1.5 text-xs">
-                <span className="material-symbols-outlined text-[18px] text-[#38bdf8]">monitoring</span>
+              <span className="font-bold text-slate-900 flex items-center gap-1.5 text-xs">
+                <span className="material-symbols-outlined text-[18px] text-blue-700">monitoring</span>
                 Actividad Comercial / Giros
               </span>
               <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border ${
@@ -277,50 +277,50 @@ export const LeaseDetailsModal: React.FC<LeaseDetailsModalProps> = ({
                   ? 'bg-[#10b981]/10 text-[#4edea3] border-[#10b981]/30'
                   : sales?.status === 'no_sales'
                   ? 'bg-[#ffb95f]/10 text-[#ffb95f] border-[#ffb95f]/30'
-                  : 'bg-[#64748b]/10 text-[#94a3b8] border-[#64748b]/20'
+                  : 'bg-[#64748b]/10 text-slate-500 border-[#64748b]/20'
               }`}>
                 {sales?.status === 'with_sales' ? 'CON VENTAS' : sales?.status === 'no_sales' ? 'SIN VENTAS' : 'SIN DATOS'}
               </span>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              <div className="p-2.5 bg-[#171f33] rounded-lg border border-[#2d3449]">
-                <span className="text-[9px] text-[#94a3b8] block uppercase">Última venta</span>
-                <span className="text-xs font-bold text-white">{sales?.lastSaleDate || 'Sin registro'}</span>
+              <div className="p-2.5 bg-white rounded-lg border border-slate-200">
+                <span className="text-[9px] text-slate-500 block uppercase">Última venta</span>
+                <span className="text-xs font-bold text-slate-900">{sales?.lastSaleDate || 'Sin registro'}</span>
               </div>
-              <div className="p-2.5 bg-[#171f33] rounded-lg border border-[#2d3449]">
-                <span className="text-[9px] text-[#94a3b8] block uppercase">Días sin venta</span>
+              <div className="p-2.5 bg-white rounded-lg border border-slate-200">
+                <span className="text-[9px] text-slate-500 block uppercase">Días sin venta</span>
                 <span className={`text-xs font-bold ${sales?.daysWithoutSale !== undefined && sales.daysWithoutSale >= 90 ? 'text-[#ffb4ab]' : sales?.daysWithoutSale !== undefined && sales.daysWithoutSale >= 60 ? 'text-[#ffb95f]' : 'text-[#4edea3]'}`}>
                   {sales?.daysWithoutSale !== undefined ? sales.daysWithoutSale : 'N/D'}
                 </span>
               </div>
-              <div className="p-2.5 bg-[#171f33] rounded-lg border border-[#2d3449]">
-                <span className="text-[9px] text-[#94a3b8] block uppercase">Giros / transacciones</span>
-                <span className="text-xs font-bold text-white">{sales?.totalTransactions ?? 'N/D'}</span>
+              <div className="p-2.5 bg-white rounded-lg border border-slate-200">
+                <span className="text-[9px] text-slate-500 block uppercase">Giros / transacciones</span>
+                <span className="text-xs font-bold text-slate-900">{sales?.totalTransactions ?? 'N/D'}</span>
               </div>
-              <div className="p-2.5 bg-[#171f33] rounded-lg border border-[#2d3449]">
-                <span className="text-[9px] text-[#94a3b8] block uppercase">Total vendido</span>
+              <div className="p-2.5 bg-white rounded-lg border border-slate-200">
+                <span className="text-[9px] text-slate-500 block uppercase">Total vendido</span>
                 <span className="text-xs font-bold text-[#4edea3] font-mono">{sales?.totalSalesAmount !== undefined ? formatCOP(sales.totalSalesAmount) : 'N/D'}</span>
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[10px]">
-              <div className="text-[#94a3b8]">
-                Periodo analizado: <strong className="text-[#cbd5e1]">{sales?.coverageStartDate || 'N/D'} → {sales?.coverageEndDate || 'N/D'}</strong>
+              <div className="text-slate-500">
+                Periodo analizado: <strong className="text-slate-700">{sales?.coverageStartDate || 'N/D'} → {sales?.coverageEndDate || 'N/D'}</strong>
               </div>
-              <div className="text-[#94a3b8] sm:text-right">
-                Fuente: <strong className="text-[#cbd5e1]">{sales?.salesSourceFile || 'No identificada'}</strong>
+              <div className="text-slate-500 sm:text-right">
+                Fuente: <strong className="text-slate-700">{sales?.salesSourceFile || 'No identificada'}</strong>
               </div>
             </div>
 
-            <div className="p-2.5 rounded-lg bg-[#0b1326] border border-[#222a3d] text-[10px] text-[#94a3b8]">
-              <strong className="text-[#cbd5e1]">Lectura CAVI:</strong> la falta de ventas genera una alerta comercial; no convierte por sí sola el punto en depurado contractual.
+            <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-[10px] text-slate-500">
+              <strong className="text-slate-700">Lectura CAVI:</strong> la falta de ventas genera una alerta comercial; no convierte por sí sola el punto en depurado contractual.
             </div>
           </div>
 
           {/* Estado Contractual */}
-          <div className="p-4 bg-[#131b2e] rounded-xl border border-[#222a3d] space-y-2">
-            <span className="font-bold text-white flex items-center gap-1.5 text-xs">
+          <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+            <span className="font-bold text-slate-900 flex items-center gap-1.5 text-xs">
               <span className="material-symbols-outlined text-[18px] text-[#c084fc]">inventory_2</span>
               Estado de Depuración Contractual
             </span>
@@ -336,26 +336,26 @@ export const LeaseDetailsModal: React.FC<LeaseDetailsModalProps> = ({
                 <span className="text-[10px] text-[#ffb4ab]">Motivo: {lifecycle.inactivityLabel}</span>
               )}
               {point.inactivityDate && (
-                <span className="text-[10px] text-[#94a3b8]">Fecha: {point.inactivityDate}</span>
+                <span className="text-[10px] text-slate-500">Fecha: {point.inactivityDate}</span>
               )}
             </div>
           </div>
 
           {/* Propietario / Inmobiliaria */}
-          <div className="p-4 bg-[#131b2e] rounded-xl border border-[#222a3d] space-y-2">
-            <span className="font-bold text-white flex items-center gap-1.5 text-xs">
-              <span className="material-symbols-outlined text-[18px] text-[#c0c1ff]">contact_phone</span>
+          <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+            <span className="font-bold text-slate-900 flex items-center gap-1.5 text-xs">
+              <span className="material-symbols-outlined text-[18px] text-indigo-700">contact_phone</span>
               Datos de Contacto del Arrendador
             </span>
 
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1">
               <div>
-                <div className="font-bold text-white text-xs">{point.landlord.name}</div>
+                <div className="font-bold text-slate-900 text-xs">{point.landlord.name}</div>
                 {point.landlord.documentId && (
-                  <div className="text-[10px] text-[#94a3b8]">{point.landlord.documentId}</div>
+                  <div className="text-[10px] text-slate-500">{point.landlord.documentId}</div>
                 )}
                 {point.landlord.contactPerson && (
-                  <div className="text-[11px] text-[#cbd5e1]">
+                  <div className="text-[11px] text-slate-700">
                     Contacto: {point.landlord.contactPerson}
                   </div>
                 )}
@@ -374,7 +374,7 @@ export const LeaseDetailsModal: React.FC<LeaseDetailsModalProps> = ({
                 {point.landlord.email && (
                   <a
                     href={`mailto:${point.landlord.email}`}
-                    className="px-3 py-1.5 rounded-lg bg-[#0088ff]/20 hover:bg-[#0088ff]/30 text-[#0088ff] font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer"
+                    className="px-3 py-1.5 rounded-lg bg-[#0088ff]/20 hover:bg-[#0088ff]/30 text-blue-700 font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer"
                   >
                     <span className="material-symbols-outlined text-[16px]">mail</span>
                     Escribir
@@ -384,17 +384,17 @@ export const LeaseDetailsModal: React.FC<LeaseDetailsModalProps> = ({
             </div>
 
             {(point.electricMeter || point.waterMeter) && (
-              <div className="pt-2 border-t border-[#222a3d] grid grid-cols-2 gap-2 text-[11px]">
+              <div className="pt-2 border-t border-slate-200 grid grid-cols-2 gap-2 text-[11px]">
                 {point.electricMeter && (
                   <div>
-                    <span className="text-[#94a3b8]">Medidor Luz: </span>
-                    <span className="font-mono text-white">{point.electricMeter}</span>
+                    <span className="text-slate-500">Medidor Luz: </span>
+                    <span className="font-mono text-slate-900">{point.electricMeter}</span>
                   </div>
                 )}
                 {point.waterMeter && (
                   <div>
-                    <span className="text-[#94a3b8]">Medidor Agua: </span>
-                    <span className="font-mono text-white">{point.waterMeter}</span>
+                    <span className="text-slate-500">Medidor Agua: </span>
+                    <span className="font-mono text-slate-900">{point.waterMeter}</span>
                   </div>
                 )}
               </div>
@@ -403,7 +403,7 @@ export const LeaseDetailsModal: React.FC<LeaseDetailsModalProps> = ({
         </div>
 
         {/* Footer Actions */}
-        <div className="p-4 border-t border-[#222a3d] bg-[#131b2e] flex items-center justify-between gap-2">
+        <div className="p-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between gap-2">
           {isAdmin ? (
             <button
               type="button"
@@ -414,8 +414,8 @@ export const LeaseDetailsModal: React.FC<LeaseDetailsModalProps> = ({
               Novedad de Cierre / Horario
             </button>
           ) : (
-            <span className="text-[11px] text-[#94a3b8] font-medium flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[16px] text-[#0088ff]">visibility</span>
+            <span className="text-[11px] text-slate-500 font-medium flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-[16px] text-blue-700">visibility</span>
               Modo Solo Vista (Edición solo Admin)
             </span>
           )}
@@ -425,7 +425,7 @@ export const LeaseDetailsModal: React.FC<LeaseDetailsModalProps> = ({
               <button
                 type="button"
                 onClick={() => onEdit(point)}
-                className="px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-[#171f33] hover:bg-[#222a3d] border border-[#2d3449] transition-all flex items-center gap-1.5 cursor-pointer"
+                className="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-900 bg-white hover:bg-slate-100 border border-slate-200 transition-all flex items-center gap-1.5 cursor-pointer"
               >
                 <span className="material-symbols-outlined text-[18px]">edit</span>
                 Editar Inmueble
@@ -434,7 +434,7 @@ export const LeaseDetailsModal: React.FC<LeaseDetailsModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#0088ff] hover:bg-[#0070d8] shadow-md shadow-[#0088ff]/30 transition-all cursor-pointer"
+              className="px-4 py-2 rounded-xl text-xs font-bold text-slate-900 bg-[#0088ff] hover:bg-[#0070d8] shadow-md shadow-[#0088ff]/30 transition-all cursor-pointer"
             >
               Cerrar Ficha
             </button>
