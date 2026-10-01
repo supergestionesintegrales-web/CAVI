@@ -210,9 +210,9 @@ export const AlertPointsAssignmentPool: React.FC<AlertPointsAssignmentPoolProps>
         <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-1 md:pb-0">
           {[
             { key: 'all', label: `Todos (${floatingPoints.length})` },
-            { key: '2_3_meses', label: `⏱️ 2-3 Meses (${countBetween2And3Months})` },
-            { key: 'mas_3_meses', label: `🔴 >3 Meses (${countMoreThan3Months})` },
-            { key: 'alerts', label: `🚨 Alertas (${countAlerts})` },
+            { key: '2_3_meses', label: `2-3 Meses (${countBetween2And3Months})` },
+            { key: 'mas_3_meses', label: `>3 Meses (${countMoreThan3Months})` },
+            { key: 'alerts', label: `Alertas (${countAlerts})` },
             { key: 'norte', label: 'Zona Norte' },
             { key: 'centro', label: 'Zona Centro' },
             { key: 'sur', label: 'Zona Sur' },
@@ -340,7 +340,7 @@ export const AlertPointsAssignmentPool: React.FC<AlertPointsAssignmentPoolProps>
                     </span>
                     {point.municipality && (
                       <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-[#131b2e] text-slate-800 dark:text-[#93c5fd] font-bold text-[10px] border border-slate-200 dark:border-[#2d3a58]">
-                        📍 {point.municipality} (Zona {point.zone || 'La Guajira'})
+                        {point.municipality}
                       </span>
                     )}
                   </div>
