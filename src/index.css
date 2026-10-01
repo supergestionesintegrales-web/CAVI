@@ -1726,3 +1726,98 @@ body {
 .light h4:not([class*="bg-"]):not([class*="text-white"]) {
   color: #0070d8 !important;
 }
+
+
+/* ==========================================================================
+   CAVI LIGHT-ONLY MODE
+   The application no longer exposes or activates a dark theme.
+   ========================================================================== */
+html[data-theme="light"],
+html.theme-light,
+html.light,
+body[data-theme="light"],
+body.theme-light,
+body.light {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] body,
+html.theme-light body,
+html.light body {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+/* Convert legacy dark surfaces to clean light CAVI surfaces. */
+[data-theme="light"] .bg-\[\#0b1326\],
+[data-theme="light"] .bg-\[\#060e20\],
+[data-theme="light"] .bg-\[\#131b2e\],
+[data-theme="light"] .bg-\[\#171f33\],
+[data-theme="light"] .bg-\[\#222a3d\],
+[data-theme="light"] .bg-\[\#2d3449\],
+.theme-light .bg-\[\#0b1326\],
+.theme-light .bg-\[\#060e20\],
+.theme-light .bg-\[\#131b2e\],
+.theme-light .bg-\[\#171f33\],
+.theme-light .bg-\[\#222a3d\],
+.theme-light .bg-\[\#2d3449\],
+.light .bg-\[\#0b1326\],
+.light .bg-\[\#060e20\],
+.light .bg-\[\#131b2e\],
+.light .bg-\[\#171f33\],
+.light .bg-\[\#222a3d\],
+.light .bg-\[\#2d3449\] {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .text-white,
+[data-theme="light"] .\!text-white,
+.theme-light .text-white,
+.theme-light .\!text-white,
+.light .text-white,
+.light .\!text-white {
+  color: #0f172a !important;
+}
+
+/* Keep white lettering only where it is needed for CAVI's solid primary actions. */
+[data-theme="light"] .bg-\[\#0088ff\],
+[data-theme="light"] .bg-\[\#0070d8\],
+[data-theme="light"] .bg-blue-600,
+[data-theme="light"] button.bg-\[\#0088ff\],
+[data-theme="light"] button.bg-\[\#0070d8\],
+[data-theme="light"] button.bg-blue-600 {
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .bg-\[\#0088ff\] *,
+[data-theme="light"] .bg-\[\#0070d8\] *,
+[data-theme="light"] .bg-blue-600 *,
+[data-theme="light"] button.bg-\[\#0088ff\] *,
+[data-theme="light"] button.bg-\[\#0070d8\] *,
+[data-theme="light"] button.bg-blue-600 * {
+  color: #ffffff !important;
+}
+
+/* CAVI blue hierarchy on light surfaces. */
+[data-theme="light"] h1,
+[data-theme="light"] h2,
+[data-theme="light"] h3,
+[data-theme="light"] h4,
+[data-theme="light"] h5,
+[data-theme="light"] h6,
+.theme-light h1,
+.theme-light h2,
+.theme-light h3,
+.theme-light h4,
+.theme-light h5,
+.theme-light h6,
+.light h1,
+.light h2,
+.light h3,
+.light h4,
+.light h5,
+.light h6 {
+  color: #0047ab;
+}
