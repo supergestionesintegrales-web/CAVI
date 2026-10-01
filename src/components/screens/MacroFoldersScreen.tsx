@@ -843,10 +843,10 @@ FORMATOS COMPATIBLES:
             </div>
 
             {/* Dropdown filters for Year, Month, Type */}
-            <div className="flex items-center gap-2 flex-wrap pt-2 border-t border-[#222a3d] text-xs">
+            <div className="flex items-center gap-2 flex-wrap pt-2 border-t border-[#222a3d] text-xs overflow-visible">
               {/* Year Filter */}
               <div className="flex items-center gap-1">
-                <span className="text-[#bbcabf] text-[11px] font-medium">Año:</span>
+                <span className="text-[#bbcabf] text-[11px] font-medium whitespace-nowrap shrink-0">Año:</span>
                 <select
                   value={selectedYear}
                   onChange={(e) => setSelectedYear(e.target.value)}
@@ -863,7 +863,7 @@ FORMATOS COMPATIBLES:
 
               {/* Month Filter */}
               <div className="flex items-center gap-1">
-                <span className="text-[#bbcabf] text-[11px] font-medium">Mes:</span>
+                <span className="text-[#bbcabf] text-[11px] font-medium whitespace-nowrap shrink-0">Mes:</span>
                 <select
                   value={selectedMonth}
                   onChange={(e) => setSelectedMonth(e.target.value)}
@@ -880,7 +880,7 @@ FORMATOS COMPATIBLES:
 
               {/* File Type Filter */}
               <div className="flex items-center gap-1">
-                <span className="text-[#bbcabf] text-[11px] font-medium">Formato:</span>
+                <span className="text-[#bbcabf] text-[11px] font-medium whitespace-nowrap shrink-0">Formato:</span>
                 <select
                   value={selectedType}
                   onChange={(e) => setSelectedType(e.target.value as SupportedFileType | 'all')}
