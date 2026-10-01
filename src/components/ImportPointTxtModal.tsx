@@ -371,11 +371,11 @@ export const ImportPointTxtModal: React.FC<ImportPointTxtModalProps> = ({
                     onChange={(e) => setManualForm({ ...manualForm, channel: e.target.value })}
                     className="w-full bg-[#131b2e] text-white px-3 py-2 rounded-xl border border-[#222a3d] focus:outline-none focus:ring-1 focus:ring-[#0088ff]"
                   >
-                    <option value="CDA">🔵 CDA (Centro de Acopio / Principal)</option>
-                    <option value="PF">🟠 PF (Punto Fijo)</option>
-                    <option value="CM">🔴 CM (Canal Tradicional / Tienda)</option>
-                    <option value="Bancario">🟢 Bancario (Corresponsalía Bancaria)</option>
-                    <option value="ETC">🟣 ETC (Otro Punto de Venta)</option>
+                    <option value="CDA"> CDA (Centro de Acopio / Principal)</option>
+                    <option value="PF"> PF (Punto Fijo)</option>
+                    <option value="CM"> CM (Canal Tradicional / Tienda)</option>
+                    <option value="Bancario"> Bancario (Corresponsalía Bancaria)</option>
+                    <option value="ETC"> ETC (Otro Punto de Venta)</option>
                   </select>
                 </div>
 
