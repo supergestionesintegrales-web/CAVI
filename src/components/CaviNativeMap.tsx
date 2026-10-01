@@ -115,14 +115,8 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
     }
     // When the parent supplies grouped auditor routes, do not inject the demo route.
     if (routeGroups.length > 0) return [];
-    // Default initial strategic route across La Guajira
-    return [
-      { id: 'h1', name: 'Riohacha Centro (CDA Sede la 10)', lat: 11.548376, lng: -72.909395, municipality: 'Riohacha', channel: 'CDA' },
-      { id: 'h2', name: 'Manaure Principal (CDA)', lat: 11.776552, lng: -72.446298, municipality: 'Manaure', channel: 'CDA' },
-      { id: 'h3', name: 'Maicao Central (CDA Cajeros)', lat: 11.379111, lng: -72.242222, municipality: 'Maicao', channel: 'CDA' },
-      { id: 'h4', name: 'Albania Plaza (PF)', lat: 11.161003, lng: -72.591945, municipality: 'Albania', channel: 'PF' },
-      { id: 'h5', name: 'Fonseca Principal (CDA)', lat: 10.889, lng: -72.8499, municipality: 'Fonseca', channel: 'CDA' },
-    ];
+    // CAVI starts empty: only user-loaded route stops are shown.
+    return [];
   });
 
   // Guided navigation simulation state
@@ -787,7 +781,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
 
   return (
     <div
-      className={`relative w-full bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-lg transition-all duration-300 flex flex-col ${
+      className={`cavi-native-map relative w-full bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-lg transition-all duration-300 flex flex-col ${
         isFullscreen ? 'fixed inset-0 z-50 rounded-none h-screen min-h-screen' : ''
       } ${className}`}
       style={{ height: isFullscreen ? '100vh' : height }}
@@ -1198,7 +1192,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
         {showLegend && (
           <div className="cavi-map-legend absolute top-3 right-3 z-30 bg-white/98 backdrop-blur-md p-3 rounded-2xl border border-[#bfdbfe] shadow-[0_8px_28px_rgba(0,136,255,0.16)] text-xs w-[min(94vw,420px)] select-none animate-in fade-in">
             <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-[#dbeafe]">
-              <span className="text-xs font-black text-[#0047AB] uppercase tracking-wider flex items-center gap-1.5">
+              <span className="text-xs font-black text-black uppercase tracking-wider flex items-center gap-1.5">
                 <span className="material-symbols-outlined text-[17px] text-[#0088ff]">category</span>
                 <span>Convenciones PDV</span>
               </span>
@@ -1236,7 +1230,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
                       >
                         <span className="material-symbols-outlined text-[17px] leading-none">{cfg.icon}</span>
                       </span>
-                      <span className="text-[11px] font-black text-slate-900 dark:text-white truncate max-w-full mt-0.5">
+                      <span className="text-[11px] font-black text-black truncate max-w-full mt-0.5">
                         {cfg.label}
                       </span>
                     </div>
