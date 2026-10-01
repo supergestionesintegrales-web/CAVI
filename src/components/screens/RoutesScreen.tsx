@@ -364,7 +364,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
       )}
 
       {/* ========================================================================= */}
-      {/* 🚀 GRAND TACTICAL HERO BANNER: RUTAS Y NAVEGACIÓN DEPARTAMENTAL */}
+      {/*  GRAND TACTICAL HERO BANNER: RUTAS Y NAVEGACIÓN DEPARTAMENTAL */}
       {/* ========================================================================= */}
       <div className="routes-tactical-shell relative w-full rounded-3xl p-5 sm:p-6 md:p-8 overflow-hidden bg-gradient-to-br from-[#070e1f] via-[#0f1d3b] to-[#070e1f] border border-[#1e345b] shadow-2xl">
         {/* Glowing atmospheric background radial accents */}
