@@ -813,14 +813,6 @@ FORMATOS COMPATIBLES:
             </div>
           </div>
 
-          {/* DUAL DRAG & DROP ZONE (CARPETAS O ARCHIVOS SUELTOS) */}
-          <div
-            onDragOver={(e) => {
-              e.preventDefault();
-              setIsDraggingOver(true);
-            }}
-            onDragLeave={() => setIsDraggingOver(false)}
-            onDrop={handleDrop}
           {/* DUAL DRAG & DROP ZONE (CARPETAS O ARCHIVOS SUELTOS) - SOLO ADMIN */}
           {isAdmin ? (
             <div
