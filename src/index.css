@@ -1785,3 +1785,45 @@ html.light body {
 .light h6 {
   color: #0047ab;
 }
+
+
+/* CAVI MAP — light-only surfaces and readable typography */
+.cavi-native-map [class~="bg-[#131b2e]"],
+.cavi-native-map [class~="bg-[#0b1326]"],
+.cavi-native-map [class~="bg-[#060e20]"],
+.cavi-native-map [class~="bg-[#171f33]"],
+.cavi-native-map [class~="bg-[#1e293b]"] {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+.cavi-native-map [class~="text-white"] {
+  color: #0f172a !important;
+}
+
+.cavi-native-map [class~="bg-[#0088ff]"],
+.cavi-native-map [class~="bg-blue-600"],
+.cavi-native-map [class~="bg-emerald-500"],
+.cavi-native-map [class~="bg-emerald-600"],
+.cavi-native-map [class~="bg-amber-500"],
+.cavi-native-map [class~="bg-red-600"] {
+  color: #ffffff !important;
+}
+
+.cavi-native-map [class~="bg-[#0088ff]"] [class~="text-white"],
+.cavi-native-map [class~="bg-blue-600"] [class~="text-white"],
+.cavi-native-map [class~="bg-emerald-500"] [class~="text-white"],
+.cavi-native-map [class~="bg-emerald-600"] [class~="text-white"],
+.cavi-native-map [class~="bg-amber-500"] [class~="text-white"],
+.cavi-native-map [class~="bg-red-600"] [class~="text-white"] {
+  color: #ffffff !important;
+}
+
+.cavi-native-map .cavi-map-legend {
+  background: rgba(255, 255, 255, 0.98) !important;
+  color: #0f172a !important;
+}
+
+.cavi-native-map .cavi-map-legend [class~="text-white"] {
+  color: #0f172a !important;
+}
