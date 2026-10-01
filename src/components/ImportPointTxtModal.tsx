@@ -161,8 +161,8 @@ export const ImportPointTxtModal: React.FC<ImportPointTxtModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-in fade-in duration-200">
-      <div className="relative w-full max-w-2xl bg-[#0e172a] rounded-2xl border border-[#222a3d] shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+    <div className="fixed inset-0 z-[100000] bg-black/55 backdrop-blur-md flex items-start justify-center px-3 sm:px-5 pt-[82px] pb-4 overflow-y-auto animate-in fade-in duration-200">
+      <div className="relative w-full max-w-2xl bg-[#0e172a] rounded-2xl border border-[#222a3d] shadow-2xl overflow-hidden flex flex-col max-h-[calc(100vh-98px)]">
         {/* MODAL HEADER */}
         <div className="p-4 bg-[#131b2e] border-b border-[#222a3d] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
