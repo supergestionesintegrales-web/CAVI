@@ -13,18 +13,10 @@ import {
 } from './types';
 import {
   AUDITORS_DATA,
-  INITIAL_SAMUEL_STEPS,
-  INITIAL_FLOATING_POINTS,
-  INITIAL_ALERT_POINTS,
-  SAMUEL_AVATAR,
-  KLEYDER_AVATAR,
-  JOSE_AVATAR,
 } from './data/mockData';
-import { INITIAL_MACRO_FILES } from './data/macroFoldersData';
-import { INITIAL_LEASE_POINTS, evaluatePointOpenStatus } from './data/leasePointsData';
+import { evaluatePointOpenStatus } from './data/leasePointsData';
 import {
   distributePointsWithAlertPriority,
-  MASTER_SAMPLE_CANDIDATE_POINTS,
   PointCandidate,
 } from './utils/pointAssignment';
 import { resolvePdvZone, getAssignedAuditorForZone } from './data/zoneAssignments';
@@ -50,13 +42,34 @@ export default function App() {
   const [activeAuditorId, setActiveAuditorId] = useState<string>('aud-1');
   const [auditors, setAuditors] = useState<Auditor[]>(AUDITORS_DATA);
 
-  // Local storage persistence for real data
+  // Local storage persistence for real data.
+  // Schema v2 starts CAVI empty so previous demo data is not carried into the clean workspace.
+  useEffect(() => {
+    try {
+      const schemaVersion = localStorage.getItem('cavi_data_schema_version');
+      if (schemaVersion !== '2') {
+        [
+          'cavi_real_route_steps',
+          'cavi_real_floating_points',
+          'cavi_real_macro_files',
+          'cavi_real_lease_points',
+          'cavi_data_alerts',
+          'cavi_active_auditor_id',
+          'cavi_auditors',
+        ].forEach((key) => localStorage.removeItem(key));
+        localStorage.setItem('cavi_data_schema_version', '2');
+      }
+    } catch {
+      // ignore storage errors
+    }
+  }, []);
+
   const [routeSteps, setRouteSteps] = useState<RouteStep[]>(() => {
     try {
       const saved = localStorage.getItem('cavi_real_route_steps');
-      return saved ? JSON.parse(saved) : INITIAL_SAMUEL_STEPS;
+      return saved ? JSON.parse(saved) : [];
     } catch {
-      return INITIAL_SAMUEL_STEPS;
+      return [];
     }
   });
 
@@ -67,18 +80,18 @@ export default function App() {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) return parsed;
       }
-      return INITIAL_ALERT_POINTS;
+      return [];
     } catch {
-      return INITIAL_ALERT_POINTS;
+      return [];
     }
   });
 
   const [macroFiles, setMacroFiles] = useState<MacroFile[]>(() => {
     try {
       const saved = localStorage.getItem('cavi_real_macro_files');
-      return saved ? JSON.parse(saved) : INITIAL_MACRO_FILES;
+      return saved ? JSON.parse(saved) : [];
     } catch {
-      return INITIAL_MACRO_FILES;
+      return [];
     }
   });
 
@@ -89,13 +102,13 @@ export default function App() {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) return parsed;
       }
-      return INITIAL_LEASE_POINTS;
+      return [];
     } catch {
-      return INITIAL_LEASE_POINTS;
+      return [];
     }
   });
 
-  const [activeRouteSourceFile, setActiveRouteSourceFile] = useState<string>('Rutas_LaGuajira_Departamental.xlsx');
+  const [activeRouteSourceFile, setActiveRouteSourceFile] = useState<string>('');
 
   const [dataAlerts, setDataAlerts] = useState<LeaseDataAlert[]>(() => { try { const saved = localStorage.getItem('cavi_data_alerts'); return saved ? JSON.parse(saved) : []; } catch { return []; } });
   useEffect(() => { try { localStorage.setItem('cavi_data_alerts', JSON.stringify(dataAlerts)); } catch {} }, [dataAlerts]);
@@ -150,18 +163,8 @@ export default function App() {
       const activeDaysCount = daysUsed.size > 0 ? daysUsed.size : (visitsTarget > 0 ? 3 : 1);
       const pointsPerDay = visitsTarget > 0 ? Math.round((visitsTarget / activeDaysCount) * 10) / 10 : 8.5;
 
-      const cartoonAvatar =
-        aud.id === 'aud-1'
-          ? SAMUEL_AVATAR
-          : aud.id === 'aud-2'
-          ? KLEYDER_AVATAR
-          : aud.id === 'aud-3'
-          ? JOSE_AVATAR
-          : aud.avatar;
-
       return {
         ...aud,
-        avatar: cartoonAvatar,
         visitsDone,
         visitsTarget,
         pointsPerDay,
