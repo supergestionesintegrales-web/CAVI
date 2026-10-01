@@ -356,11 +356,6 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
           {/* Top Status & System Bar */}
           <div className="flex flex-wrap items-center justify-between gap-2.5 pb-3 border-b border-[#1e2a44]/80">
             <div className="flex items-center gap-2.5 flex-wrap">
-              <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0088ff]/15 border border-[#0088ff]/30 text-[#38bdf8] text-[11px] font-bold tracking-wide">
-                <span className="w-2 h-2 rounded-full bg-[#38bdf8] animate-ping" />
-                <span className="w-1.5 h-1.5 rounded-full bg-[#38bdf8] -ml-2.5" />
-                SISTEMA TÁCTICO DE RUTAS Y NAVEGACIÓN CAVI
-              </span>
               <span className="px-2.5 py-0.5 rounded-full bg-[#131b2e] text-[#cbd5e1] border border-[#222a3d] text-[10px] font-medium">
                 La Guajira · 15 Municipios
               </span>
@@ -598,9 +593,9 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
         /* RESPONSIVE UNIFIED LAYOUT */
         <div className="flex flex-col w-full space-y-6">
           {/* MAPA PRINCIPAL: ocupación total del ancho */}
-          <div className="w-full bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-lg relative min-h-[680px] flex flex-col">
+          <div className="w-full bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-lg relative min-h-[520px] flex flex-col">
             <CaviNativeMap
-              height="680px"
+              height="520px"
               initialRouteStops={mapWaypoints}
               routeGroups={mapRouteGroups}
               showPointCatalog={true}
