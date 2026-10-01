@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { LeasePoint } from '../../types';
 import { LeaseDataAlert } from '../../utils/dataReconciliation';
 
-interface AlertsScreenProps { alerts: LeaseDataAlert[]; leasePoints: LeasePoint[]; onOpenPoint: (point: LeasePoint) => void; }
+interface AlertsScreenProps { alerts: LeaseDataAlert[]; leasePoints: LeasePoint[]; }
 
 const TYPE_LABELS: Record<LeaseDataAlert['type'], string> = {
   canon_increased:'Incremento de canon', point_closed:'Punto cerrado / depurado', point_reopened:'Punto reactivado',
@@ -13,7 +13,7 @@ const TYPE_ICONS: Record<LeaseDataAlert['type'], string> = {
   not_visited:'event_busy', contract_expiring:'event', new_point:'add_business', sales_inactivity:'trending_down'
 };
 
-export const AlertsScreen: React.FC<AlertsScreenProps> = ({ alerts, leasePoints, onOpenPoint }) => {
+export const AlertsScreen: React.FC<AlertsScreenProps> = ({ alerts, leasePoints }) => {
   const [severity,setSeverity]=useState<'all'|'urgent'|'warning'|'info'>('all');
   const [type,setType]=useState<'all'|LeaseDataAlert['type']>('all');
   const [search,setSearch]=useState('');
