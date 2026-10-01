@@ -352,7 +352,7 @@ export function distributePointsWithAlertPriority(
       auditorId: matchedAuditor.id,
       auditorName: matchedAuditor.name,
       zone: zone as 'Norte' | 'Centro' | 'Sur',
-      notes: `🚨 Prioridad Alerta: ${alertDesc}`,
+      notes: ` Prioridad Alerta: ${alertDesc}`,
       daysWithoutVisit: alertDays,
       alertCategory: (candidate.alertCategory as AlertCategory | undefined) || 'sin_visita_2_3_meses',
       alertDescription: alertDesc,
