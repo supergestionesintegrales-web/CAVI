@@ -503,7 +503,7 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
                           : 'border-[#222a3d]'
                       }`}
                     >
-                      <div className="px-3.5 py-2.5 flex items-center gap-3">
+                      <div className="px-3.5 py-3 grid grid-cols-1 lg:grid-cols-[minmax(250px,1fr)_minmax(360px,1.35fr)_auto] gap-4 items-center">
                         <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
                           lifecycle.status === 'inactive'
                             ? 'bg-[#a855f7]/15 text-[#c084fc]'
@@ -518,7 +518,7 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
                           </span>
                         </div>
 
-                        <div className="min-w-0 flex-1">
+                        <div className="min-w-0 w-full">
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-[#0b1326] text-[#38bdf8] border border-[#2d3449]">
                               {pt.code}
@@ -546,30 +546,30 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
                               </span>
                             )}
                           </div>
-                          <div className="mt-1 flex items-center gap-2">
-                            <h3 className="text-xs sm:text-[13px] font-extrabold text-white truncate">{pt.name}</h3>
+                          <div className="mt-1 flex items-start gap-2">
+                            <h3 className="text-xs sm:text-[13px] font-extrabold text-white leading-snug break-words">{pt.name}</h3>
                             <span className="text-[10px] text-[#64748b] shrink-0">· {status.statusBadgeText}</span>
                           </div>
-                          <div className="mt-1 flex items-center gap-1.5 text-[10px] text-[#94a3b8] truncate">
+                          <div className="mt-1 flex items-start gap-1.5 text-[10px] text-[#94a3b8]">
                             <span className="material-symbols-outlined text-[13px] text-[#38bdf8]">location_on</span>
-                            <span className="truncate">{pt.address} · {pt.neighborhood} · {pt.municipality}</span>
+                            <span className="break-words leading-relaxed">{pt.address} · {pt.neighborhood} · {pt.municipality}</span>
                           </div>
                         </div>
 
-                        <div className="hidden sm:grid grid-cols-4 gap-2.5 shrink-0 text-right min-w-[330px]">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-2 w-full">
                           <div>
                             <span className="block text-[8px] uppercase text-[#64748b]">Canon</span>
-                            <span className="text-[11px] font-bold font-mono text-[#4edea3]">{formatCOP(pt.monthlyRent)}</span>
+                            <span className="text-[11px] font-bold font-mono text-[#4edea3] break-words">{formatCOP(pt.monthlyRent)}</span>
                           </div>
                           <div>
                             <span className="block text-[8px] uppercase text-[#64748b]">Vigencia</span>
-                            <span className={`text-[10px] font-bold ${
+                            <span className={`text-[10px] font-bold leading-snug break-words ${
                               contract.status === 'valid' ? 'text-[#4edea3]' : contract.status === 'expiring_soon' ? 'text-[#ffb95f]' : 'text-[#ffb4ab]'
                             }`}>{contract.label}</span>
                           </div>
                           <div>
                             <span className="block text-[8px] uppercase text-[#64748b]">Última venta</span>
-                            <span className="text-[10px] font-semibold text-white">{sales?.lastSaleDate || 'Sin registro'}</span>
+                            <span className="text-[10px] font-semibold text-white leading-snug break-words">{sales?.lastSaleDate || 'Sin registro'}</span>
                           </div>
                           <div>
                             <span className="block text-[8px] uppercase text-[#64748b]">Días de cuenta</span>
@@ -580,12 +580,12 @@ export const LeaseScreen: React.FC<LeaseScreenProps> = ({
                         <span className="material-symbols-outlined text-[20px] text-[#64748b] group-hover:text-[#38bdf8] shrink-0">chevron_right</span>
                       </div>
 
-                      <div className="px-3.5 py-2 bg-[#0b1326] border-t border-[#222a3d] flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-3 text-[9px] text-[#64748b]">
-                          <span>{pt.landlord.name}</span>
+                      <div className="px-3.5 py-2.5 bg-[#0b1326] border-t border-[#222a3d] grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[9px] text-[#64748b] min-w-0">
+                          <span className="break-words">{pt.landlord.name}</span>
                           <span>·</span>
-                          <span>Contrato {pt.contractNumber || 'N/D'}</span>
-                          {pt.reference && <><span>·</span><span className="truncate max-w-[260px]">{pt.reference}</span></>}
+                          <span className="break-words">Contrato {pt.contractNumber || 'N/D'}</span>
+                          {pt.reference && <><span>·</span><span className="break-words">{pt.reference}</span></>}
                         </div>
                         <a
                           href={mapsUrl}
