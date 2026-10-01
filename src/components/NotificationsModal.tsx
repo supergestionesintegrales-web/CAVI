@@ -27,7 +27,7 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
   const notifications: NotificationItem[] = Array.from(
     new Map(
       alerts.map((a) => [
-        `${a.type}|${a.pointCode || ''}|${a.title}|${a.message}`,
+        `${a.type}|${a.code || ''}|${a.title}|${a.message}`,
         {
           id: a.id,
           time: new Date(a.createdAt).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }),
