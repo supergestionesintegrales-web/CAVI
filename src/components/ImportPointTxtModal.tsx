@@ -166,7 +166,7 @@ export const ImportPointTxtModal: React.FC<ImportPointTxtModalProps> = ({
         {/* MODAL HEADER */}
         <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#0088ff] text-slate-900 flex items-center justify-center shadow-lg shadow-[#0088ff]/30">
+            <div className="w-10 h-10 rounded-xl bg-[#0088ff] text-white flex items-center justify-center shadow-lg shadow-[#0088ff]/30">
               <span className="material-symbols-outlined text-[22px]">upload_file</span>
             </div>
             <div>
