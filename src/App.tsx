@@ -821,7 +821,7 @@ export default function App() {
         )}
 
         {activeTab === 'alertas' && (
-          <AlertsScreen alerts={dataAlerts} leasePoints={leasePoints} />
+          <AlertsScreen alerts={dataAlerts} leasePoints={leasePoints} theme={theme} />
         )}
       </main>
 
