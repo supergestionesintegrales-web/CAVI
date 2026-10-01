@@ -10,7 +10,6 @@ interface AlertPointsAssignmentPoolProps {
   onAutoAssignAll: () => void;
   onDeletePoint?: (id: string) => void;
   onOpenAddModal: () => void;
-  onReloadSampleAlertPoints?: () => void;
   onShowToast: (title: string, message: string, type?: 'info' | 'success' | 'alert') => void;
   userRole?: string;
   onReassignStepDay?: (stepId: string, day: RouteStep['day'], auditorId?: string) => void;
@@ -44,7 +43,6 @@ export const AlertPointsAssignmentPool: React.FC<AlertPointsAssignmentPoolProps>
   onAutoAssignAll,
   onDeletePoint,
   onOpenAddModal,
-  onReloadSampleAlertPoints,
   onShowToast,
   userRole = 'administrador',
   onReassignStepDay,
@@ -298,17 +296,7 @@ export const AlertPointsAssignmentPool: React.FC<AlertPointsAssignmentPoolProps>
                 <span>+ Agregar Alerta</span>
               </button>
 
-              {onReloadSampleAlertPoints && floatingPoints.length === 0 && (
-                <button
-                  type="button"
-                  onClick={onReloadSampleAlertPoints}
-                  className="px-3 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#131b2e] dark:hover:bg-[#1e293b] text-[#0088ff] dark:text-[#38bdf8] text-xs font-bold border border-slate-300 dark:border-[#38bdf8]/40 flex items-center gap-1.5 transition-all cursor-pointer"
-                  title="Recargar datos de prueba de La Guajira"
-                >
-                  <span className="material-symbols-outlined text-[17px]">replay</span>
-                  <span>Recargar Alertas</span>
-                </button>
-              )}
+}
             </div>
           )}
         </div>
