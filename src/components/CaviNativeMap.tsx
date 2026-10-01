@@ -94,7 +94,8 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
   const [selectedMunicipality, setSelectedMunicipality] = useState<string>('todos');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPoint, setSelectedPoint] = useState<CaviPoint | null>(null);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(true);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [showLegend, setShowLegend] = useState(true);
 
   // Route & Navigation state
@@ -844,234 +845,148 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
           </div>
         </div>
 
-        {/* MAP CONTROLS, TXT IMPORT & GUIDED DISPLACEMENT TRIGGER */}
-        <div className="flex items-center gap-2 flex-wrap">
-          {/* UPLOAD .TXT / KML BUTTON (PRIMARY NEW FEATURE) */}
-          <button
-            type="button"
-            onClick={() => setIsImportModalOpen(true)}
-            className="px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm active:scale-95 cursor-pointer"
-            title="Cargar nuevo archivo .txt o KML con puntos de atención"
-          >
-            <span className="material-symbols-outlined text-[17px] text-[#38bdf8]">upload_file</span>
-            <span>Cargar .txt</span>
-          </button>
-
-          {/* Guided Mode Trigger Button */}
+        {/* MAP CONTROLS: SOLO DESPLAZAMIENTO + CONFIGURACIÓN */}
+        <div className="flex items-center gap-1.5 shrink-0">
           <button
             type="button"
             onClick={handleToggleSimulation}
             disabled={routeWaypoints.length < 2}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-md active:scale-95 cursor-pointer ${
+            className={`px-2.5 py-1.5 rounded-lg text-[11px] font-bold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer ${
               isGuidedModeActive && isSimulationPlaying
-                ? 'bg-[#f59e0b] hover:bg-[#d97706] text-slate-900 shadow-[#f59e0b]/30'
+                ? 'bg-amber-500 hover:bg-amber-600 text-white'
                 : isGuidedModeActive
-                ? 'bg-[#10b981] hover:bg-[#059669] text-white shadow-[#10b981]/30'
-                : 'bg-[#0088ff] hover:bg-[#0070d8] text-white shadow-[#0088ff]/30'
+                ? 'bg-emerald-500 hover:bg-emerald-600 text-white'
+                : 'bg-[#0088ff] hover:bg-[#0070d8] text-white'
             } ${routeWaypoints.length < 2 ? 'opacity-50 cursor-not-allowed' : ''}`}
-            title="Iniciar desplazamiento y navegación guiada paso a paso"
+            title="Iniciar desplazamiento y navegación guiada"
           >
-            <span className="material-symbols-outlined text-[17px]">
+            <span className="material-symbols-outlined text-[16px]">
               {isGuidedModeActive && isSimulationPlaying ? 'pause_circle' : 'navigation'}
             </span>
-            <span>
+            <span className="hidden sm:inline">
               {isGuidedModeActive && isSimulationPlaying
-                ? 'Pausar Guía'
+                ? 'Pausar'
                 : isGuidedModeActive
-                ? 'Reanudar Guía'
-                : 'Desplazamiento Guiado'}
+                ? 'Reanudar'
+                : 'Desplazamiento'}
             </span>
           </button>
 
-          {/* Layer Style Switcher */}
-          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
-            <button
-              type="button"
-              onClick={() => setMapStyle('streets')}
-              className={`px-2 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
-                mapStyle === 'streets' ? 'bg-[#0088ff] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
-              }`}
-              title="Mapa Claro Vial de alta definición"
-            >
-              Claro (Vial)
-            </button>
-            <button
-              type="button"
-              onClick={() => setMapStyle('light')}
-              className={`px-2 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
-                mapStyle === 'light' ? 'bg-[#0088ff] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
-              }`}
-              title="Mapa Claro Positron"
-            >
-              Positron
-            </button>
-            <button
-              type="button"
-              onClick={() => setMapStyle('satellite')}
-              className={`px-2 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
-                mapStyle === 'satellite' ? 'bg-[#0088ff] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
-              }`}
-              title="Vista Satelital"
-            >
-              Satelital
-            </button>
-          </div>
-
-          {/* Toggle Sidebar Drawer */}
           <button
             type="button"
-            onClick={() => setIsDrawerOpen(!isDrawerOpen)}
-            className={`p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer ${
-              isDrawerOpen
-                ? 'bg-blue-50 border-blue-300 text-blue-700'
-                : 'bg-[#131b2e] border-slate-200 text-slate-600 hover:text-slate-900'
+            onClick={() => setIsSettingsOpen((open) => !open)}
+            className={`w-8 h-8 rounded-lg border flex items-center justify-center transition-all cursor-pointer ${
+              isSettingsOpen
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-slate-900'
             }`}
-            title="Panel de paradas y diseño de ruta"
+            title="Configuración del mapa"
+            aria-label="Configuración del mapa"
           >
-            <span className="material-symbols-outlined text-[16px]">alt_route</span>
-            <span className="hidden sm:inline">Ruta ({routeWaypoints.length})</span>
+            <span className="material-symbols-outlined text-[18px]">settings</span>
           </button>
-
-          {/* Fit All PDV Bounds */}
-          <button
-            type="button"
-            onClick={handleFitPointBounds}
-            className="p-1.5 rounded-xl bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 transition-colors cursor-pointer"
-            title="Mostrar todos los puntos de venta en el mapa"
-          >
-            <span className="material-symbols-outlined text-[16px]">location_on</span>
-          </button>
-
-          {/* Fit Route Bounds */}
-          <button
-            type="button"
-            onClick={handleFitRouteBounds}
-            className="p-1.5 rounded-xl bg-[#1e293b] hover:bg-[#2d3a58] text-slate-600 hover:text-slate-900 border border-[#3b4760] transition-colors cursor-pointer"
-            title="Centrar mapa en la ruta"
-          >
-            <span className="material-symbols-outlined text-[16px]">filter_center_focus</span>
-          </button>
-
-          {/* Expand in Large Mode Button */}
-          {onToggleExpandLarge && (
-            <button
-              type="button"
-              onClick={onToggleExpandLarge}
-              className={`p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
-                isExpandedLarge
-                  ? 'bg-[#0088ff] text-white border-[#38bdf8] shadow-md shadow-[#0088ff]/40'
-                  : 'bg-[#1e293b] hover:bg-[#2d3a58] text-slate-600 hover:text-slate-900 border-[#3b4760]'
-              }`}
-              title={isExpandedLarge ? 'Reducir a vista dividida' : 'Ampliar mapa en grande'}
-            >
-              <span className="material-symbols-outlined text-[16px]">
-                {isExpandedLarge ? 'close_fullscreen' : 'open_in_full'}
-              </span>
-              <span className="hidden sm:inline">
-                {isExpandedLarge ? 'Reducir' : 'Ampliar en Grande'}
-              </span>
-            </button>
-          )}
-
-          {/* Fullscreen Button */}
-          {showFullscreenButton && (
-            <button
-              type="button"
-              onClick={() => setIsFullscreen(!isFullscreen)}
-              className="p-1.5 rounded-xl bg-[#1e293b] hover:bg-[#2d3a58] text-slate-600 hover:text-slate-900 border border-[#3b4760] transition-colors cursor-pointer"
-              title={isFullscreen ? 'Salir de pantalla completa' : 'Pantalla completa'}
-            >
-              <span className="material-symbols-outlined text-[16px]">
-                {isFullscreen ? 'fullscreen_exit' : 'fullscreen'}
-              </span>
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* FILTER & SEARCH SUBBAR */}
-      <div className="px-3 py-2 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2 z-10 shrink-0 text-xs">
-        <div className="flex items-center gap-2 flex-wrap flex-1 min-w-0">
-          {/* Quick Search */}
-          <div className="relative min-w-[160px] max-w-xs flex-1">
-            <span className="material-symbols-outlined text-[15px] text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none">
-              search
-            </span>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Buscar PDV, centro de costo o código..."
-              className="w-full bg-white text-slate-800 text-xs pl-8 pr-2.5 py-1.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#0088ff]"
-            />
-          </div>
-
-          {/* Region selector */}
-          <select
-            value={filterRegion}
-            onChange={(e) => setFilterRegion(e.target.value as any)}
-            className="bg-white text-slate-800 text-xs px-2.5 py-1.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#0088ff] cursor-pointer"
-          >
-            <option value="Todas">Toda La Guajira ({allAvailablePoints.length})</option>
-            <option value="Norte">Regional Norte (Maicao/Uribia/Albania)</option>
-            <option value="Centro">Regional Centro (Riohacha/Dibulla/Manaure)</option>
-            <option value="Sur">Regional Sur (Villanueva/Fonseca/San Juan/Barrancas)</option>
-            <option value="Bancario">Corresponsalías Bancarias</option>
-          </select>
-
-          {/* Channel selector */}
-          <select
-            value={filterChannel}
-            onChange={(e) => setFilterChannel(e.target.value)}
-            className="bg-white text-slate-800 text-xs px-2.5 py-1.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#0088ff] cursor-pointer"
-          >
-            <option value="todos">Todos los Canales ({filteredPoints.length})</option>
-            <option value="CDA">🔵 CDA · Acopio ({typeCounts.CDA})</option>
-            <option value="PF">🟠 PF · Punto Fijo ({typeCounts.PF})</option>
-            <option value="CM">🔴 CM · Tradicional/Tienda ({typeCounts.CM})</option>
-            <option value="Bancario">🟢 Bancario · Corresponsal ({typeCounts.Bancario})</option>
-            {typeCounts.ETC > 0 && <option value="ETC">🟣 ETC · Otros ({typeCounts.ETC})</option>}
-          </select>
-
-          {/* Municipality selector */}
-          <select
-            value={selectedMunicipality}
-            onChange={(e) => setSelectedMunicipality(e.target.value)}
-            className="bg-white text-slate-800 text-xs px-2.5 py-1.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#0088ff] cursor-pointer"
-          >
-            <option value="todos">15 Municipios</option>
-            {MUNICIPALITIES_GUAJIRA.map((m) => (
-              <option key={m} value={m}>
-                {m}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Action shortcuts */}
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handleSetCurrentGpsAsStart}
-            className="text-[#38bdf8] hover:text-white text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-colors"
-            title="Usar mi posición GPS como salida de la ruta"
-          >
-            <span className="material-symbols-outlined text-[14px]">my_location</span>
-            <span>Salir desde mi GPS</span>
-          </button>
-          <button
-            type="button"
-            onClick={handleFitGuajiraBounds}
-            className="text-slate-600 hover:text-slate-900 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-colors"
-          >
-            <span className="material-symbols-outlined text-[14px]">public</span>
-            <span>Vista Guajira</span>
-          </button>
-        </div>
-      </div>
+        </div>      </div>
 
       {/* MAIN VIEWPORT: MAP CANVAS + ROUTE & GUIDED NAVIGATION OVERLAYS */}
       <div className="flex-1 min-h-0 relative flex overflow-hidden">
+        {/* MAP SETTINGS DRAWER */}
+        {isSettingsOpen && (
+          <div className="absolute top-2 right-2 z-40 w-[min(92vw,330px)] max-h-[calc(100%-16px)] overflow-y-auto bg-white/98 backdrop-blur-md border border-slate-200 rounded-xl shadow-2xl p-2.5">
+            <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-200">
+              <div>
+                <h3 className="text-xs font-extrabold text-slate-900">Configuración del mapa</h3>
+                <p className="text-[9px] text-slate-500">Herramientas y visualización CAVIMAPS</p>
+              </div>
+              <button type="button" onClick={() => setIsSettingsOpen(false)} className="w-6 h-6 rounded-md hover:bg-slate-100 text-slate-500 flex items-center justify-center cursor-pointer">
+                <span className="material-symbols-outlined text-[16px]">close</span>
+              </button>
+            </div>
+
+            <div className="space-y-2">
+              {/* Búsqueda y filtros */}
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-2">
+                <div className="text-[10px] font-extrabold text-slate-700 mb-1.5 flex items-center gap-1">
+                  <span className="material-symbols-outlined text-[14px] text-blue-600">filter_alt</span>
+                  Buscar y filtrar PDV
+                </div>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="PDV, código, centro de costo..."
+                  className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-[11px] text-slate-800 outline-none focus:ring-1 focus:ring-blue-500"
+                />
+                <div className="grid grid-cols-1 gap-1.5 mt-1.5">
+                  <select value={filterRegion} onChange={(e) => setFilterRegion(e.target.value as any)} className="w-full px-2 py-1.5 rounded-lg border border-slate-200 bg-white text-[11px] text-slate-700 cursor-pointer">
+                    <option value="Todas">Toda La Guajira ({allAvailablePoints.length})</option>
+                    <option value="Norte">Regional Norte</option>
+                    <option value="Centro">Regional Centro</option>
+                    <option value="Sur">Regional Sur</option>
+                    <option value="Bancario">Corresponsalías Bancarias</option>
+                  </select>
+                  <select value={filterChannel} onChange={(e) => setFilterChannel(e.target.value)} className="w-full px-2 py-1.5 rounded-lg border border-slate-200 bg-white text-[11px] text-slate-700 cursor-pointer">
+                    <option value="todos">Todos los canales ({filteredPoints.length})</option>
+                    <option value="CDA">CDA · Acopio ({typeCounts.CDA})</option>
+                    <option value="PF">PF · Punto Fijo ({typeCounts.PF})</option>
+                    <option value="CM">CM · Tradicional/Tienda ({typeCounts.CM})</option>
+                    <option value="Bancario">Bancario · Corresponsal ({typeCounts.Bancario})</option>
+                    {typeCounts.ETC > 0 && <option value="ETC">ETC · Otros ({typeCounts.ETC})</option>}
+                  </select>
+                  <select value={selectedMunicipality} onChange={(e) => setSelectedMunicipality(e.target.value)} className="w-full px-2 py-1.5 rounded-lg border border-slate-200 bg-white text-[11px] text-slate-700 cursor-pointer">
+                    <option value="todos">Todos los municipios</option>
+                    {MUNICIPALITIES_GUAJIRA.map((m) => <option key={m} value={m}>{m}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              {/* Capas */}
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-2">
+                <div className="text-[10px] font-extrabold text-slate-700 mb-1.5">Vista del mapa</div>
+                <div className="grid grid-cols-3 gap-1">
+                  {[
+                    {key:'streets' as const,label:'Vial',icon:'map'},
+                    {key:'light' as const,label:'Positron',icon:'layers'},
+                    {key:'satellite' as const,label:'Satélite',icon:'satellite'},
+                  ].map((style) => (
+                    <button key={style.key} type="button" onClick={() => setMapStyle(style.key)} className={`px-1.5 py-1.5 rounded-lg border text-[10px] font-bold flex flex-col items-center gap-0.5 cursor-pointer ${mapStyle === style.key ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'}`}>
+                      <span className="material-symbols-outlined text-[14px]">{style.icon}</span>{style.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Herramientas */}
+              <div className="grid grid-cols-2 gap-1.5">
+                <button type="button" onClick={handleSetCurrentGpsAsStart} className="p-2 rounded-lg border border-slate-200 bg-white hover:bg-blue-50 text-slate-700 text-[10px] font-bold flex items-center gap-1.5 cursor-pointer">
+                  <span className="material-symbols-outlined text-[15px] text-blue-600">my_location</span> Mi GPS
+                </button>
+                <button type="button" onClick={handleFitGuajiraBounds} className="p-2 rounded-lg border border-slate-200 bg-white hover:bg-blue-50 text-slate-700 text-[10px] font-bold flex items-center gap-1.5 cursor-pointer">
+                  <span className="material-symbols-outlined text-[15px] text-blue-600">public</span> La Guajira
+                </button>
+                <button type="button" onClick={handleFitPointBounds} className="p-2 rounded-lg border border-slate-200 bg-white hover:bg-blue-50 text-slate-700 text-[10px] font-bold flex items-center gap-1.5 cursor-pointer">
+                  <span className="material-symbols-outlined text-[15px] text-blue-600">location_on</span> Todos los PDV
+                </button>
+                <button type="button" onClick={handleFitRouteBounds} className="p-2 rounded-lg border border-slate-200 bg-white hover:bg-blue-50 text-slate-700 text-[10px] font-bold flex items-center gap-1.5 cursor-pointer">
+                  <span className="material-symbols-outlined text-[15px] text-blue-600">route</span> Enfocar ruta
+                </button>
+                <button type="button" onClick={() => setIsDrawerOpen((open) => !open)} className="p-2 rounded-lg border border-slate-200 bg-white hover:bg-blue-50 text-slate-700 text-[10px] font-bold flex items-center gap-1.5 cursor-pointer">
+                  <span className="material-symbols-outlined text-[15px] text-blue-600">alt_route</span> Ruta ({routeWaypoints.length})
+                </button>
+                <button type="button" onClick={() => setShowLegend((v) => !v)} className="p-2 rounded-lg border border-slate-200 bg-white hover:bg-blue-50 text-slate-700 text-[10px] font-bold flex items-center gap-1.5 cursor-pointer">
+                  <span className="material-symbols-outlined text-[15px] text-blue-600">category</span> Leyenda
+                </button>
+                <button type="button" onClick={() => setIsImportModalOpen(true)} className="p-2 rounded-lg border border-slate-200 bg-white hover:bg-blue-50 text-slate-700 text-[10px] font-bold flex items-center gap-1.5 cursor-pointer">
+                  <span className="material-symbols-outlined text-[15px] text-blue-600">upload_file</span> Cargar .txt
+                </button>
+                <button type="button" onClick={() => setIsFullscreen((v) => !v)} className="p-2 rounded-lg border border-slate-200 bg-white hover:bg-blue-50 text-slate-700 text-[10px] font-bold flex items-center gap-1.5 cursor-pointer">
+                  <span className="material-symbols-outlined text-[15px] text-blue-600">{isFullscreen ? 'fullscreen_exit' : 'fullscreen'}</span>
+                  {isFullscreen ? 'Salir pantalla completa' : 'Pantalla completa'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* LEAFLET CONTAINER */}
         <div ref={mapContainerRef} className="w-full h-full relative z-0 bg-[#060e20]" />
 
