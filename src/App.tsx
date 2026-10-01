@@ -385,47 +385,22 @@ export default function App() {
     }
   }, [userRole, activeTab]);
 
-  // Visual Theme state ('dark' | 'light')
-  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
-    try {
-      const saved = localStorage.getItem('cavi_theme');
-      return saved === 'light' ? 'light' : 'dark';
-    } catch {
-      return 'dark';
-    }
-  });
+  // CAVI opera exclusivamente en modo claro.
+  const theme = 'light' as const;
 
   useEffect(() => {
     try {
-      document.documentElement.setAttribute('data-theme', theme);
-      if (theme === 'light') {
-        document.documentElement.classList.add('theme-light', 'light');
-        document.documentElement.classList.remove('dark');
-        document.body.classList.add('theme-light', 'light');
-        document.body.classList.remove('dark');
-      } else {
-        document.documentElement.classList.remove('theme-light', 'light');
-        document.documentElement.classList.add('dark');
-        document.body.classList.remove('theme-light', 'light');
-        document.body.classList.add('dark');
-      }
-      localStorage.setItem('cavi_theme', theme);
+      document.documentElement.setAttribute('data-theme', 'light');
+      document.documentElement.classList.add('theme-light', 'light');
+      document.documentElement.classList.remove('dark');
+      document.body.setAttribute('data-theme', 'light');
+      document.body.classList.add('theme-light', 'light');
+      document.body.classList.remove('dark');
+      localStorage.removeItem('cavi_theme');
     } catch {
       // ignore storage errors
     }
-  }, [theme]);
-
-  const handleToggleTheme = () => {
-    const nextTheme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(nextTheme);
-    showToast(
-      nextTheme === 'light' ? 'Modo Claro Activado' : 'Modo Oscuro Activado',
-      nextTheme === 'light'
-        ? 'Interfaz diurna optimizada: fondos blancos/claros y tipografía de alto contraste.'
-        : 'Modo nocturno táctico reactivado para trabajo en campo.',
-      'info'
-    );
-  };
+  }, []);
 
   // Lease management handlers
   const handleAddLeasePoint = (point: LeasePoint) => {
@@ -874,7 +849,6 @@ export default function App() {
         onSelectAuditor={setActiveAuditorId}
         auditors={liveAuditors}
         theme={theme}
-        onToggleTheme={handleToggleTheme}
       />
 
       {/* Main Screen Content with Padding for Header and Mobile Bottom Nav */}
@@ -993,7 +967,6 @@ export default function App() {
         isOpen={isProfileOpen}
         onClose={() => setIsProfileOpen(false)}
         theme={theme}
-        onToggleTheme={handleToggleTheme}
         onShowToast={showToast}
         userRole={userRole}
         onSelectRole={handleSelectRole}
