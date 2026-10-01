@@ -290,7 +290,7 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           )}
 
-          {/* Notification Icon Button */}
+          {/* Notification Button */}
           <button
             onClick={onOpenNotifications}
             aria-label="Notificaciones"
