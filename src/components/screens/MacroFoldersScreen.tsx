@@ -580,7 +580,7 @@ FORMATOS COMPATIBLES:
             <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto flex-wrap">
               <span className="text-xs text-[#bbcabf]">Tema activo:</span>
               <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-[#171f33] border border-[#222a3d] text-[#dae2fd]">
-                {theme === 'dark' ? '🌙 Modo Oscuro (Nocturno Táctico)' : '☀️ Modo Claro (Diurno / Vial)'}
+                {theme === 'dark' ? ' Modo Oscuro (Nocturno Táctico)' : ' Modo Claro (Diurno / Vial)'}
               </span>
             </div>
           </div>
@@ -941,7 +941,7 @@ FORMATOS COMPATIBLES:
                       </span>
                     </div>
                     <p className="text-xs font-bold text-[#dae2fd] mt-2 truncate">{mf.label}</p>
-                    <p className="text-[10px] text-[#bbcabf] truncate font-mono">📁 /{mf.name}</p>
+                    <p className="text-[10px] text-[#bbcabf] truncate font-mono"> /{mf.name}</p>
                   </button>
                 );
               })}
@@ -1108,7 +1108,7 @@ FORMATOS COMPATIBLES:
                                 {file.name}
                               </h4>
                               <p className="text-[11px] text-[#bbcabf] font-mono truncate">
-                                📁 {file.path}
+                                 {file.path}
                               </p>
                             </div>
                           </div>
@@ -1465,7 +1465,7 @@ FORMATOS COMPATIBLES:
                         <div className="min-w-0">
                           <p className="text-xs font-bold text-[#dae2fd] truncate">{chk.pointName}</p>
                           <p className="text-[10px] text-[#bbcabf] truncate">
-                            📍 {chk.municipio} • {chk.type} • {chk.auditor}
+                             {chk.municipio} • {chk.type} • {chk.auditor}
                           </p>
                         </div>
                       </div>
