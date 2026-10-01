@@ -328,22 +328,22 @@ export const GpsTerritoryModal: React.FC<GpsTerritoryModalProps> = ({
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-2 sm:p-4 overflow-y-auto"
+      className="fixed inset-0 z-[100000] flex items-start justify-center bg-black/85 backdrop-blur-md px-2 sm:px-4 pt-[76px] pb-3 sm:pt-20 sm:pb-4 overflow-y-auto"
     >
-      <div className="bg-[#0b1326] text-white w-full max-w-7xl h-[94vh] rounded-3xl overflow-hidden shadow-2xl flex flex-col border border-[#222a3d] animate-in fade-in zoom-in-95 duration-200">
+      <div className="bg-white text-slate-900 w-full max-w-7xl h-[calc(100vh-92px)] max-h-[calc(100vh-92px)] rounded-3xl overflow-hidden shadow-2xl flex flex-col border border-[#222a3d] animate-in fade-in zoom-in-95 duration-200">
         
-        {/* MODAL HEADER: 100% PURE CRISP WHITE TEXT */}
-        <div className="bg-[#131b2e] px-4 sm:px-6 py-3.5 border-b border-[#222a3d] flex items-center justify-between gap-3 shrink-0">
+        {/* MODAL HEADER */}
+        <div className="bg-white px-4 sm:px-6 py-3.5 border-b border-[#222a3d] flex items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-10 h-10 rounded-2xl bg-[#0088ff]/20 flex items-center justify-center text-[#0088ff] shrink-0 border border-[#0088ff]/30 shadow-sm">
               <span className="material-symbols-outlined text-[24px]">satellite_alt</span>
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-base sm:text-lg font-headline font-bold text-white tracking-wide" style={{ color: '#ffffff' }}>
+                <h1 className="text-base sm:text-lg font-headline font-bold text-[#0047AB] tracking-wide>
                   CAVIMAPS · Red Departamental La Guajira
                 </h1>
-                <span className="px-2.5 py-0.5 rounded-full bg-[#1e293b] text-white text-[11px] font-bold border border-[#3b4760]" style={{ color: '#ffffff' }}>
+                <span className="px-2.5 py-0.5 rounded-full bg-[#eaf4ff] text-[#0047AB] text-[11px] font-bold border border-[#bfdbfe]" style={{ color: '#ffffff' }}>
                   15 Municipios Monitoreados
                 </span>
                 <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-[#064e3b] text-[#6ee7b7] text-[10px] font-bold">
@@ -351,7 +351,7 @@ export const GpsTerritoryModal: React.FC<GpsTerritoryModalProps> = ({
                   <span>Sincronización CAVIMAPS en Vivo</span>
                 </span>
               </div>
-              <p className="text-xs text-[#cbd5e1] truncate mt-0.5 font-medium">
+              <p className="text-xs text-slate-600 truncate mt-0.5 font-medium">
                 Visualización satelital a escala completa · {steps.length} paradas asignadas · {floatingPoints.length} puntos flotantes
               </p>
             </div>
@@ -381,7 +381,7 @@ export const GpsTerritoryModal: React.FC<GpsTerritoryModalProps> = ({
             <button
               type="button"
               onClick={downloadRoutesTemplate}
-              className="p-2 rounded-xl bg-[#1e293b] hover:bg-[#2d3a58] text-[#cbd5e1] hover:text-white transition-colors cursor-pointer border border-[#3b4760] hidden md:flex items-center gap-1 text-xs font-medium"
+              className="p-2 rounded-xl bg-[#f1f5f9] hover:bg-[#e2e8f0] text-slate-700 hover:text-[#0047AB] transition-colors cursor-pointer border border-[#3b4760] hidden md:flex items-center gap-1 text-xs font-medium"
               title="Descargar formato modelo Excel con columnas de CAVIMAPS y Canales"
             >
               <span className="material-symbols-outlined text-[16px] text-[#38bdf8]">download</span>
