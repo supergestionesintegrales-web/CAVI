@@ -1389,3 +1389,178 @@ html:not([data-theme="light"]):not(.theme-light):not(.light) .day-matrix-badge {
   color: #e2e8f0 !important;
 }
 
+
+
+/* ==========================================================================
+   CAVI RESPONSIVE SYSTEM
+   Regla global: adaptar contenido al espacio disponible sin cortar ni superponer.
+   ========================================================================== */
+
+html {
+  width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+body {
+  width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+#root {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+.cavi-app-shell,
+.cavi-app-shell * {
+  box-sizing: border-box;
+}
+
+.cavi-app-shell * {
+  min-width: 0;
+}
+
+.cavi-app-shell img,
+.cavi-app-shell svg,
+.cavi-app-shell video,
+.cavi-app-shell canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+.cavi-app-shell h1,
+.cavi-app-shell h2,
+.cavi-app-shell h3,
+.cavi-app-shell h4,
+.cavi-app-shell h5,
+.cavi-app-shell h6,
+.cavi-app-shell p,
+.cavi-app-shell span,
+.cavi-app-shell label,
+.cavi-app-shell a,
+.cavi-app-shell td,
+.cavi-app-shell th {
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.cavi-app-shell input,
+.cavi-app-shell select,
+.cavi-app-shell textarea,
+.cavi-app-shell button {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.cavi-app-shell textarea {
+  resize: vertical;
+}
+
+.cavi-app-shell table {
+  width: 100%;
+}
+
+.cavi-app-shell [class*="overflow-hidden"] {
+  min-width: 0;
+}
+
+/* Los elementos que contienen listas de datos pueden desplazarse horizontalmente
+   cuando una tabla realmente necesita más ancho; nunca se comprime hasta ocultar datos. */
+.cavi-data-scroll {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+}
+
+.cavi-data-scroll > table {
+  min-width: 680px;
+}
+
+/* Evita que filas flex/grid provoquen desbordamiento por contenido largo. */
+.cavi-app-shell .flex > *,
+.cavi-app-shell .grid > * {
+  min-width: 0;
+}
+
+/* Botones con texto largo: crecen verticalmente antes de desbordarse. */
+.cavi-app-shell button,
+.cavi-app-shell a {
+  white-space: normal;
+}
+
+/* Campos: nunca deben salir del viewport. */
+.cavi-app-shell input,
+.cavi-app-shell select,
+.cavi-app-shell textarea {
+  width: 100%;
+}
+
+/* En pantallas pequeñas, los bloques horizontales pasan a composición vertical.
+   No se aplica a elementos explícitamente marcados como no apilables. */
+@media (max-width: 767px) {
+  .cavi-app-shell {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .cavi-app-shell .responsive-hide-mobile {
+    display: none !important;
+  }
+
+  .cavi-app-shell .responsive-stack-mobile {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .cavi-app-shell .responsive-grid-mobile {
+    grid-template-columns: 1fr !important;
+  }
+
+  .cavi-app-shell .responsive-full-mobile {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .cavi-app-shell [class*="grid-cols-4"],
+  .cavi-app-shell [class*="grid-cols-5"],
+  .cavi-app-shell [class*="grid-cols-6"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .cavi-app-shell [class*="grid-cols-4"],
+  .cavi-app-shell [class*="grid-cols-5"],
+  .cavi-app-shell [class*="grid-cols-6"] {
+    grid-template-columns: 1fr;
+  }
+
+  .cavi-app-shell .px-8 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .cavi-app-shell .px-6 {
+    padding-left: 0.875rem;
+    padding-right: 0.875rem;
+  }
+}
+
+/* Desktop intermedio: evitar que paneles densos compitan por el mismo espacio. */
+@media (min-width: 768px) and (max-width: 1199px) {
+  .cavi-app-shell {
+    max-width: 100%;
+  }
+
+  .cavi-app-shell [class*="grid-cols-4"],
+  .cavi-app-shell [class*="grid-cols-5"],
+  .cavi-app-shell [class*="grid-cols-6"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
