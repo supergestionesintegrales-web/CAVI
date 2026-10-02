@@ -3,6 +3,7 @@ import { styleWorksheet } from './excelFormatting';
 import { RouteStep, FormatType, Auditor, AlertCategory } from '../types';
 import { distributePointsWithAlertPriority, PointCandidate, guessZoneFromLocation } from './pointAssignment';
 import { parsePointsFromText } from './kmlTxtParser';
+import { resolvePdvZone } from '../data/zoneAssignments';
 
 /**
  * Downloads a clean, formatted Excel template for uploading real route stops.
@@ -88,22 +89,24 @@ export async function parseRoutesFile(file: File, auditors: Auditor[]): Promise<
     if (points.length === 0) return [];
 
     const candidates: PointCandidate[] = points.map((p, idx) => {
-      let format: FormatType = 'CM';
-      if (p.channel === 'CDA') format = 'CDA';
-      else if (p.channel === 'PF') format = 'PF';
+      const isCda = p.channel === 'CDA' || /cda/i.test(p.channel || '') || /cda/i.test(p.costCenter || '') || /cda/i.test(p.name) || /cda/i.test(p.category || '');
+      const isPf = p.channel === 'PF' || /pf/i.test(p.channel || '') || /fijo/i.test(p.channel || '');
+      const format: FormatType = isCda ? 'CDA' : isPf ? 'PF' : 'CM';
+      const zone = resolvePdvZone(p);
 
       return {
         code: p.codePdv || `PDV-${idx + 1}`,
         name: p.name,
-        channel: p.channel || 'Tradicional',
+        channel: isCda ? 'CDA' : p.channel || 'Tradicional',
         format,
+        zone,
         address: p.address || p.name,
-        municipality: p.municipality,
+        municipality: p.municipality || 'Riohacha',
         lat: p.lat,
         lng: p.lng,
         hasGps: true,
         daysWithoutVisit: 0,
-        notes: `Punto cargado desde ${file.name}`,
+        notes: p.costCenter ? `CCOSTO: ${p.costCenter}` : `Punto cargado desde ${file.name}`,
       };
     });
 

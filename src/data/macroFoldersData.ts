@@ -1,5 +1,6 @@
 import * as XLSX from 'xlsx';
 import { MacroFile, MacroFolderDefinition, RouteStep } from '../types';
+import { parsePointsFromText } from '../utils/kmlTxtParser';
 
 export const MACRO_FOLDERS_DEFINITIONS: MacroFolderDefinition[] = [
   {
@@ -717,6 +718,42 @@ export async function parseUploadedDirectoryFiles(
       macroFile.summary = `Documento de texto Word con acta formal de auditoría o informe ejecutivo.`;
       if (macroFile.extractedMeta) {
         macroFile.extractedMeta.pageCount = Math.max(1, Math.round(file.size / 50000));
+      }
+    } else if (['txt', 'kml', 'xml'].includes(extension)) {
+      try {
+        const textContent = await file.text();
+        const parseResult = parsePointsFromText(textContent, file.name);
+        if (parseResult.points.length > 0) {
+          const columns = ['Codigo PDV', 'Nombre Establecimiento', 'Canal', 'Municipio', 'Direccion', 'Latitud', 'Longitud'];
+          const rows = parseResult.points.map((p) => [
+            p.codePdv,
+            p.name,
+            p.channel,
+            p.municipality,
+            p.address,
+            p.lat,
+            p.lng,
+          ]);
+          macroFile.sheets = [
+            {
+              name: 'Puntos_TXT_KML',
+              rowCount: rows.length,
+              columns,
+              data: rows,
+            },
+          ];
+          macroFile.summary = `Reporte TXT/KML con ${parseResult.points.length} puntos georreferenciados para rutas y conciliación.`;
+          if (macroFile.extractedMeta) {
+            macroFile.extractedMeta.recordsCount = parseResult.points.length;
+            macroFile.extractedMeta.tablesCount = 1;
+            macroFile.extractedMeta.kpis = {
+              'Puntos GPS': parseResult.points.length,
+              'Formato': extension.toUpperCase(),
+            };
+          }
+        }
+      } catch (err) {
+        console.error('Error parseando archivo TXT/KML:', err);
       }
     }
 

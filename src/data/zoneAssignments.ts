@@ -15,11 +15,22 @@ export const ZONE_ASSIGNMENTS: Record<CaviZone, ZoneAssignment> = {
 };
 
 const MUNICIPALITY_ZONE: Record<string, CaviZone> = {
-  riohacha: 'Norte', manaure: 'Norte', uribia: 'Norte', dibulla: 'Norte',
-  maicao: 'Centro', albania: 'Centro', hatonuevo: 'Centro', barrancas: 'Centro',
-  distraccion: 'Centro', 'san juan del cesar': 'Sur', fonseca: 'Sur',
-  villanueva: 'Sur', 'el molino': 'Sur', urumita: 'Sur',
-  'la jagua del pilar': 'Sur', 'la jagua': 'Sur',
+  riohacha: 'Centro',
+  maicao: 'Centro',
+  albania: 'Centro',
+  hatonuevo: 'Centro',
+  barrancas: 'Centro',
+  distraccion: 'Centro',
+  manaure: 'Norte',
+  uribia: 'Norte',
+  dibulla: 'Norte',
+  'san juan del cesar': 'Sur',
+  fonseca: 'Sur',
+  villanueva: 'Sur',
+  'el molino': 'Sur',
+  urumita: 'Sur',
+  'la jagua del pilar': 'Sur',
+  'la jagua': 'Sur',
 };
 
 function normalize(value: string): string {
@@ -37,11 +48,25 @@ export function resolvePdvZone(point: {
   if (point.zone === 'Norte' || point.zone === 'Centro' || point.zone === 'Sur') return point.zone;
   if (point.subregion === 'Norte' || point.subregion === 'Centro' || point.subregion === 'Sur') return point.subregion;
   
-  const muni = normalize(point.municipality || '');
-  if (MUNICIPALITY_ZONE[muni]) return MUNICIPALITY_ZONE[muni];
+  const fullText = normalize(`${point.zone || ''} ${point.subregion || ''} ${point.municipality || ''} ${point.address || ''} ${point.name || ''} ${point.category || ''}`);
 
-  const fullText = normalize(`${point.municipality || ''} ${point.address || ''} ${point.name || ''} ${point.category || ''}`);
-  
+  // Centro Check (explicit zone centro, 7400, 7404, riohacha, etc.)
+  if (
+    fullText.includes('centro') ||
+    fullText.includes('guajira centro') ||
+    fullText.includes('7400') ||
+    fullText.includes('7404') ||
+    fullText.includes('riohacha') ||
+    fullText.includes('rioh') ||
+    fullText.includes('maicao') ||
+    fullText.includes('albania') ||
+    fullText.includes('hatonuevo') ||
+    fullText.includes('barrancas') ||
+    fullText.includes('distraccion')
+  ) {
+    return 'Centro';
+  }
+
   // Sur Check
   if (
     fullText.includes('san juan') ||
@@ -51,26 +76,27 @@ export function resolvePdvZone(point: {
     fullText.includes('urumita') ||
     fullText.includes('jagua') ||
     fullText.includes('regional sur') ||
-    fullText.includes('zona sur')
+    fullText.includes('zona sur') ||
+    fullText.includes('sur')
   ) {
     return 'Sur';
   }
 
-  // Centro Check
+  // Norte Check (Uribia, Manaure, Dibulla, etc.)
   if (
-    fullText.includes('maicao') ||
-    fullText.includes('albania') ||
-    fullText.includes('hatonuevo') ||
-    fullText.includes('barrancas') ||
-    fullText.includes('distraccion') ||
-    fullText.includes('regional centro') ||
-    fullText.includes('zona centro')
+    fullText.includes('uribia') ||
+    fullText.includes('manaure') ||
+    fullText.includes('dibulla') ||
+    fullText.includes('norte') ||
+    fullText.includes('guajira norte')
   ) {
-    return 'Centro';
+    return 'Norte';
   }
 
-  // Norte Check (Default to Norte if Riohacha, Manaure, Uribia, Dibulla, etc.)
-  return 'Norte';
+  const muni = normalize(point.municipality || '');
+  if (MUNICIPALITY_ZONE[muni]) return MUNICIPALITY_ZONE[muni];
+
+  return 'Centro';
 }
 
 export function getAssignedAuditorForZone(zone: CaviZone, auditors: Auditor[]): Auditor | undefined {

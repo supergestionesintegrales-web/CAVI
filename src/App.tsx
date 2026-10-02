@@ -34,7 +34,13 @@ import { ScheduleScreen } from './components/screens/ScheduleScreen';
 import { MacroFoldersScreen } from './components/screens/MacroFoldersScreen';
 import { LeaseScreen } from './components/screens/LeaseScreen';
 import { AlertsScreen } from './components/screens/AlertsScreen';
-import { parseLeasePointsFromMacroFiles, parseLeaseSalesFromMacroFiles, generateLeaseDataAlerts, LeaseDataAlert } from './utils/dataReconciliation';
+import {
+  parseLeasePointsFromMacroFiles,
+  parseLeaseSalesFromMacroFiles,
+  generateLeaseDataAlerts,
+  generateCrossReconciliationAlerts,
+  LeaseDataAlert,
+} from './utils/dataReconciliation';
 import { parseRoutesFile } from './utils/routesExcel';
 
 export default function App() {
@@ -385,6 +391,47 @@ export default function App() {
       });
       return Array.from(map.values());
     });
+
+    // Synchronize loaded georeferenced points to cavi_user_custom_points so CAVIMAPS and all modules display them
+    try {
+      const saved = localStorage.getItem('cavi_user_custom_points');
+      const existingCustom: any[] = saved ? JSON.parse(saved) : [];
+      const keySet = new Set(existingCustom.map((p) => (p.codePdv || `${Number(p.lat).toFixed(4)}_${Number(p.lng).toFixed(4)}`).toLowerCase()));
+
+      const newCustomPoints: any[] = [];
+      imported.forEach((step) => {
+        if (Number.isFinite(step.lat) && Number.isFinite(step.lng)) {
+          const key = (step.code || `${step.lat.toFixed(4)}_${step.lng.toFixed(4)}`).toLowerCase();
+          if (!keySet.has(key)) {
+            keySet.add(key);
+            const isCda = step.format === 'CDA' || /cda/i.test(step.name) || /cda/i.test(step.notes || '');
+            newCustomPoints.push({
+              id: `imported-step-${step.id}`,
+              name: step.name,
+              category: isCda ? 'CDA Principal' : step.format === 'PF' ? 'Punto Fijo' : 'Canal Tradicional',
+              subregion: (step.zone === 'Norte' || step.zone === 'Centro' || step.zone === 'Sur') ? step.zone : 'Centro',
+              zone: (step.zone === 'Norte' || step.zone === 'Centro' || step.zone === 'Sur') ? step.zone : 'Centro',
+              municipality: step.municipality || 'Riohacha',
+              address: step.address || step.name,
+              lat: step.lat,
+              lng: step.lng,
+              codePdv: step.code,
+              channel: isCda ? 'CDA' : step.format,
+              costCenter: step.notes?.includes('CCOSTO:') ? step.notes.split('CCOSTO:')[1].trim() : undefined,
+            });
+          }
+        }
+      });
+
+      if (newCustomPoints.length > 0) {
+        const merged = [...newCustomPoints, ...existingCustom];
+        localStorage.setItem('cavi_user_custom_points', JSON.stringify(merged));
+        window.dispatchEvent(new CustomEvent('cavi-custom-points-updated'));
+      }
+    } catch {
+      // ignore
+    }
+
     showToast('Actualización incremental', imported.length + ' registros procesados. Los puntos existentes fueron actualizados y los nuevos incorporados sin borrar información anterior.', 'success');
   };
 
@@ -562,21 +609,87 @@ export default function App() {
       }
     })();
 
+    const allFiles = [...macroFiles, ...newFiles];
     const previous = leasePoints;
-    const result = parseLeasePointsFromMacroFiles(newFiles, previous);
-    const salesResult = parseLeaseSalesFromMacroFiles(newFiles, result.points);
-    const reconciledPoints = salesResult.detectedRows > 0 ? salesResult.points : result.points;
-    if (result.detectedRows > 0 || salesResult.detectedRows > 0) {
-      const alerts = generateLeaseDataAlerts(previous, reconciledPoints);
-      setLeasePoints(reconciledPoints);
-      if (alerts.length > 0) {
-        setDataAlerts((prev) => [...alerts, ...prev].slice(0, 200));
-        const urgent = alerts.filter((a) => a.severity === 'urgent').length;
-        showToast('Alertas generadas', alerts.length + ' alerta(s) detectadas por la actualización' + (urgent ? ', ' + urgent + ' urgente(s).' : '.'), 'alert');
-      } else {
-        showToast('Arrendamientos actualizados', (result.detectedRows + salesResult.detectedRows) + ' registro(s) conciliados sin reemplazar los datos existentes.', 'success');
-      }
+    const result = parseLeasePointsFromMacroFiles(allFiles, previous);
+    const salesResult = parseLeaseSalesFromMacroFiles(allFiles, result.points);
+    const basePoints = salesResult.detectedRows > 0 ? salesResult.points : result.points;
+
+    const { alerts, reconciledLeasePoints } = generateCrossReconciliationAlerts(
+      basePoints,
+      routeSteps,
+      allFiles
+    );
+
+    setLeasePoints(reconciledLeasePoints);
+    if (alerts.length > 0) {
+      setDataAlerts(alerts);
+      const urgent = alerts.filter((a) => a.severity === 'urgent').length;
+      showToast(
+        'Cruces de Información & Alertas',
+        `${alerts.length} alerta(s) generadas (${urgent} urgente(s)). Revisa la sección de Alertas.`,
+        urgent > 0 ? 'alert' : 'info'
+      );
+    } else if (result.detectedRows > 0 || salesResult.detectedRows > 0) {
+      showToast(
+        'Arrendamientos y Ventas Actualizados',
+        `${result.detectedRows + salesResult.detectedRows} registro(s) conciliados exitosamente sin duplicados.`,
+        'success'
+      );
     }
+  };
+
+  const handleRunManualReconciliation = () => {
+    const { alerts, reconciledLeasePoints } = generateCrossReconciliationAlerts(
+      leasePoints,
+      routeSteps,
+      macroFiles
+    );
+    setLeasePoints(reconciledLeasePoints);
+    setDataAlerts(alerts);
+    const urgent = alerts.filter((a) => a.severity === 'urgent').length;
+    showToast(
+      'Cruce de Datos Finalizado',
+      `${reconciledLeasePoints.length} puntos analizados con todas las fuentes. ${alerts.length} novedades detectadas (${urgent} urgentes).`,
+      urgent > 0 ? 'alert' : 'success'
+    );
+  };
+
+  const handleAssignAlertPointToRoute = (code: string, pointName: string) => {
+    const existing = routeSteps.find((s) => s.code.toLowerCase() === code.toLowerCase());
+    if (existing) {
+      setActiveTab('asignacion-rutas');
+      showToast('Punto en Ruta', `${pointName} ya se encuentra programado en las rutas de auditoría.`, 'info');
+      return;
+    }
+
+    const lp = leasePoints.find((p) => p.code.toLowerCase() === code.toLowerCase());
+    const zone = resolvePdvZone(lp?.municipality || 'Riohacha');
+    const targetAuditor = getAssignedAuditorForZone(zone, auditors);
+
+    const newStep: RouteStep = {
+      id: `audit-urgent-${code}-${Date.now()}`,
+      time: '08:30 AM',
+      code: code,
+      format: 'CM',
+      name: pointName,
+      address: lp?.address || 'La Guajira',
+      municipality: lp?.municipality || 'Riohacha',
+      lat: lp?.lat || 11.544,
+      lng: lp?.lng || -72.907,
+      status: 'pending',
+      notes: 'Inspección prioritaria generada por cruce de datos y alertas',
+      auditorId: targetAuditor.id,
+      auditorName: targetAuditor.name,
+      zone,
+      day: 'lunes',
+      alertCategory: 'mora_visita',
+      alertDescription: 'Punto con alerta en Centro de Alertas',
+    };
+
+    setRouteSteps((prev) => [newStep, ...prev]);
+    setActiveTab('asignacion-rutas');
+    showToast('Inspección Programada', `${pointName} agregado a la ruta de ${targetAuditor.name} (${zone}).`, 'success');
   };
 
   // Modals state
@@ -937,6 +1050,9 @@ export default function App() {
             macroFilesCount={macroFiles.length}
             onGoToMacros={() => setActiveTab('archivos-macros')}
             onGoToLease={() => setActiveTab('arrendamientos')}
+            onGoToAlerts={() => setActiveTab('alertas')}
+            alertsCount={dataAlerts.length}
+            urgentAlertsCount={dataAlerts.filter((a) => a.severity === 'urgent').length}
             leasePointsCount={leasePoints.length}
             leaseOpenCount={openLeaseCount}
             onOpenScanner={() => setIsScannerOpen(true)}
@@ -1002,7 +1118,13 @@ export default function App() {
         )}
 
         {activeTab === 'alertas' && (
-          <AlertsScreen alerts={dataAlerts} leasePoints={leasePoints} />
+          <AlertsScreen
+            alerts={dataAlerts}
+            leasePoints={leasePoints}
+            onRunCrossReconciliation={handleRunManualReconciliation}
+            onGoToLeases={() => setActiveTab('arrendamientos')}
+            onAssignToRoute={handleAssignAlertPointToRoute}
+          />
         )}
       </main>
 

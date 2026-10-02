@@ -1,5 +1,8 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { Auditor, RouteStep, FloatingPoint, UserRole } from '../../types';
+import { CaviPoint } from '../../types/caviMap';
+import { CAVI_POINTS } from '../../data/caviPointsData';
+import { resolvePdvZone } from '../../data/zoneAssignments';
 import { AddRouteModal, ActiveRoutePointOption } from '../AddRouteModal';
 import { AddFloatingPointModal } from '../AddFloatingPointModal';
 import { GpsTerritoryModal } from '../GpsTerritoryModal';
@@ -201,7 +204,7 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
     return currentDaySteps.length > 0 ? currentDaySteps : steps;
   }, [currentDaySteps, steps]);
 
-  // Catálogo activo para selección de paradas: inventario CAVI + puntos ya cargados en la ruta.
+  // Catálogo activo para selección de paradas: paradas de ruta + inventario georreferenciado CAVI (CDA, PF, CM).
   const activeRoutePointOptions = useMemo<ActiveRoutePointOption[]>(() => {
     const options: ActiveRoutePointOption[] = [];
     const seen = new Set<string>();
@@ -224,6 +227,24 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
       });
     });
 
+    CAVI_POINTS.forEach((pt) => {
+      const key = (pt.codePdv || pt.id).toLowerCase();
+      if (seen.has(key)) return;
+      seen.add(key);
+      options.push({
+        id: `cavi-${pt.id}`,
+        code: pt.codePdv || pt.id,
+        name: pt.name,
+        format: (pt.channel === 'CDA' ? 'CDA' : pt.channel === 'PF' ? 'PF' : 'CM') as any,
+        channel: pt.channel,
+        address: pt.address || pt.name,
+        municipality: pt.municipality,
+        lat: pt.lat,
+        lng: pt.lng,
+        zone: pt.zone || pt.subregion || 'Centro',
+      });
+    });
+
     return options.sort((a, b) => a.name.localeCompare(b.name, 'es'));
   }, [steps]);
 
@@ -243,16 +264,15 @@ export const RoutesScreen: React.FC<RoutesScreenProps> = ({
 
       base.push({
         id: `route-pdv-${step.id}`,
+        code: step.code,
         name: step.name,
-        category: step.format || step.channel || 'PDV',
-        subregion: step.zone || 'Centro',
+        format: step.format,
+        channel: step.format || step.channel || 'CM',
         zone: step.zone,
         municipality: step.municipality,
         address: step.address,
         lat: step.lat,
         lng: step.lng,
-        codePdv: step.code,
-        channel: step.format || step.channel || 'CM',
       });
       seen.add(key);
     });

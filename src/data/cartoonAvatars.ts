@@ -1,20 +1,26 @@
-// Perfiles vectoriales profesionales para CAVI.
-// Avatar geométrico de persona: sin caricaturas, emojis ni fotografías.
+// Iconos vectoriales de personas para CAVI.
+// Vectores simples y limpios de usuario / auditor: sin caricaturas, rostros ni detalles superfluos.
 
-const personVector = (primary: string, secondary: string, skin: string, hair: string) =>
+export const createPersonVectorIcon = (color: string = '#0088ff', bg: string = '#ffffff') =>
   `data:image/svg+xml;utf8,${encodeURIComponent(`
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
-  <circle cx="60" cy="60" r="57" fill="#ffffff"/>
-  <circle cx="60" cy="60" r="54" fill="none" stroke="${primary}" stroke-width="8"/>
-  <circle cx="60" cy="43" r="20" fill="${skin}"/>
-  <path d="M40 43c2-15 10-23 20-23 12 0 19 8 20 23-7-5-13-7-20-7s-14 2-20 7Z" fill="${hair}"/>
-  <path d="M29 103c3-21 14-33 31-33s28 12 31 33H29Z" fill="${hair}"/>
-  <path d="M39 82c6 5 14 8 21 8s15-3 21-8l10 21H29l10-21Z" fill="${primary}" opacity=".92"/>
-  <circle cx="52" cy="43" r="2" fill="#0f172a"/>
-  <circle cx="68" cy="43" r="2" fill="#0f172a"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <!-- Fondo circular limpio -->
+  <circle cx="60" cy="60" r="57" fill="${bg}"/>
+  <!-- Anillo exterior nítido -->
+  <circle cx="60" cy="60" r="53" fill="none" stroke="${color}" stroke-width="6"/>
+  <!-- Cabeza de silueta vectorial -->
+  <circle cx="60" cy="44" r="15" fill="${color}"/>
+  <!-- Torso y hombros en vector suave -->
+  <path d="M33 94c0-15.5 12-24 27-24s27 8.5 27 24c0 2.5-2 4-4.5 4H37.5c-2.5 0-4.5-1.5-4.5-4z" fill="${color}"/>
 </svg>`)}`;
 
-export const CARTOON_SAMUEL_AVATAR = personVector('#1688d4', '#0b63b2', '#d7a77d', '#172033');
-export const CARTOON_KLEYDER_AVATAR = personVector('#1688d4', '#0b63b2', '#c98f68', '#24324a');
-export const CARTOON_JOSE_AVATAR = personVector('#1688d4', '#0b63b2', '#8d5b3f', '#172033');
-export const CARTOON_ADMIN_AVATAR = personVector('#1688d4', '#0b63b2', '#d7a77d', '#0f172a');
+export const CARTOON_SAMUEL_AVATAR = createPersonVectorIcon('#0088ff');
+export const CARTOON_KLEYDER_AVATAR = createPersonVectorIcon('#0088ff');
+export const CARTOON_JOSE_AVATAR = createPersonVectorIcon('#0088ff');
+export const CARTOON_ADMIN_AVATAR = createPersonVectorIcon('#0088ff');
+
+// Alias descriptivos para coherencia semántica
+export const PERSON_ICON_SAMUEL = CARTOON_SAMUEL_AVATAR;
+export const PERSON_ICON_KLEYDER = CARTOON_KLEYDER_AVATAR;
+export const PERSON_ICON_JOSE = CARTOON_JOSE_AVATAR;
+export const PERSON_ICON_ADMIN = CARTOON_ADMIN_AVATAR;

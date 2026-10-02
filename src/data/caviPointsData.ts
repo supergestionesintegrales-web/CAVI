@@ -2,253 +2,6 @@ import { CaviPoint } from '../types/caviMap';
 
 export const CAVI_POINTS: CaviPoint[] = [
   {
-    "id": "corr-1",
-    "name": "OFICINA RIOHACHA BBVA",
-    "category": "CORRESPONSAL BBVA",
-    "subregion": "Bancario",
-    "municipality": "Riohacha",
-    "address": "Carrera 6A # 10-61",
-    "lat": 11.5475,
-    "lng": -72.9075,
-    "codePdv": "CORR-1",
-    "channel": "Bancario",
-    "costCenter": "CORRESPONSAL BBVA"
-  },
-  {
-    "id": "corr-2",
-    "name": "OFICINA FONSECA BBVA",
-    "category": "CORRESPONSAL BBVA",
-    "subregion": "Bancario",
-    "municipality": "Fonseca",
-    "address": "CALLE 13 # 15-57 Fonseca",
-    "lat": 10.8885,
-    "lng": -72.8485,
-    "codePdv": "CORR-2",
-    "channel": "Bancario",
-    "costCenter": "CORRESPONSAL BBVA"
-  },
-  {
-    "id": "corr-3",
-    "name": "OFICINA MAICAO BBVA",
-    "category": "CORRESPONSAL BBVA",
-    "subregion": "Bancario",
-    "municipality": "Maicao",
-    "address": "CARRERA 9 # 13-19 Maicao",
-    "lat": 11.3785,
-    "lng": -72.2405,
-    "codePdv": "CORR-3",
-    "channel": "Bancario",
-    "costCenter": "CORRESPONSAL BBVA"
-  },
-  {
-    "id": "corr-4",
-    "name": "OFICINA ALBANIA BBVA",
-    "category": "CORRESPONSAL BBVA",
-    "subregion": "Bancario",
-    "municipality": "Albania",
-    "address": "CARRERA 12 CALLE 7 Y 8 AVENIDA FERROCARRIL",
-    "lat": 11.1615,
-    "lng": -72.592,
-    "codePdv": "CORR-4",
-    "channel": "Bancario",
-    "costCenter": "CORRESPONSAL BBVA"
-  },
-  {
-    "id": "corr-5",
-    "name": "OFICINA BARRANCAS BBVA",
-    "category": "CORRESPONSAL BBVA",
-    "subregion": "Bancario",
-    "municipality": "Barrancas",
-    "address": "CALLE 9 # 6-60 Barrancas",
-    "lat": 10.9575,
-    "lng": -72.7885,
-    "codePdv": "CORR-5",
-    "channel": "Bancario",
-    "costCenter": "CORRESPONSAL BBVA"
-  },
-  {
-    "id": "corr-6",
-    "name": "OFICINA FONSECA BANCO AGRARIO",
-    "category": "Corresponsal Banco Agrario",
-    "subregion": "Bancario",
-    "municipality": "Fonseca",
-    "address": "CALLE 13 # 19-57 Fonseca",
-    "lat": 10.8875,
-    "lng": -72.851,
-    "codePdv": "CORR-6",
-    "channel": "Bancario",
-    "costCenter": "Corresponsal Banco Agrario"
-  },
-  {
-    "id": "corr-7",
-    "name": "OFICINA MAICAO BANCO AGRARIO",
-    "category": "Corresponsal Banco Agrario",
-    "subregion": "Bancario",
-    "municipality": "Maicao",
-    "address": "CALLE 12 # 9-12 Maicao",
-    "lat": 11.378,
-    "lng": -72.2415,
-    "codePdv": "CORR-7",
-    "channel": "Bancario",
-    "costCenter": "Corresponsal Banco Agrario"
-  },
-  {
-    "id": "corr-8",
-    "name": "OFICINA SAN JUAN BANCO AGRARIO",
-    "category": "Corresponsal Banco Agrario",
-    "subregion": "Bancario",
-    "municipality": "San Juan del Cesar",
-    "address": "Calle 3 # 3-36 San Juan",
-    "lat": 10.768,
-    "lng": -73.0035,
-    "codePdv": "CORR-8",
-    "channel": "Bancario",
-    "costCenter": "Corresponsal Banco Agrario"
-  },
-  {
-    "id": "corr-9",
-    "name": "OFICINA MANAURE BANCO AGRARIO",
-    "category": "Corresponsal Banco Agrario",
-    "subregion": "Bancario",
-    "municipality": "Manaure",
-    "address": "CALLE 5 # 5 -121 Manaure",
-    "lat": 11.775,
-    "lng": -72.446,
-    "codePdv": "CORR-9",
-    "channel": "Bancario",
-    "costCenter": "Corresponsal Banco Agrario"
-  },
-  {
-    "id": "corr-10",
-    "name": "OFICINA URUMITA BANCO AGRARIO",
-    "category": "Corresponsal Banco Agrario",
-    "subregion": "Bancario",
-    "municipality": "Urumita",
-    "address": "Carrera 9 # 9 -04 Urumita",
-    "lat": 10.5595,
-    "lng": -73.0115,
-    "codePdv": "CORR-10",
-    "channel": "Bancario",
-    "costCenter": "Corresponsal Banco Agrario"
-  },
-  {
-    "id": "corr-11",
-    "name": "OFICINA RIOHACHA BANCO AGRARIO",
-    "category": "Corresponsal Banco Agrario",
-    "subregion": "Bancario",
-    "municipality": "Riohacha",
-    "address": "Carrera 8a # 12A 83 Riohacha",
-    "lat": 11.544,
-    "lng": -72.909,
-    "codePdv": "CORR-11",
-    "channel": "Bancario",
-    "costCenter": "Corresponsal Banco Agrario"
-  },
-  {
-    "id": "corr-12",
-    "name": "OFICINA VILLANUEVA BANCO AGRARIO",
-    "category": "Corresponsal Banco Agrario",
-    "subregion": "Bancario",
-    "municipality": "Villanueva",
-    "address": "Carrera 16 # 29-08 Villanueva",
-    "lat": 10.606,
-    "lng": -72.981,
-    "codePdv": "CORR-12",
-    "channel": "Bancario",
-    "costCenter": "Corresponsal Banco Agrario"
-  },
-  {
-    "id": "corr-13",
-    "name": "OFICINA FONSECA BANCAMIA",
-    "category": "Corresponsal Bancamia",
-    "subregion": "Bancario",
-    "municipality": "Fonseca",
-    "address": "Calle 13 # 14 - 75 Fonseca",
-    "lat": 10.889,
-    "lng": -72.8475,
-    "codePdv": "CORR-13",
-    "channel": "Bancario",
-    "costCenter": "Corresponsal Bancamia"
-  },
-  {
-    "id": "corr-14",
-    "name": "OFICINA RIOHACHA BANCAMIA",
-    "category": "Corresponsal Bancamia",
-    "subregion": "Bancario",
-    "municipality": "Riohacha",
-    "address": "Calle 4 No. 8 - 11 Riohacha",
-    "lat": 11.549,
-    "lng": -72.908,
-    "codePdv": "CORR-14",
-    "channel": "Bancario",
-    "costCenter": "Corresponsal Bancamia"
-  },
-  {
-    "id": "corr-15",
-    "name": "Banco de Bogotá Riohacha",
-    "category": "GRUPO AVAL",
-    "subregion": "Bancario",
-    "municipality": "Riohacha",
-    "address": "Cra. 9 #3 - 06 RIOHACHA",
-    "lat": 11.5495,
-    "lng": -72.9095,
-    "codePdv": "CORR-15",
-    "channel": "Bancario",
-    "costCenter": "GRUPO AVAL"
-  },
-  {
-    "id": "corr-16",
-    "name": "Banco de Bogota Viva Wajira",
-    "category": "GRUPO AVAL",
-    "subregion": "Bancario",
-    "municipality": "Riohacha",
-    "address": "Cl. 15 #18 - 274 Riohacha",
-    "lat": 11.5415,
-    "lng": -72.9165,
-    "codePdv": "CORR-16",
-    "channel": "Bancario",
-    "costCenter": "GRUPO AVAL"
-  },
-  {
-    "id": "corr-17",
-    "name": "Banco de Occidente Riohacha",
-    "category": "GRUPO AVAL",
-    "subregion": "Bancario",
-    "municipality": "Riohacha",
-    "address": "Cl. 3 #6 - 66 Riohacha",
-    "lat": 11.5498,
-    "lng": -72.907,
-    "codePdv": "CORR-17",
-    "channel": "Bancario",
-    "costCenter": "GRUPO AVAL"
-  },
-  {
-    "id": "corr-18",
-    "name": "Banco AV Villas Riohacha",
-    "category": "GRUPO AVAL",
-    "subregion": "Bancario",
-    "municipality": "Riohacha",
-    "address": "Cl. 4 #9 – 05 Riohacha",
-    "lat": 11.5488,
-    "lng": -72.9098,
-    "codePdv": "CORR-18",
-    "channel": "Bancario",
-    "costCenter": "GRUPO AVAL"
-  },
-  {
-    "id": "corr-19",
-    "name": "Banco Popular Riohacha",
-    "category": "GRUPO AVAL",
-    "subregion": "Bancario",
-    "municipality": "Riohacha",
-    "address": "Cl. 1 #6 - 89 Riohacha",
-    "lat": 11.551,
-    "lng": -72.9065,
-    "codePdv": "CORR-19",
-    "channel": "Bancario",
-    "costCenter": "GRUPO AVAL"
-  },
-  {
     "id": "norte-24215",
     "name": "CHACARITA",
     "category": "REGIONAL NORTE",
@@ -1545,18 +1298,6 @@ export const CAVI_POINTS: CaviPoint[] = [
     "costCenter": "CDA MAICAO"
   },
   {
-    "id": "norte-24238",
-    "name": "BANCOS",
-    "category": "REGIONAL NORTE",
-    "subregion": "Norte",
-    "municipality": "Maicao",
-    "lat": 11.379097,
-    "lng": -72.238173,
-    "codePdv": "24238",
-    "channel": "PF",
-    "costCenter": "CDA MAICAO"
-  },
-  {
     "id": "norte-24241",
     "name": "MERCADO",
     "category": "REGIONAL NORTE",
@@ -2753,7 +2494,7 @@ export const CAVI_POINTS: CaviPoint[] = [
     "lat": 10.774,
     "lng": -73.0044,
     "codePdv": "17421",
-    "channel": "PF",
+    "channel": "CM",
     "costCenter": "SAN JUAN"
   },
   {
@@ -2825,7 +2566,7 @@ export const CAVI_POINTS: CaviPoint[] = [
     "lat": 10.9516,
     "lng": -73.0457,
     "codePdv": "17759",
-    "channel": "PF",
+    "channel": "CM",
     "costCenter": "SAN JUAN"
   },
   {
@@ -2837,7 +2578,7 @@ export const CAVI_POINTS: CaviPoint[] = [
     "lat": 10.7744,
     "lng": -73.0008,
     "codePdv": "17809",
-    "channel": "PF",
+    "channel": "CM",
     "costCenter": "SAN JUAN"
   },
   {
@@ -3717,18 +3458,6 @@ export const CAVI_POINTS: CaviPoint[] = [
     "costCenter": "FONSECA"
   },
   {
-    "id": "sur-21850",
-    "name": "BBVA FONSECA",
-    "category": "REGIONAL SUR",
-    "subregion": "Sur",
-    "municipality": "Fonseca",
-    "lat": 10.8893,
-    "lng": -72.8487,
-    "codePdv": "21850",
-    "channel": "PF",
-    "costCenter": "FONSECA"
-  },
-  {
     "id": "sur-21932",
     "name": "VICTORIA FONSECA",
     "category": "REGIONAL SUR",
@@ -3989,7 +3718,7 @@ export const CAVI_POINTS: CaviPoint[] = [
     "lat": 10.9636,
     "lng": -72.7876,
     "codePdv": "16910",
-    "channel": "PF",
+    "channel": "CM",
     "costCenter": "BARRANCA"
   },
   {
@@ -4529,7 +4258,7 @@ export const CAVI_POINTS: CaviPoint[] = [
     "lat": 11.54521,
     "lng": -72.905688,
     "codePdv": "7619",
-    "channel": "PF",
+    "channel": "CM",
     "costCenter": "CDARIOHPRINCP"
   },
   {
@@ -4829,7 +4558,7 @@ export const CAVI_POINTS: CaviPoint[] = [
     "lat": 11.543549,
     "lng": -72.906433,
     "codePdv": "7759",
-    "channel": "PF",
+    "channel": "CM",
     "costCenter": "ENTRERIOS"
   },
   {

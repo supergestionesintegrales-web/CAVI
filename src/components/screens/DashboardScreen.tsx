@@ -6,6 +6,9 @@ interface DashboardScreenProps {
   macroFilesCount?: number;
   onGoToMacros?: () => void;
   onGoToLease?: () => void;
+  onGoToAlerts?: () => void;
+  alertsCount?: number;
+  urgentAlertsCount?: number;
   leasePointsCount?: number;
   leaseOpenCount?: number;
   onOpenScanner: () => void;
@@ -21,6 +24,9 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
   macroFilesCount = 8,
   onGoToMacros,
   onGoToLease,
+  onGoToAlerts,
+  alertsCount = 0,
+  urgentAlertsCount = 0,
   leasePointsCount = 12,
   leaseOpenCount = 9,
   onOpenScanner,
@@ -290,6 +296,42 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
           </div>
         </div>
       </div>
+
+      {/* DYNAMIC CROSS-RECONCILIATION ALERTS BANNER */}
+      {alertsCount > 0 && (
+        <div className="rounded-2xl p-4 bg-gradient-to-r from-red-500/10 via-amber-500/10 to-red-500/5 dark:from-red-950/40 dark:to-amber-950/30 border border-red-300 dark:border-red-900/60 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-start sm:items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-red-600 text-white flex items-center justify-center shrink-0 shadow-sm shadow-red-500/30">
+              <span className="material-symbols-outlined text-2xl">notification_important</span>
+            </div>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs font-black uppercase tracking-wider text-red-700 dark:text-red-400">
+                  Cruce de Datos &amp; Novedades Operativas
+                </span>
+                {urgentAlertsCount > 0 && (
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-red-600 text-white">
+                    {urgentAlertsCount} URGENTES
+                  </span>
+                )}
+              </div>
+              <p className="text-xs font-semibold text-slate-800 dark:text-[#f1f5f9] mt-0.5">
+                Se detectaron {alertsCount} inconsistencias críticas entre arrendamientos, ventas, red activa/inactiva y auditorías.
+              </p>
+            </div>
+          </div>
+          {onGoToAlerts && (
+            <button
+              type="button"
+              onClick={onGoToAlerts}
+              className="px-4 py-2 rounded-xl text-xs font-bold bg-red-600 hover:bg-red-700 text-white flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 shadow-xs"
+            >
+              <span>Ver Centro de Alertas</span>
+              <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+            </button>
+          )}
+        </div>
+      )}
 
       {/* PUSH ALERT BANNER */}
       {!alertDismissed && (
@@ -769,7 +811,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                     CDA
                   </span>
                   <span className="text-base font-headline font-bold text-slate-900 dark:text-[#dae2fd] mt-1">{formatBreakdown.cda}</span>
-                  <span className="text-[10px] text-slate-500 dark:text-[#bbcabf]">Acopio</span>
+                  <span className="text-[10px] text-slate-500 dark:text-[#bbcabf]">Centro de acopio</span>
                   <span className="font-code-metric text-xs text-[#ffb95f] mt-2">86.1%</span>
                   <span className="text-[9px] text-slate-500 dark:text-[#bbcabf]">Conforme</span>
                 </div>

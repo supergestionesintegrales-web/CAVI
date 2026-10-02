@@ -2,28 +2,11 @@ const fs = require('fs');
 const path = require('path');
 const { regionalNorte } = require('./dataNorte.cjs');
 const { regionalSur } = require('./dataSur.cjs');
-const { corresponsales, regionalCentro } = require('./dataCentro.cjs');
+const { regionalCentro } = require('./dataCentro.cjs');
 
 const allPoints = [];
 
-// 1. Corresponsales
-corresponsales.forEach((p, idx) => {
-  allPoints.push({
-    id: 'corr-' + (idx + 1),
-    name: p.name,
-    category: p.category,
-    subregion: 'Bancario',
-    municipality: p.mun,
-    address: p.address,
-    lat: p.lat,
-    lng: p.lng,
-    codePdv: 'CORR-' + (idx + 1),
-    channel: 'Bancario',
-    costCenter: p.category,
-  });
-});
-
-// 2. Norte
+// 1. Regional Norte (Uribia, Manaure, Dibulla)
 regionalNorte.forEach((p, idx) => {
   allPoints.push({
     id: 'norte-' + (p.pdv || idx + 1),
@@ -34,12 +17,12 @@ regionalNorte.forEach((p, idx) => {
     lat: p.lat,
     lng: p.lng,
     codePdv: p.pdv,
-    channel: p.canal,
+    channel: p.canal, // 'CDA' | 'PF' | 'CM'
     costCenter: p.ccosto,
   });
 });
 
-// 3. Sur
+// 2. Regional Sur (Fonseca, San Juan del Cesar, Villanueva, etc.)
 regionalSur.forEach((p, idx) => {
   allPoints.push({
     id: 'sur-' + (p.pdv || idx + 1),
@@ -50,12 +33,12 @@ regionalSur.forEach((p, idx) => {
     lat: p.lat,
     lng: p.lng,
     codePdv: p.pdv,
-    channel: p.canal,
+    channel: p.canal, // 'CDA' | 'PF' | 'CM'
     costCenter: p.ccosto,
   });
 });
 
-// 4. Centro
+// 3. Regional Centro (Riohacha, Maicao, Albania, Barrancas, Hatonuevo, Distracción)
 regionalCentro.forEach((p, idx) => {
   allPoints.push({
     id: 'centro-' + (p.pdv || idx + 1),
@@ -66,12 +49,12 @@ regionalCentro.forEach((p, idx) => {
     lat: p.lat,
     lng: p.lng,
     codePdv: p.pdv,
-    channel: p.canal,
+    channel: p.canal, // 'CDA' | 'PF' | 'CM'
     costCenter: p.ccosto,
   });
 });
 
-console.log('Total points generated:', allPoints.length);
+console.log('Total real points generated (without banks):', allPoints.length);
 
 const fileContent = `import { CaviPoint } from '../types/caviMap';
 

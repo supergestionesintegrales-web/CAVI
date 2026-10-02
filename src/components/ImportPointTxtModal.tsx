@@ -304,7 +304,7 @@ export const ImportPointTxtModal: React.FC<ImportPointTxtModalProps> = ({
                   setFileContent(e.target.value);
                   handleProcessText(e.target.value, 'texto-pegado.txt');
                 }}
-                placeholder={`Pega aquí el contenido de tu archivo .txt o KML:\n\nNOMBRE: Punto Nuevo\nLATITUD: 11.5435\nLONGITUD: -72.9089\nCANAL: CM\nMUNICIPIO: Riohacha\n\no formato CSV: Nombre, 11.5435, -72.9089, CM, Riohacha`}
+                placeholder={`Pega aquí el contenido de tu archivo .txt o KML:\n\nFormato KML / CDATA:\ndescription><![CDATA[COD_ZONA: 7400<br>ZONA: ZONA GUAJIRA CENTRO<br>COD_CCOSTO: 7404<br>CCOSTO: CDA RIOHPRINCP<br>COD_PDV: 16943<br>PUNTOVENTA: PDV CALLE 10<br>LATITUD: 11.548549<br>LONGITUD: -72.908154]]></description>\n\nO Formato Clave: Valor:\nCOD_ZONA: 7400\nZONA: ZONA GUAJIRA CENTRO\nCOD_CCOSTO: 7404\nCCOSTO: CDA RIOHPRINCP\nCOD_PDV: 16943\nPUNTOVENTA: PDV CALLE 10\nLATITUD: 11.548549\nLONGITUD: -72.908154`}
                 rows={8}
                 className="w-full bg-slate-50 text-slate-900 font-mono text-xs p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#0088ff] resize-none leading-relaxed"
               />
@@ -365,17 +365,15 @@ export const ImportPointTxtModal: React.FC<ImportPointTxtModalProps> = ({
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-slate-700 block mb-1">Canal de Distribución</label>
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">Formato / Canal</label>
                   <select
                     value={manualForm.channel}
                     onChange={(e) => setManualForm({ ...manualForm, channel: e.target.value })}
                     className="w-full bg-slate-50 text-slate-900 px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#0088ff]"
                   >
-                    <option value="CDA"> CDA (Centro de Acopio / Principal)</option>
-                    <option value="PF"> PF (Punto Fijo)</option>
-                    <option value="CM"> CM (Canal Tradicional / Tienda)</option>
-                    <option value="Bancario"> Bancario (Corresponsalía Bancaria)</option>
-                    <option value="ETC"> ETC (Otro Punto de Venta)</option>
+                    <option value="CDA">CDA (Centro de acopio)</option>
+                    <option value="PF">PF (Punto Físico)</option>
+                    <option value="CM">CM (Compumueble)</option>
                   </select>
                 </div>
 

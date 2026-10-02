@@ -85,22 +85,18 @@ export function isAlertPoint(p: any): boolean {
 export function guessZoneFromLocation(location: string): 'Norte' | 'Centro' | 'Sur' {
   const loc = location.toLowerCase();
   if (
+    loc.includes('centro') ||
+    loc.includes('guajira centro') ||
+    loc.includes('7400') ||
+    loc.includes('7404') ||
     loc.includes('riohacha') ||
-    loc.includes('manaure') ||
-    loc.includes('uribia') ||
-    loc.includes('dibulla') ||
-    loc.includes('norte')
-  ) {
-    return 'Norte';
-  }
-  if (
+    loc.includes('rioh') ||
     loc.includes('maicao') ||
     loc.includes('albania') ||
     loc.includes('hatonuevo') ||
     loc.includes('barrancas') ||
     loc.includes('distraccion') ||
-    loc.includes('distracción') ||
-    loc.includes('centro')
+    loc.includes('distracción')
   ) {
     return 'Centro';
   }
@@ -115,7 +111,15 @@ export function guessZoneFromLocation(location: string): 'Norte' | 'Centro' | 'S
   ) {
     return 'Sur';
   }
-  return 'Norte';
+  if (
+    loc.includes('uribia') ||
+    loc.includes('manaure') ||
+    loc.includes('dibulla') ||
+    loc.includes('norte')
+  ) {
+    return 'Norte';
+  }
+  return 'Centro';
 }
 
 /**

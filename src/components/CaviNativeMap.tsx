@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react'
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { CaviPoint, getPointTypeMeta, POINT_TYPE_CONFIG, PointType } from '../types/caviMap';
-import { MUNICIPALITIES_GUAJIRA } from '../data/caviPointsData';
+import { CAVI_POINTS, MUNICIPALITIES_GUAJIRA } from '../data/caviPointsData';
 import { enrichPdvWithAssignment } from '../data/zoneAssignments';
 import {
   calculateDistanceKm,
@@ -45,7 +45,7 @@ interface CaviNativeMapProps {
 }
 
 export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
-  initialPoints = [],
+  initialPoints,
   initialRouteStops = [],
   routeGroups = [],
   showPointCatalog = true,
@@ -80,7 +80,7 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
 
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
-  // Sincroniza los puntos cargados desde Configuración > TXT CAVIMAPS.
+  // Sincroniza los puntos cargados desde Configuración > TXT CAVIMAPS o Archivos.
   useEffect(() => {
     const syncCustomPoints = () => {
       try {
@@ -94,17 +94,38 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
     return () => window.removeEventListener('cavi-custom-points-updated', syncCustomPoints);
   }, []);
 
-  // All points combined
+  // All points combined: base catalog of 595 La Guajira points (Riohacha, CDAs, etc.) + initialPoints + custom points
   const allAvailablePoints = useMemo(() => {
-    // Every PDV shown on the map receives its operational zone and designated auditor.
-    return [...customPoints, ...initialPoints].map((point) => enrichPdvWithAssignment(point));
+    const pointMap = new Map<string, CaviPoint>();
+
+    // 1. Base inventory of 595 points across La Guajira
+    CAVI_POINTS.forEach((pt) => {
+      const key = (pt.codePdv || pt.id || `${pt.lat.toFixed(4)}_${pt.lng.toFixed(4)}`).toLowerCase();
+      pointMap.set(key, pt);
+    });
+
+    // 2. Points passed via props
+    if (initialPoints && initialPoints.length > 0) {
+      initialPoints.forEach((pt) => {
+        const key = (pt.codePdv || pt.id || `${pt.lat.toFixed(4)}_${pt.lng.toFixed(4)}`).toLowerCase();
+        pointMap.set(key, pt);
+      });
+    }
+
+    // 3. User custom points (.txt / KML)
+    customPoints.forEach((pt) => {
+      const key = (pt.codePdv || pt.id || `${pt.lat.toFixed(4)}_${pt.lng.toFixed(4)}`).toLowerCase();
+      pointMap.set(key, pt);
+    });
+
+    return Array.from(pointMap.values()).map((point) => enrichPdvWithAssignment(point));
   }, [customPoints, initialPoints]);
 
   // Map settings state: default to 'streets' (claro/light)
   const [mapStyle, setMapStyle] = useState<'streets' | 'light' | 'satellite'>('streets');
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [filterRegion, setFilterRegion] = useState<'Todas' | 'Norte' | 'Centro' | 'Sur' | 'Bancario'>('Todas');
-  const [filterChannel, setFilterChannel] = useState<string>('todos');
+  const [filterRegion, setFilterRegion] = useState<'Todas' | 'Norte' | 'Centro' | 'Sur'>('Todas');
+  const [filterChannel, setFilterChannel] = useState<'todos' | 'CDA' | 'PF' | 'CM'>('todos');
   const [selectedMunicipality, setSelectedMunicipality] = useState<string>('todos');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPoint, setSelectedPoint] = useState<CaviPoint | null>(null);
@@ -183,18 +204,23 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
     if (mode === 'replace') {
       updated = newPoints;
     } else {
-      // Append without duplicating by coordinate/ID
-      const existingKeys = new Set(customPoints.map((p) => `${p.lat.toFixed(4)}_${p.lng.toFixed(4)}`));
-      const filteredNew = newPoints.filter((p) => !existingKeys.has(`${p.lat.toFixed(4)}_${p.lng.toFixed(4)}`));
+      // Append without duplicating by coordinate/codePdv
+      const existingKeys = new Set(
+        customPoints.map((p) => (p.codePdv || `${p.lat.toFixed(4)}_${p.lng.toFixed(4)}`).toLowerCase())
+      );
+      const filteredNew = newPoints.filter(
+        (p) => !existingKeys.has((p.codePdv || `${p.lat.toFixed(4)}_${p.lng.toFixed(4)}`).toLowerCase())
+      );
       updated = [...filteredNew, ...customPoints];
     }
     setCustomPoints(updated);
     try {
       localStorage.setItem('cavi_user_custom_points', JSON.stringify(updated));
+      window.dispatchEvent(new CustomEvent('cavi-custom-points-updated'));
     } catch {
       // ignore
     }
-    showMapToast(`Se cargaron ${newPoints.length} puntos desde el archivo .txt`);
+    showMapToast(`✓ ${newPoints.length} punto(s) incorporados exitosamente al inventario de CAVIMAPS.`);
   };
 
   // Total route metrics
@@ -206,11 +232,11 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
     return estimateTravelTime(totalDistanceKm);
   }, [totalDistanceKm]);
 
-  // Point counts grouped by point type (CDA, PF, CM, Bancario, ETC)
+  // Point counts grouped by point type strictly: CDA (Centro de acopio), PF (Punto Físico), CM (Compumueble)
   const typeCounts = useMemo(() => {
-    const counts: Record<PointType, number> = { CDA: 0, PF: 0, CM: 0, Bancario: 0, ETC: 0 };
+    const counts: Record<PointType, number> = { CDA: 0, PF: 0, CM: 0 };
     allAvailablePoints.forEach((p) => {
-      const meta = getPointTypeMeta(p.channel, p.category);
+      const meta = getPointTypeMeta(p.channel, p.category, p.costCenter, p.name);
       counts[meta.type] = (counts[meta.type] || 0) + 1;
     });
     return counts;
@@ -220,10 +246,13 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
   const filteredPoints = useMemo(() => {
     if (!showPointCatalog) return [];
     return allAvailablePoints.filter((p) => {
-      if (filterRegion !== 'Todas' && p.subregion !== filterRegion) return false;
+      if (filterRegion !== 'Todas') {
+        const matchesRegion = p.subregion === filterRegion || p.zone === filterRegion;
+        if (!matchesRegion) return false;
+      }
       if (filterChannel !== 'todos') {
-        const meta = getPointTypeMeta(p.channel, p.category);
-        if (meta.type !== filterChannel && p.channel !== filterChannel) return false;
+        const meta = getPointTypeMeta(p.channel, p.category, p.costCenter, p.name);
+        if (meta.type !== filterChannel) return false;
       }
       if (selectedMunicipality !== 'todos' && p.municipality.toLowerCase() !== selectedMunicipality.toLowerCase()) return false;
       if (searchQuery.trim()) {
@@ -232,7 +261,8 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
         const matchesMun = p.municipality.toLowerCase().includes(q);
         const matchesCode = p.codePdv ? p.codePdv.toLowerCase().includes(q) : false;
         const matchesChannel = p.channel ? p.channel.toLowerCase().includes(q) : false;
-        if (!matchesName && !matchesMun && !matchesCode && !matchesChannel) return false;
+        const matchesCcosto = p.costCenter ? p.costCenter.toLowerCase().includes(q) : false;
+        if (!matchesName && !matchesMun && !matchesCode && !matchesChannel && !matchesCcosto) return false;
       }
       return true;
     });
@@ -344,14 +374,15 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
       value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
     filteredPoints.forEach((pt) => {
-      const meta = getPointTypeMeta(pt.channel, pt.category);
-      const isCustom = pt.id.startsWith('imported-') || pt.id.startsWith('manual-') || pt.id.startsWith('txt-');
+      const meta = getPointTypeMeta(pt.channel, pt.category, pt.costCenter, pt.name);
+      const isCustom = pt.id.startsWith('imported-') || pt.id.startsWith('manual-') || pt.id.startsWith('txt-') || pt.id.startsWith('desc-');
       const name = escapeHtml(pt.name || 'Punto sin nombre');
       const municipality = escapeHtml(pt.municipality || 'La Guajira');
       const code = pt.codePdv ? escapeHtml(pt.codePdv) : '';
-      const zone = escapeHtml(pt.zone || 'Norte');
+      const zone = escapeHtml(pt.zone || 'Centro');
       const auditor = escapeHtml(pt.auditorName || 'Auditor no definido');
       const typeLabel = escapeHtml(meta.fullLabel || meta.label);
+      const ccostoTag = pt.costCenter ? `<br/><span style="font-size:10px;color:#cbd5e1;">CCOSTO: <strong>${escapeHtml(pt.costCenter)}</strong></span>` : '';
 
       // Marcador HTML por tipo de PDV: visible sobre el mapa y diferenciable por canal.
       const markerIcon = L.divIcon({
@@ -363,13 +394,13 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
       });
       const marker = L.marker([pt.lat, pt.lng], {
         icon: markerIcon,
-        zIndexOffset: isCustom ? 900 : 100,
+        zIndexOffset: isCustom ? 900 : (meta.type === 'CDA' ? 500 : 100),
         bubblingMouseEvents: false,
       });
 
       // Rich hover tooltip with key summary
       marker.bindTooltip(
-        `<strong>${name}</strong><br/>${typeLabel} · ${municipality}${code ? ` · Cod: <strong>${code}</strong>` : ''}<br/><span style="font-size:10px;color:#38bdf8;">Zona: ${zone} · ${auditor}</span>`,
+        `<strong>${name}</strong><br/>${typeLabel} · ${municipality}${code ? ` · Cod: <strong>${code}</strong>` : ''}${ccostoTag}<br/><span style="font-size:10px;color:#38bdf8;">Zona: ${zone} · ${auditor}</span>`,
         {
           direction: 'top',
           offset: [0, -7],
@@ -828,14 +859,85 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
                 </span>
               )}
             </div>
-            <p className="text-[11px] text-slate-500 truncate">
+            <div className="flex items-center gap-1.5 flex-wrap mt-1">
+              <button
+                type="button"
+                onClick={() => { setFilterRegion('Todas'); setFilterChannel('todos'); }}
+                className={`px-2 py-0.5 rounded-md text-[10px] font-bold transition-all cursor-pointer ${
+                  filterRegion === 'Todas' && filterChannel === 'todos'
+                    ? 'bg-blue-600 text-white shadow-xs'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                }`}
+              >
+                Todos ({allAvailablePoints.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => { setFilterRegion(filterRegion === 'Centro' ? 'Todas' : 'Centro'); setFilterChannel('todos'); }}
+                className={`px-2 py-0.5 rounded-md text-[10px] font-bold transition-all cursor-pointer ${
+                  filterRegion === 'Centro'
+                    ? 'bg-blue-600 text-white shadow-xs'
+                    : 'bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200'
+                }`}
+                title="Ver puntos de Regional Centro (Riohacha, Maicao, etc.)"
+              >
+                📍 Centro / Riohacha ({allAvailablePoints.filter((p) => p.zone === 'Centro' || p.subregion === 'Centro').length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setFilterChannel(filterChannel === 'CDA' ? 'todos' : 'CDA')}
+                className={`px-2 py-0.5 rounded-md text-[10px] font-bold transition-all cursor-pointer ${
+                  filterChannel === 'CDA'
+                    ? 'bg-sky-600 text-white shadow-xs'
+                    : 'bg-sky-50 text-sky-800 hover:bg-sky-100 border border-sky-200'
+                }`}
+                title="Filtrar por CDA (Centro de acopio)"
+              >
+                🏢 CDA · Centro de acopio ({typeCounts.CDA})
+              </button>
+              <button
+                type="button"
+                onClick={() => setFilterChannel(filterChannel === 'PF' ? 'todos' : 'PF')}
+                className={`px-2 py-0.5 rounded-md text-[10px] font-bold transition-all cursor-pointer ${
+                  filterChannel === 'PF'
+                    ? 'bg-orange-600 text-white shadow-xs'
+                    : 'bg-orange-50 text-orange-800 hover:bg-orange-100 border border-orange-200'
+                }`}
+                title="Filtrar por PF (Punto Físico)"
+              >
+                🏪 PF · Punto Físico ({typeCounts.PF})
+              </button>
+              <button
+                type="button"
+                onClick={() => setFilterChannel(filterChannel === 'CM' ? 'todos' : 'CM')}
+                className={`px-2 py-0.5 rounded-md text-[10px] font-bold transition-all cursor-pointer ${
+                  filterChannel === 'CM'
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200'
+                }`}
+                title="Filtrar por CM (Compumueble)"
+              >
+                🖥️ CM · Compumueble ({typeCounts.CM})
+              </button>
+            </div>
+            <p className="text-[11px] text-slate-500 truncate mt-0.5">
               {filteredPoints.length} PDV visibles · {routeWaypoints.length} paradas · {formatDistance(totalDistanceKm)} · Est. {estimatedTime}
             </p>
           </div>
         </div>
 
-        {/* MAP CONTROLS: SOLO DESPLAZAMIENTO + CONFIGURACIÓN */}
+        {/* MAP CONTROLS: CARGAR TXT/KML + DESPLAZAMIENTO + CONFIGURACIÓN */}
         <div className="flex items-center gap-1.5 shrink-0">
+          <button
+            type="button"
+            onClick={() => setIsImportModalOpen(true)}
+            className="px-2.5 py-1.5 rounded-lg text-[11px] font-bold flex items-center gap-1.5 transition-all shadow-xs cursor-pointer bg-slate-900 hover:bg-slate-800 text-white border border-slate-700 active:scale-95"
+            title="Cargar o pegar puntos desde archivo .txt, KML o bloques CDATA"
+          >
+            <span className="material-symbols-outlined text-[16px] text-amber-400">upload_file</span>
+            <span className="hidden sm:inline">Cargar TXT / KML</span>
+          </button>
+
           <button
             type="button"
             onClick={handleToggleSimulation}
@@ -911,15 +1013,12 @@ export const CaviNativeMap: React.FC<CaviNativeMapProps> = ({
                     <option value="Norte" className="text-black bg-white">Regional Norte</option>
                     <option value="Centro" className="text-black bg-white">Regional Centro</option>
                     <option value="Sur" className="text-black bg-white">Regional Sur</option>
-                    <option value="Bancario" className="text-black bg-white">Corresponsalías Bancarias</option>
                   </select>
-                  <select value={filterChannel} onChange={(e) => setFilterChannel(e.target.value)} className="w-full px-2 py-1.5 rounded-lg border border-slate-300 bg-white text-[11px] font-bold text-black cursor-pointer">
-                    <option value="todos" className="text-black bg-white">Todos los canales ({filteredPoints.length})</option>
-                    <option value="CDA" className="text-black bg-white">CDA · Acopio ({typeCounts.CDA})</option>
-                    <option value="PF" className="text-black bg-white">PF · Punto Fijo ({typeCounts.PF})</option>
-                    <option value="CM" className="text-black bg-white">CM · Tradicional/Tienda ({typeCounts.CM})</option>
-                    <option value="Bancario" className="text-black bg-white">Bancario · Corresponsal ({typeCounts.Bancario})</option>
-                    {typeCounts.ETC > 0 && <option value="ETC" className="text-black bg-white">ETC · Otros ({typeCounts.ETC})</option>}
+                  <select value={filterChannel} onChange={(e) => setFilterChannel(e.target.value as any)} className="w-full px-2 py-1.5 rounded-lg border border-slate-300 bg-white text-[11px] font-bold text-black cursor-pointer">
+                    <option value="todos" className="text-black bg-white">Todos los formatos ({filteredPoints.length})</option>
+                    <option value="CDA" className="text-black bg-white">CDA · Centro de acopio ({typeCounts.CDA})</option>
+                    <option value="PF" className="text-black bg-white">PF · Punto Físico ({typeCounts.PF})</option>
+                    <option value="CM" className="text-black bg-white">CM · Compumueble ({typeCounts.CM})</option>
                   </select>
                   <select value={selectedMunicipality} onChange={(e) => setSelectedMunicipality(e.target.value)} className="w-full px-2 py-1.5 rounded-lg border border-slate-300 bg-white text-[11px] font-bold text-black cursor-pointer">
                     <option value="todos" className="text-black bg-white">Todos los municipios</option>
