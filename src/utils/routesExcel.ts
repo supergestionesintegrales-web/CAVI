@@ -74,6 +74,7 @@ export function downloadPdvsMatrixTemplate() {
   downloadRoutesTemplate();
 }
 
+/** CAVI: CDA, PF y CM son formatos operativos distintos. No se deben inferir uno desde otro. */
 /**
  * Parses an uploaded Excel or CSV file and extracts RouteStep objects with Geolocation, Name, Channel, and Address.
  */
@@ -167,7 +168,7 @@ export async function parseRoutesFile(file: File, auditors: Auditor[]): Promise<
     // 4. Format (CM, PF, CDA)
     const rawFormat = getVal(['formato', 'tipo', 'formatopunto']).toUpperCase();
     let format: FormatType = 'CM';
-    if (rawFormat === 'CDA' || channel.toLowerCase().includes('cda') || channel.toLowerCase().includes('acopio') || channel.toLowerCase().includes('distribuidora')) {
+    if (rawFormat === 'CDA' || channel.toLowerCase().includes('cda') || channel.toLowerCase().includes('acopio')) {
       format = 'CDA';
     } else if (rawFormat === 'PF' || channel.toLowerCase().includes('tradicional') || channel.toLowerCase().includes('droguer') || channel.toLowerCase().includes('conveniencia')) {
       format = 'PF';
