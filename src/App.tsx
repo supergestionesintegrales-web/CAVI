@@ -148,6 +148,36 @@ export default function App() {
     }
   }, [macroFiles]);
 
+  // Si un archivo ya estaba cargado en esta sesión pero aún no tenía rutas procesadas,
+  // CAVI lo procesa automáticamente sin obligar al usuario a volver a cargarlo.
+  useEffect(() => {
+    const pendingFiles = macroFiles.filter((file) => file.rawFile && !file.parsedRouteSteps);
+    if (pendingFiles.length === 0) return;
+    void (async () => {
+      try {
+        const parsedByFile = await Promise.all(
+          pendingFiles.map(async (file) => ({
+            fileId: file.id,
+            routes: await parseRoutesFile(file.rawFile as File, auditors),
+          }))
+        );
+        const allRoutes = parsedByFile.flatMap((item) => item.routes);
+        if (allRoutes.length > 0) {
+          setMacroFiles((prev) => prev.map((file) => {
+            const parsed = parsedByFile.find((item) => item.fileId === file.id);
+            return parsed ? { ...file, parsedRouteSteps: parsed.routes } : file;
+          }));
+          handleImportRouteSteps(allRoutes);
+          setActiveRouteSourceFile(pendingFiles[0].name);
+          setActiveTab('asignacion-rutas');
+          showToast('Puntos cargados en CAVI', allRoutes.length + ' PDV fueron incorporados a Rutas y CAVIMAPS.', 'success');
+        }
+      } catch (error) {
+        console.error('Error procesando rutas del repositorio:', error);
+      }
+    })();
+  }, [macroFiles]);
+
   // Restaura automáticamente las rutas ya procesadas y guardadas dentro del repositorio.
   useEffect(() => {
     if (routeSteps.length > 0) return;
