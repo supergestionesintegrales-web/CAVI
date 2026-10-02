@@ -148,6 +148,17 @@ export default function App() {
     }
   }, [macroFiles]);
 
+  // Restaura automáticamente las rutas ya procesadas y guardadas dentro del repositorio.
+  useEffect(() => {
+    if (routeSteps.length > 0) return;
+    const storedRoutes = macroFiles.flatMap((file) => file.parsedRouteSteps || []);
+    if (storedRoutes.length > 0) {
+      setRouteSteps(storedRoutes);
+      const source = macroFiles.find((file) => (file.parsedRouteSteps || []).length > 0);
+      if (source) setActiveRouteSourceFile(source.name);
+    }
+  }, [macroFiles, routeSteps.length]);
+
   // Dynamically compute real stats for each auditor
   const liveAuditors = useMemo(() => {
     return auditors.map((aud) => {
@@ -491,14 +502,23 @@ export default function App() {
       try {
         const routeFiles = newFiles.filter((file) => !!file.rawFile);
         if (routeFiles.length > 0) {
-          const parsedRoutes = (await Promise.all(
-            routeFiles.map((file) => parseRoutesFile(file.rawFile as File, auditors))
-          )).flat();
+          const parsedByFile = await Promise.all(
+            routeFiles.map(async (file) => ({
+              fileId: file.id,
+              fileName: file.name,
+              routes: await parseRoutesFile(file.rawFile as File, auditors),
+            }))
+          );
+          const parsedRoutes = parsedByFile.flatMap((item) => item.routes);
 
           if (parsedRoutes.length > 0) {
+            setMacroFiles((prev) => prev.map((file) => {
+              const parsed = parsedByFile.find((item) => item.fileId === file.id);
+              return parsed ? { ...file, parsedRouteSteps: parsed.routes } : file;
+            }));
             handleImportRouteSteps(parsedRoutes);
             setActiveTab('asignacion-rutas');
-            setActiveRouteSourceFile(newFiles.find((file) => parsedRoutes.some((step) => step.code === step.code))?.name || routeFiles[0].name);
+            setActiveRouteSourceFile(routeFiles[0].name);
             showToast(
               'Puntos cargados en CAVI',
               parsedRoutes.length + ' PDV fueron incorporados automáticamente a Rutas y CAVIMAPS.',
