@@ -161,20 +161,47 @@ export async function parseRoutesFile(file: File, auditors: Auditor[]): Promise<
       'canalventas',
       'tipocanal',
       'categoria',
-      'tipopunto'
+      'tipopunto',
+      'canalpdv',
+      'tipopuntoventa'
     ]);
     const channel = channelRaw || 'Tradicional';
 
     // 4. Format (CM, PF, CDA)
-    const rawFormat = getVal(['formato', 'tipo', 'formatopunto']).toUpperCase();
-    let format: FormatType = 'CM';
-    if (rawFormat === 'CDA' || channel.toLowerCase().includes('cda') || channel.toLowerCase().includes('acopio')) {
-      format = 'CDA';
-    } else if (rawFormat === 'PF' || channel.toLowerCase().includes('tradicional') || channel.toLowerCase().includes('droguer') || channel.toLowerCase().includes('conveniencia')) {
-      format = 'PF';
-    } else {
-      format = 'CM';
-    }
+    const rawFormat = getVal([
+      'formato',
+      'tipo',
+      'formatopunto',
+      'formatopdv',
+      'tipopuntoventa',
+      'tipopuntodeventa',
+      'tipodepunto',
+      'tipodepdv'
+    ]).toUpperCase().trim();
+
+    // Clasificación operativa CAVI: CDA, PF y CM son categorías independientes.
+    // CDA debe reconocerse también cuando el archivo escribe "Centro de Acopio"
+    // o cuando el nombre/canal identifica explícitamente un centro de acopio.
+    const formatSource = [rawFormat, channel, name].join(' ').toLowerCase();
+    const isCda =
+      rawFormat === 'CDA' ||
+      formatSource.includes('centro de acopio') ||
+      formatSource.includes('centro acopio') ||
+      /(^|\\W)cda(\\W|$)/i.test(formatSource) ||
+      formatSource.includes('acopio');
+
+    const isPf =
+      rawFormat === 'PF' ||
+      formatSource.includes('punto físico') ||
+      formatSource.includes('punto fisico') ||
+      /(^|\\W)pf(\\W|$)/i.test(formatSource);
+
+    const isCm =
+      rawFormat === 'CM' ||
+      formatSource.includes('compumueble') ||
+      /(^|\\W)cm(\\W|$)/i.test(formatSource);
+
+    const format: FormatType = isCda ? 'CDA' : isPf ? 'PF' : isCm ? 'CM' : 'CM';
 
     // 5. Address and Municipality
     const address = getVal(['direccion', 'dirección', 'direccionestablecimiento', 'direccionmunicipio', 'ubicacion', 'ubicación', 'domicilio']) || 'La Guajira';
