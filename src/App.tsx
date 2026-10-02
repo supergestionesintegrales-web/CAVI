@@ -35,6 +35,7 @@ import { MacroFoldersScreen } from './components/screens/MacroFoldersScreen';
 import { LeaseScreen } from './components/screens/LeaseScreen';
 import { AlertsScreen } from './components/screens/AlertsScreen';
 import { parseLeasePointsFromMacroFiles, parseLeaseSalesFromMacroFiles, generateLeaseDataAlerts, LeaseDataAlert } from './utils/dataReconciliation';
+import { parseRoutesFile } from './utils/routesExcel';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabType>('dashboard-cavi');
@@ -483,6 +484,34 @@ export default function App() {
       });
       return Array.from(byKey.values());
     });
+
+    // CAVI: cada Excel/CSV/TXT cargado en Macros & Archivos también alimenta
+    // automáticamente la Hoja de Ruta y el mapa CAVIMAPS cuando contiene PDV.
+    void (async () => {
+      try {
+        const routeFiles = newFiles.filter((file) => !!file.rawFile);
+        if (routeFiles.length > 0) {
+          const parsedRoutes = (await Promise.all(
+            routeFiles.map((file) => parseRoutesFile(file.rawFile as File, auditors))
+          )).flat();
+
+          if (parsedRoutes.length > 0) {
+            handleImportRouteSteps(parsedRoutes);
+            setActiveTab('asignacion-rutas');
+            setActiveRouteSourceFile(newFiles.find((file) => parsedRoutes.some((step) => step.code === step.code))?.name || routeFiles[0].name);
+            showToast(
+              'Puntos cargados en CAVI',
+              parsedRoutes.length + ' PDV fueron incorporados automáticamente a Rutas y CAVIMAPS.',
+              'success'
+            );
+          }
+        }
+      } catch (error) {
+        console.error('Error procesando puntos para Rutas/CAVIMAPS:', error);
+        showToast('Archivo cargado', 'El archivo quedó en el repositorio, pero no se pudieron extraer puntos de ruta.', 'alert');
+      }
+    })();
+
     const previous = leasePoints;
     const result = parseLeasePointsFromMacroFiles(newFiles, previous);
     const salesResult = parseLeaseSalesFromMacroFiles(newFiles, result.points);
